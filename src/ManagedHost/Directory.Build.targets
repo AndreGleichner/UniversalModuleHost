@@ -17,6 +17,7 @@
       <_SourceFiles Include="$(TargetDir)$(TargetFramework)\publish\**\*.*" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(_SourceFiles)" DestinationFiles="@(_SourceFiles->'$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(_SourceFiles)" DestinationFiles="@(_SourceFiles->'$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" UseHardlinksIfPossible="true"/>
+    <RemoveDir Directories="$(TargetDir)$(TargetFramework)" />
   </Target>
 </Project>
