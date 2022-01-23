@@ -20,4 +20,16 @@
     <Copy SourceFiles="@(_SourceFiles)" DestinationFiles="@(_SourceFiles->'$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" UseHardlinksIfPossible="true"/>
     <RemoveDir Directories="$(TargetDir)$(TargetFramework)" />
   </Target>
+
+  <Target Name="BuildSampleModules" AfterTargets="Build">
+    <MSBuild
+      Projects="..\SampleManagedModule1\SampleManagedModule1.csproj"
+      Targets="Publish"
+      Properties="Configuration=$(Configuration);PublishDir=$(OutputPath)/../modules/SampleManagedModule1/" />
+
+    <MSBuild
+      Projects="..\SampleManagedModule2\SampleManagedModule2.csproj"
+      Targets="Publish"
+      Properties="Configuration=$(Configuration);PublishDir=$(OutputPath)/../modules/SampleManagedModule2/" />
+  </Target>
 </Project>
