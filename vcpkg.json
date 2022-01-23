@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "universal-module-host",
+  "version": "1.0.0",
+  "builtin-baseline": "772fe6cbce530cb3a5f0fee67b57e9861676e5d0",
+  "dependencies": [
+    "magic-enum",
+    {
+      "name": "spdlog",
+      "features": [ "wchar" ]
+    },
+    "wil"
+  ]
+}

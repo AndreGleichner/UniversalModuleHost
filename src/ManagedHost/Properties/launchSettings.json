@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ManagedHost": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="UserMacros">
+    <UmhRepoRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</UmhRepoRootDir>
+    <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(UmhRepoRootDir)\</SolutionDir>
+
+    <UmhIsDesignTimeBuild Condition="'$(DesignTimeBuild)'=='true' And '$(BuildingInsideVisualStudio)'=='true'">true</UmhIsDesignTimeBuild>
+    <UmhIsNativeProject Condition="'$(MSBuildProjectExtension)'=='.vcxproj'">true</UmhIsNativeProject>
+    <UmhIsDebug>$([System.Convert]::ToString( $([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), '[Dd]ebug'))).ToLower())</UmhIsDebug>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(UmhIsNativeProject)'!='true'">
+    <LangVersion>latest</LangVersion>
+    <DebugType>embedded</DebugType>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+
+  <PropertyGroup Label="UserMacros">
+    <UmhOutDir>$(UmhRepoRootDir)bin\$(Configuration)\</UmhOutDir>
+    <UmhIntDir>$(UmhRepoRootDir).int\$(Configuration)\$(Platform)\$(MSBuildProjectName)\</UmhIntDir>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IntDir>$(UmhIntDir)</IntDir>
+    <IntermediateOutputPath>$(UmhIntDir)</IntermediateOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(UmhIsNativeProject)'=='true'">
+    <!-- Leading property -->
+    <OutDir>$(UmhOutDir)</OutDir>
+    <OutputPath>$(UmhOutDir)</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(UmhIsNativeProject)'!='true' And '$(BuildingForLiveUnitTesting)' != 'true'">
+    <BaseOutputPath>$(UmhOutDir)</BaseOutputPath>
+    <!-- Leading property, by default extending BaseOutputPath -->
+    <OutputPath>$(UmhOutDir)</OutputPath>
+    <OutDir>$(UmhOutDir)</OutDir>
+    <BaseIntermediateOutputPath>$(IntermediateOutputPath)</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(UmhIsNativeProject)'!='true' And '$(BuildingForLiveUnitTesting)' == 'true'">
+    <BaseOutputPath Condition="'$(BaseOutputPath)' == ''">$(UmhOutDir)</BaseOutputPath>
+    <OutputPath Condition="'$(OutputPath)' == ''">$(BaseOutputPath)</OutputPath>
+    <OutDir Condition="'$(OutDir)' == ''">$(OutputPath)</OutDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(UmhIsNativeProject)'=='true'">
+    <ClCompile>
+      <MinimalRebuild Condition="'$(UmhIsDebug)'=='true'">false</MinimalRebuild>
+      <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level4</WarningLevel>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <!-- /guard:cf is incompatible with /ZI (...Edit and Continue) -->
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+
+    <Link>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+    </Link>
+
+    <ResourceCompile>
+      <PreprocessorDefinitions Condition="'$(UmhIsDebug)'=='true'">_DEBUG;DEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(UmhIsDebug)'!='true'">_NDEBUG;NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+</Project>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+  Need to publish to get all dependencies copied side-by-side to the native exe.
+  -->
+  <Target Name="PublishManagedHost" AfterTargets="Build" Condition="'$(UmhIsDesignTimeBuild)'!='true'">
+    <Message Importance="High" Text="Publishing ManagedHost" />
+
+    <MSBuild
+      Projects="$(ProjectPath)"
+      Targets="Publish"
+      Properties="Configuration=$(Configuration)" />
+
+    <Message Text="PublishManagedHost: Copying just published ManagedHost assemblies to native bin: $(TargetDir)" Importance="High"/>
+
+    <ItemGroup>
+      <_SourceFiles Include="$(TargetDir)$(TargetFramework)\publish\**\*.*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_SourceFiles)" DestinationFiles="@(_SourceFiles->'$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+</Project>

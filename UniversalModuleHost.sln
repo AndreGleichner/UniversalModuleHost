@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B1E4D5E2-8803-4879-AC3A-7AC5542D4FCA}"
+	ProjectSection(SolutionItems) = preProject
+		.clang-format = .clang-format
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		README.md = README.md
+		vcpkg.json = vcpkg.json
+		version.json = version.json
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalModuleHost", "src\UniversalModuleHost\UniversalModuleHost.vcxproj", "{7185569D-3107-4776-8FB9-8A45E2B2B8B0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagedHost", "src\ManagedHost\ManagedHost.csproj", "{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Debug|Any CPU.Build.0 = Debug|x64
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Debug|Win32.Build.0 = Debug|Win32
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Debug|x64.ActiveCfg = Debug|x64
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Debug|x64.Build.0 = Debug|x64
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Release|Any CPU.ActiveCfg = Release|Win32
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Release|Win32.ActiveCfg = Release|Win32
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Release|Win32.Build.0 = Release|Win32
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Release|x64.ActiveCfg = Release|x64
+		{7185569D-3107-4776-8FB9-8A45E2B2B8B0}.Release|x64.Build.0 = Release|x64
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}.Debug|x64.Build.0 = Debug|Any CPU
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}.Release|Win32.ActiveCfg = Release|Any CPU
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}.Release|x64.ActiveCfg = Release|Any CPU
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1AC61FA1-3724-4B47-A009-786AC7D8D4EB}
+	EndGlobalSection
+EndGlobal
