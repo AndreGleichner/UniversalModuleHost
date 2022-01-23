@@ -79,4 +79,9 @@
   <ItemGroup>
     <None Include="Directory.Build.targets" />
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="UniversalModuleHost.manifest">
+      <Filter>res</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>
