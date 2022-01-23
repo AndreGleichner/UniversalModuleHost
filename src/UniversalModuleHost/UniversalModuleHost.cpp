@@ -276,7 +276,7 @@ void FilterEnvVars()
     ::SetEnvironmentVariableW(L"DOTNET_CLI_TELEMETRY_OPTOUT", L"1");
     ::SetEnvironmentVariableW(L"DOTNET_SKIP_FIRST_TIME_EXPERIENCE", L"1");
 
-    // When our app is using a per app installed .Net we may want to prevent using any global :net installation parts.
+    // When our app is using a per app installed .Net we may want to prevent using any global .Net installation parts.
     // Unfortunately .Net servicing isn't trivial to disable as this requires tweaking the .Net deps file.
     // https://github.com/dotnet/core-setup/blob/master/Documentation/design-docs/multilevel-sharedfx-lookup.md
     ::SetEnvironmentVariableW(L"DOTNET_MULTILEVEL_LOOKUP", L"0");

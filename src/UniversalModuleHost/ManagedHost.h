@@ -15,6 +15,10 @@
 
 #define INIT_HOSTFXR_FROM INIT_HOSTFXR_FROM_CMDLINE
 
+// documented here: https://github.com/dotnet/runtime/issues/46128
+typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_get_dotnet_environment_info_fn)(const char_t* dotnet_root, void* reserved,
+    hostfxr_get_dotnet_environment_info_result_fn result, void* result_context);
+
 class ManagedHost final
 {
 public:
@@ -36,6 +40,9 @@ private:
     void*                        CreateFunction(const char_t* name) const;
     static void HOSTFXR_CALLTYPE ErrorWriter(const char_t* message);
 
+    static void HOSTFXR_CALLTYPE DotnetEnvInfo(
+        const struct hostfxr_dotnet_environment_info* info, void* result_context);
+
     void* LoadLib(const char_t* path) const;
     void* GetExport(void* h, const char* name) const;
 
@@ -51,12 +58,13 @@ private:
 #    error invalid INIT_HOSTFXR_FROM
 #endif
 
-    hostfxr_get_runtime_delegate_fn       getFunctionPointerFactory_ = nullptr;
-    hostfxr_close_fn                      closeHostContext_          = nullptr;
-    hostfxr_get_runtime_property_value_fn getRuntimeProperty_        = nullptr;
-    hostfxr_set_runtime_property_value_fn setRuntimeProperty_        = nullptr;
-    hostfxr_get_runtime_properties_fn     getAllRuntimeProperties_   = nullptr;
-    hostfxr_set_error_writer_fn           setErrorWriter_            = nullptr;
+    hostfxr_get_runtime_delegate_fn        getFunctionPointerFactory_ = nullptr;
+    hostfxr_close_fn                       closeHostContext_          = nullptr;
+    hostfxr_get_runtime_property_value_fn  getRuntimeProperty_        = nullptr;
+    hostfxr_set_runtime_property_value_fn  setRuntimeProperty_        = nullptr;
+    hostfxr_get_runtime_properties_fn      getAllRuntimeProperties_   = nullptr;
+    hostfxr_set_error_writer_fn            setErrorWriter_            = nullptr;
+    hostfxr_get_dotnet_environment_info_fn getDotnetEnvInfo_          = nullptr;
 
     hostfxr_handle hostContext_ = nullptr;
 

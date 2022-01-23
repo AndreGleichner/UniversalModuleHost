@@ -114,6 +114,24 @@ void HOSTFXR_CALLTYPE ManagedHost::ErrorWriter(const char_t* message)
     SPDLOG_ERROR(L".Net error: {}", message);
 }
 
+void HOSTFXR_CALLTYPE ManagedHost::DotnetEnvInfo(
+    const struct hostfxr_dotnet_environment_info* info, void* result_context)
+{
+    SPDLOG_INFO(L".Net environment info:");
+    SPDLOG_INFO(L"    hostfxr: {} @ {}", info->hostfxr_version, info->hostfxr_commit_hash);
+
+    for (int sdk = 0; sdk < info->sdk_count; ++sdk)
+    {
+        SPDLOG_INFO(L"    SDK    : {} @ {}", info->sdks[sdk].version, info->sdks[sdk].path);
+    }
+
+    for (int fx = 0; fx < info->framework_count; ++fx)
+    {
+        SPDLOG_INFO(L"    FX     : {} [{}] @ {}", info->frameworks[fx].version, info->frameworks[fx].name,
+            info->frameworks[fx].path);
+    }
+}
+
 // Using the nethost library, discover the location of hostfxr and get exports
 bool ManagedHost::LoadFxr()
 {
@@ -156,11 +174,17 @@ bool ManagedHost::LoadFxr()
     GETEXPORT(setRuntimeProperty_,          hostfxr_set_runtime_property_value);
     GETEXPORT(getAllRuntimeProperties_,     hostfxr_get_runtime_properties);
     GETEXPORT(setErrorWriter_,              hostfxr_set_error_writer);
+    GETEXPORT(getDotnetEnvInfo_,            hostfxr_get_dotnet_environment_info);
     // clang-format on
 
 #undef GETEXPORT
 
     setErrorWriter_(ErrorWriter);
+
+    if (spdlog::should_log(spdlog::level::info))
+    {
+        getDotnetEnvInfo_(nullptr, nullptr, DotnetEnvInfo, this);
+    }
 
     return true;
 }
