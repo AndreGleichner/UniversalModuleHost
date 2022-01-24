@@ -154,7 +154,6 @@ bool StartAsync()
 
 
 #pragma region Logging
-#include "spdlog/pattern_formatter.h"
 namespace
 {
 class ThreadnameFlagFormatter : public spdlog::custom_flag_formatter
@@ -218,6 +217,9 @@ void SetDefaultLogger()
 
         sinks.push_back(console_sink);
     }
+
+    auto daily_file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(L"c:\\temp\\native-logfile.txt", 23, 59);
+    sinks.push_back(daily_file_sink);
 
     auto logger = std::make_shared<spdlog::logger>("umh", sinks.begin(), sinks.end());
     logger->set_level(spdlog::level::trace);
