@@ -70,53 +70,18 @@ namespace ManagedHost
 
         private static void ConfigureLogging(IConfigurationRoot config)
         {
-            // based on AnsiConsoleThemes.Code:
-            // https://github.com/serilog/serilog-sinks-console/blob/dev/src/Serilog.Sinks.Console/Sinks/SystemConsole/Themes/AnsiConsoleThemes.cs#L63
-            // https://www.ditig.com/256-colors-cheat-sheet
-
-            var theme = new TemplateTheme(
-                new Dictionary<TemplateThemeStyle, string>
-                {
-                    [TemplateThemeStyle.Text] = "\x1b[38;5;0253m",
-                    [TemplateThemeStyle.SecondaryText] = "\x1b[38;5;0246m",
-                    [TemplateThemeStyle.TertiaryText] = "\x1b[38;5;0242m",
-                    [TemplateThemeStyle.Invalid] = "\x1b[33;1m",
-                    [TemplateThemeStyle.Null] = "\x1b[38;5;0038m",
-                    [TemplateThemeStyle.Name] = "\x1b[38;5;0081m",
-                    [TemplateThemeStyle.String] = "\x1b[38;5;0216m",
-                    [TemplateThemeStyle.Number] = "\x1b[38;5;151m",
-                    [TemplateThemeStyle.Boolean] = "\x1b[38;5;0038m",
-                    [TemplateThemeStyle.Scalar] = "\x1b[38;5;0079m",
-                    [TemplateThemeStyle.LevelVerbose] = "\x1b[37m",
-                    [TemplateThemeStyle.LevelDebug] = "\x1b[37m",
-                    [TemplateThemeStyle.LevelInformation] = "\x1b[38;5;0034m",//"\x1b[37;1m",
-                    [TemplateThemeStyle.LevelWarning] = "\x1b[38;5;0229m",
-                    [TemplateThemeStyle.LevelError] = "\x1b[38;5;0197m\x1b[48;5;0238m",
-                    [TemplateThemeStyle.LevelFatal] = "\x1b[38;5;0197m\x1b[48;5;0238m",
-                });
-
             // https://github.com/serilog/serilog/wiki/Configuration-Basics
-            string template = "[{@t:yyyy-MM-dd HH:mm:ss.fff zzz}] [m{@l:u3}] {@m,-65}[{ProcessId}='{ProcessName}'/{ThreadId}='{ThreadName}'][{SourceContext}]\n";
-            var formatterConsole = new ExpressionTemplate(template, theme: theme);
-            var formatterFile = new ExpressionTemplate(template);
-
-            var logFile = config.GetValue<string>("Runtime:LogOutputFile");
+            var formatterToNative = new ExpressionTemplate("{@m,-65}[{ThreadId}='{ThreadName}']");
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.WithThreadId()
                 .Enrich.WithThreadName()
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()
-                .WriteTo.Console(formatter: formatterConsole)
-                .WriteTo.File(path: logFile,
-                    formatter: formatterFile,
-                    rollingInterval: RollingInterval.Day,
-                    rollOnFileSizeLimit: true)
+                .WriteTo.NativeSink(formatter: formatterToNative)
                 .MinimumLevel.Verbose()
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
-
-            Log.Information($"You may find a log file here: {logFile}");
         }
 
 

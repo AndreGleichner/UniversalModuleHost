@@ -138,6 +138,7 @@ namespace ManagedHost
 
     internal static class NativeMethods
     {
+        #region OnProgress
         [DllImport("UniversalModuleHost64.exe", EntryPoint = "OnProgressFromManaged")]
         static extern int OnProgressFromManaged64(IntPtr thisHost, int progress);
 
@@ -151,5 +152,22 @@ namespace ManagedHost
             else
                 return OnProgressFromManaged64(thisHost, progress);
         }
+        #endregion
+
+        #region OnLog
+        [DllImport("UniversalModuleHost64.exe", EntryPoint = "OnLog", CharSet = CharSet.Unicode)]
+        static extern int OnLog64(int level, string message);
+
+        [DllImport("UniversalModuleHost32.exe", EntryPoint = "OnLog", CharSet = CharSet.Unicode)]
+        static extern int OnLog32(int level, string message);
+
+        public static int OnLog(int level, string message)
+        {
+            if (IntPtr.Size == 4)
+                return OnLog32(level, message);
+            else
+                return OnLog64(level, message);
+        }
+        #endregion
     }
 }

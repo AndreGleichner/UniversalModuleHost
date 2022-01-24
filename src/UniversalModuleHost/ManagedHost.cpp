@@ -189,6 +189,42 @@ bool ManagedHost::LoadFxr()
     return true;
 }
 
+#pragma region LoggingFromManaged
+// spdlog::level::level_enum:
+// enum level_enum
+// {
+//    trace    = SPDLOG_LEVEL_TRACE, =0
+//    debug    = SPDLOG_LEVEL_DEBUG,
+//    info     = SPDLOG_LEVEL_INFO,
+//    warn     = SPDLOG_LEVEL_WARN,
+//    err      = SPDLOG_LEVEL_ERROR,
+//    critical = SPDLOG_LEVEL_CRITICAL,
+//    off      = SPDLOG_LEVEL_OFF, = 6
+//    n_levels
+// };
+
+enum class SerilogLevel
+{
+    Verbose,
+    Debug,
+    Information,
+    Warning,
+    Error,
+    Fatal
+};
+
+// Serilog messages from managed code
+extern "C" __declspec(dllexport) void OnLog(int serilogLevel, PCWSTR message)
+{
+    spdlog::level::level_enum spdlogLevel = spdlog::level::critical;
+
+    if (serilogLevel >= (int)SerilogLevel::Verbose && serilogLevel <= (int)SerilogLevel::Fatal)
+        spdlogLevel = (spdlog::level::level_enum)serilogLevel;
+
+    SPDLOG_LOGGER_CALL(spdlog::default_logger_raw(), spdlogLevel, message);
+}
+#pragma endregion
+
 extern "C" __declspec(dllexport) int OnProgressFromManaged(void* thisHost, int progress)
 {
     SPDLOG_INFO(L"OnProgressFromManaged {}", thisHost);
