@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ManagedModuleContract
 {
-    public interface IModuleHost
+    public interface IModuleHost : IDisposable
     {
         bool Subscribe(ulong id);
         bool Unsubscribe(ulong id);
