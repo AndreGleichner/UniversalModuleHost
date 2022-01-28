@@ -98,6 +98,7 @@ bool ManagedHost::RunAsync()
 #endif
 
         SPDLOG_INFO(L"Managed Main returned: {}", res);
+        spdlog::default_logger_raw()->flush();
     });
 
     // w/o this tiny sleep the final getc(stdin) causes a crash for unknown reason.
