@@ -2,6 +2,7 @@
 
 #include "SpdlogCustomFormatter.h"
 #include "UniversalModuleBrokerService.h"
+#include "BrokerInstance.h"
 
 #pragma region Logging
 namespace
@@ -23,6 +24,8 @@ void SetDefaultLogger()
 }
 }
 #pragma endregion
+
+BrokerInstance g_broker;
 
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -74,6 +77,8 @@ int APIENTRY wWinMain(
 
                 // Re-run to utilize the newly created console.
                 SetDefaultLogger();
+
+                FAIL_FAST_IF_FAILED(g_broker.Init());
             }
             SPDLOG_INFO("UniversalModuleBroker started in console mode");
         }

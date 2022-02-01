@@ -82,21 +82,7 @@
 #include <spdlog/sinks/msvc_sink.h>
 #include <spdlog/sinks/daily_file_sink.h>
 
-#include <magic_enum.hpp>
-
-namespace magic_enum::bitwise_operators
-{
-template <typename T>
-using IsEnum = std::enable_if_t<std::is_enum_v<T>>;
-
-template <typename E, typename = IsEnum<E>>
-constexpr bool AnyBitSet(E lhs, E rhs) noexcept
-{
-    return static_cast<underlying_type_t<E>>(0) !=
-           (static_cast<underlying_type_t<E>>(lhs) & static_cast<underlying_type_t<E>>(rhs));
-}
-}
-using namespace magic_enum::bitwise_operators;
+#include "magic_enum_extensions.h"
 
 #include "resource.h"
 #include "HResult.h"

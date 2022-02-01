@@ -27,10 +27,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="ChildProcesses.cpp">
+    <ClCompile Include="ChildProcess.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="ChildProcess.cpp">
+    <ClCompile Include="BrokerInstance.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,10 +47,10 @@
     <ClInclude Include="pch.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="ChildProcesses.h">
+    <ClInclude Include="ChildProcess.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="ChildProcess.h">
+    <ClInclude Include="BrokerInstance.h">
       <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>
@@ -70,6 +70,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="broker.json" />
+    <CopyFileToFolders Include="broker.json" />
   </ItemGroup>
 </Project>
