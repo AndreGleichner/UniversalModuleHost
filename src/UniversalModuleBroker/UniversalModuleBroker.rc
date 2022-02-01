@@ -78,12 +78,12 @@ BEGIN
         BLOCK "040704b0"
         BEGIN
             VALUE "CompanyName", "Andre Gleichner"
-            VALUE "FileDescription", "Universal Module Host"
+            VALUE "FileDescription", "Universal Module Broker"
             VALUE "FileVersion", "1.0.0.1"
-            VALUE "InternalName", "UniversalModuleHost.exe"
+            VALUE "InternalName", "UniversalModuleBroker.exe"
             VALUE "LegalCopyright", "Copyright (C) 2022"
-            VALUE "OriginalFilename", "UniversalModuleHost.exe"
-            VALUE "ProductName", "Universal Module Host"
+            VALUE "OriginalFilename", "UniversalModuleBroker.exe"
+            VALUE "ProductName", "Universal Module Broker"
             VALUE "ProductVersion", "1.0.0.1"
         END
     END
@@ -91,6 +91,18 @@ BEGIN
     BEGIN
         VALUE "Translation", 0x407, 1200
     END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_SERVICE_DISPLAY_NAME "Universal Module Broker"
+    IDS_SERVICE_COMMENT     "Universal Module Broker"
 END
 
 #endif    // English (United States) resources

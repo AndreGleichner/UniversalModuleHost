@@ -1,6 +1,8 @@
 #pragma once
 
 #include <filesystem>
+#include <functional>
+#include <TlHelp32.h>
 
 namespace Process
 {

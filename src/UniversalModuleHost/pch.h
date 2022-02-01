@@ -1,6 +1,6 @@
 #pragma once
 
-#define _WIN32_WINNT _WIN32_WINNT_WIN7
+#define _WIN32_WINNT _WIN32_WINNT_WIN8
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS // einige CString-Konstruktoren sind explizit
 

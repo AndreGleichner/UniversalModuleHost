@@ -15,44 +15,61 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="UniversalModuleHost.cpp">
+    <ClCompile Include="UniversalModuleBroker.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="ManagedHost.cpp">
+    <ClCompile Include="ServiceBase.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="UniversalModuleBrokerService.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="ChildProcesses.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="ChildProcess.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="UniversalModuleHost.h">
+    <ClInclude Include="ServiceBase.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="ManagedHost.h">
+    <ClInclude Include="UniversalModuleBrokerService.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="error_codes.h">
+    <ClInclude Include="resource.h">
       <Filter>inc</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>res</Filter>
+    <ClInclude Include="ChildProcesses.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ChildProcess.h">
+      <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="UniversalModuleHost.rc">
+    <ResourceCompile Include="UniversalModuleBroker.rc">
       <Filter>res</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Directory.Build.targets" />
-  </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="UniversalModuleHost.manifest">
+    <Manifest Include="UniversalModuleBroker.manifest">
       <Filter>res</Filter>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="MsgID.mc">
+      <Filter>res</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="broker.json" />
   </ItemGroup>
 </Project>

@@ -45,9 +45,9 @@ public:
     struct ServiceTraits
     {
         // pass dependencies as | separated list of service names
-        ServiceTraits(PCWSTR baseName, PCWSTR dependencies, PCWSTR displayname, PCWSTR description,
+        ServiceTraits(PCWSTR name, PCWSTR dependencies, PCWSTR displayname, PCWSTR description,
             AcceptControls acceptControls, WORD eventCategory = (WORD)-1, DWORD eventID = (DWORD)-1)
-            : BaseName(baseName)
+            : Name(name)
             , Dependencies(dependencies)
             , Displayname(displayname)
             , Description(description)
@@ -62,12 +62,7 @@ public:
             return EventCategory != (WORD)-1 && EventID != (DWORD)-1;
         }
 
-        std::wstring Name(const std::wstring& tag) const
-        {
-            return BaseName + L"-" + tag;
-        }
-
-        std::wstring   BaseName;
+        std::wstring   Name;
         std::wstring   Dependencies;
         std::wstring   Displayname;
         std::wstring   Description;
@@ -76,9 +71,7 @@ public:
         AcceptControls AcceptControls;
     };
 
-    // commandLine allows for multiple services based on the same derived class
-    // It may consist of a tag, a single word appended to the service name.
-    ServiceBase(const ServiceTraits& traits, PCWSTR commandLine = nullptr);
+    ServiceBase(const ServiceTraits& traits);
     virtual ~ServiceBase() = default;
 
     static bool CmdlineAction(PCWSTR commandLine, const ServiceTraits& traits, int& exitCode);
@@ -167,7 +160,6 @@ protected:
 #pragma endregion
 
     ServiceTraits         Traits;
-    std::wstring          Tag; // service name suffix
     SERVICE_STATUS_HANDLE StatusHandle{};
     SERVICE_STATUS        Status{SERVICE_WIN32_OWN_PROCESS};
 
@@ -182,15 +174,16 @@ private:
     HANDLE     waitForStop_{};
 
 #pragma region CmdlineActions
-    static HRESULT Register(const ServiceTraits& traits, const std::wstring& tag);
-    static HRESULT Unregister(const ServiceTraits& traits, const std::wstring& tag);
-    static HRESULT Start(const ServiceTraits& traits, const std::wstring& tag);
-    static HRESULT Stop(const ServiceTraits& traits, const std::wstring& tag);
-    static HRESULT Restart(const ServiceTraits& traits, const std::wstring& tag);
-    static HRESULT StopImpl(const ServiceTraits& traits, const std::wstring& tag, bool deleteService);
+    static HRESULT Register(const ServiceTraits& traits, const std::wstring& ppl);
+    static HRESULT Unregister(const ServiceTraits& traits, const std::wstring& unused);
+    static HRESULT Start(const ServiceTraits& traits, const std::wstring& unused);
+    static HRESULT Stop(const ServiceTraits& traits, const std::wstring& unused);
+    static HRESULT Restart(const ServiceTraits& traits, const std::wstring& unused);
 
-    static HRESULT AddEventSource(const ServiceTraits& traits, const std::wstring& tag);
-    static HRESULT RemoveEventSource(const ServiceTraits& traits, const std::wstring& tag);
+    static HRESULT StopImpl(const ServiceTraits& traits, bool deleteService);
+
+    static HRESULT AddEventSource(const ServiceTraits& traits);
+    static HRESULT RemoveEventSource(const ServiceTraits& traits);
 #pragma endregion
 
     static void WINAPI ServiceMain_(_In_ DWORD argc, _In_ PWSTR* argv);

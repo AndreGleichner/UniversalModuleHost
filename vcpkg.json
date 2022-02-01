@@ -9,6 +9,7 @@
       "name": "spdlog",
       "features": [ "wchar" ]
     },
-    "wil"
+    "wil",
+    "nlohmann-json"
   ]
 }

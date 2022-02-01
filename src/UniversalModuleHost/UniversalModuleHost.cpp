@@ -1,13 +1,12 @@
-#include "stdafx.h"
+#include "pch.h"
 #include <shellapi.h>
+
+#include "SpdlogCustomFormatter.h"
 
 #include "UniversalModuleHost.h"
 #include "ManagedHost.h"
 
-#ifdef _WIN32
-#    include "Process.h"
-#    include "UniversalModuleHostService.h"
-#endif
+#include "UmhProcess.h"
 
 namespace ModuleHostApp
 {
@@ -17,47 +16,8 @@ bool StartAsync()
 }
 }
 
-#pragma region Logging
 namespace
 {
-class ThreadnameFlagFormatter : public spdlog::custom_flag_formatter
-{
-public:
-    void format(const spdlog::details::log_msg&, const std::tm&, spdlog::memory_buf_t& dest) override
-    {
-        std::wstring threadDetails;
-        auto         threadname = Process::ThreadName();
-        if (threadname.empty())
-            threadDetails = std::format(L"{}", ::GetCurrentThreadId());
-        else
-            threadDetails = std::format(L"{}='{}'", ::GetCurrentThreadId(), threadname);
-        spdlog::memory_buf_t buf;
-        spdlog::details::os::wstr_to_utf8buf(threadDetails, buf);
-        dest.append(buf);
-    }
-
-    std::unique_ptr<custom_flag_formatter> clone() const override
-    {
-        return spdlog::details::make_unique<ThreadnameFlagFormatter>();
-    }
-};
-class ProcessnameFlagFormatter : public spdlog::custom_flag_formatter
-{
-public:
-    void format(const spdlog::details::log_msg&, const std::tm&, spdlog::memory_buf_t& dest) override
-    {
-        spdlog::memory_buf_t buf;
-        spdlog::details::os::wstr_to_utf8buf(
-            std::format(L"{}='{}'", ::GetProcessId(::GetCurrentProcess()), Process::Name()), buf);
-        dest.append(buf);
-    }
-
-    std::unique_ptr<custom_flag_formatter> clone() const override
-    {
-        return spdlog::details::make_unique<ProcessnameFlagFormatter>();
-    }
-};
-
 void SetDefaultLogger()
 {
     // https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
@@ -72,7 +32,7 @@ void SetDefaultLogger()
 
     if (::GetStdHandle(STD_OUTPUT_HANDLE))
     {
-        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        auto console_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
 
         auto formatter = std::make_unique<spdlog::pattern_formatter>();
         formatter->add_flag<ThreadnameFlagFormatter>('t').add_flag<ProcessnameFlagFormatter>('P').set_pattern(
@@ -99,11 +59,7 @@ void SetDefaultLogger()
     logger->set_level(spdlog::level::trace);
     spdlog::set_default_logger(logger);
 }
-}
-#pragma endregion
 
-namespace
-{
 // Remove/Add certain environment variables.
 //
 // E.g. prevent dll injections like:
@@ -166,8 +122,7 @@ void FilterEnvVars()
 }
 }
 
-int APIENTRY wWinMain(
-    _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
+int main()
 {
     FilterEnvVars();
 
@@ -187,49 +142,16 @@ int APIENTRY wWinMain(
         wchar_t               logMessage[sizeOfLogMessageWithNul];
         if (SUCCEEDED(wil::GetFailureLogString(logMessage, sizeOfLogMessageWithNul, failure)))
         {
-            spdlog::error(logMessage);
+            // TODO: log to broker
+            // spdlog::error(logMessage);
         }
     });
 #pragma endregion
 
     int exitCode = 0;
-    SPDLOG_INFO(L"Starting UniversalModuleHost '{}'", lpCmdLine);
+    SPDLOG_INFO(L"Starting UniversalModuleHost '{}'", ::GetCommandLineW());
     auto logExit = wil::scope_exit([&] { SPDLOG_INFO("Exiting UniversalModuleHost: {}", exitCode); });
 
-#ifdef _WIN32
-    if (Process::IsWindowsService())
-    {
-        UniversalModuleHostService service(lpCmdLine);
-        exitCode = service.Run();
-    }
-    else
-    {
-        if (!ServiceBase::CmdlineAction(lpCmdLine, UniversalModuleHostService::UMHTraits, exitCode))
-        {
-            if (::AllocConsole())
-            {
-                ::SetConsoleTitleW(L"UniversalModuleHost Debug Console");
-                FILE* unused;
-                // Re-initialize the C runtime "FILE" handles
-                freopen_s(&unused, "CONIN$", "r", stdin);
-                freopen_s(&unused, "CONOUT$", "w", stdout);
-                freopen_s(&unused, "CONOUT$", "w", stderr);
-
-                std::ios::sync_with_stdio();
-
-                // Re-run to utilize the newly created console.
-                SetDefaultLogger();
-            }
-            SPDLOG_INFO("UniversalModuleHost started in console mode");
-
-            if (ModuleHostApp::StartAsync())
-                (void)getc(stdin);
-            else
-                exitCode = 1;
-        }
-    }
-#else
-#endif
 
     return exitCode;
 }

@@ -1,0 +1,34 @@
+{
+  "ChildProcesses": [
+    {
+      "GroupName": "A",
+      "Session": "Broker",
+      "Modules": [
+        "SampleManagedModule1"
+      ]
+    },
+    {
+      "GroupName": "B",
+      "Session": "Broker",
+      "Modules": [
+        "SampleManagedModule2"
+      ]
+    },
+    {
+      "GroupName": "UI",
+      "Session": "AllUsers",
+      "IntegrityLevel": "Higher",
+      "Modules": [
+        "SampleManagedModuleUi"
+      ]
+    },
+    {
+      "GroupName": "UI",
+      "Session": "AllUsers",
+      "IntegrityLevel": "Default",
+      "Modules": [
+        "SampleManagedModuleUi"
+      ]
+    }
+  ]
+}

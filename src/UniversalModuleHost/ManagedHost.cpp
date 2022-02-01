@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 
 #include "ManagedHost.h"
 #include "error_codes.h"
@@ -18,7 +18,7 @@
 
 #endif
 
-#include "Process.h"
+#include "UmhProcess.h"
 
 using string_t = std::basic_string<char_t>;
 

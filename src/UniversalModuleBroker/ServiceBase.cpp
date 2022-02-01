@@ -1,20 +1,16 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ServiceBase.h"
-#include "Process.h"
+#include "UmhProcess.h"
 #include <Windows.h>
 #include <dbt.h>
 
 ServiceBase* ServiceBase::_this = nullptr;
 
-ServiceBase::ServiceBase(const ServiceTraits& traits, PCWSTR commandLine /*= nullptr*/) : Traits(traits)
+ServiceBase::ServiceBase(const ServiceTraits& traits) : Traits(traits)
 {
-    FAIL_FAST_IF_MSG(
-        std::wstring(commandLine).contains(L" "), "commandLine should be a single word (the unique service tag)");
-
     Traits = traits;
-    Tag    = commandLine;
 
-    SPDLOG_TRACE(L"Creating service instance '{}' depending on '{}'", Traits.Name(Tag), Traits.Dependencies);
+    SPDLOG_TRACE(L"Creating service instance '{}' depending on '{}'", Traits.Name, Traits.Dependencies);
     FAIL_FAST_IF_MSG(_this != nullptr, "There shall be only one ServiceBase based service in a module.");
 
     _this = this;
@@ -29,20 +25,38 @@ bool ServiceBase::CmdlineAction(PCWSTR commandLine, const ServiceTraits& traits,
     struct Action
     {
         std::wstring                                               Arg;
+        std::wstring                                               Option;
         std::function<HRESULT(const ServiceTraits&, std::wstring)> Func;
     };
-    Action actions[] = {{L"register", Register}, {L"unregister", Unregister}, {L"start", Start}, {L"stop", Stop},
-        {L"restart", Restart}};
+    // clang-format off
+    Action actions[] =
+    {
+        {L"register",   L"ppl", Register}, // e.g. "--register" or "--register --ppl"
+        {L"unregister", L"",    Unregister},
+        {L"start",      L"",    Start},
+        {L"stop",       L"",    Stop},
+        {L"restart",    L"",    Restart}
+    };
+    // clang-format on
 
     std::wsmatch match;
     for (auto a : actions)
     {
-        std::wstring pat = std::format(L"[ ]*(--{}|-{})[ ]+([0-9a-z_]+)[ ]*", a.Arg, a.Arg[0]);
+        std::wstring pat;
+        if (a.Option.empty())
+            pat = std::format(L"^[ ]*--{}[ ]*$", a.Arg);
+        else
+            pat = std::format(L"^[ ]*--{}([ ]+--{}|)[ ]*$", a.Arg, a.Option);
 
         std::wregex re(pat, std::regex::icase);
-        if (std::regex_match(cmdLine, match, re) && match.size() == 3)
+        if (std::regex_match(cmdLine, match, re) && (match.size() == 2 || match.size() == 3))
         {
-            HRESULT hres = a.Func(traits, match[2]);
+            HRESULT hres;
+            if (a.Option.empty())
+                hres = a.Func(traits, L"");
+            else
+                hres = a.Func(traits, match.size() == 2 ? L"0" : L"1");
+
             SPDLOG_INFO(L"CmdlineAction returned: {}", HResultToString(hres));
             if (FAILED(hres))
                 exitCode = 1;
@@ -53,17 +67,17 @@ bool ServiceBase::CmdlineAction(PCWSTR commandLine, const ServiceTraits& traits,
     return false;
 }
 
-HRESULT ServiceBase::Register(const ServiceTraits& traits, const std::wstring& tag)
+HRESULT ServiceBase::Register(const ServiceTraits& traits, const std::wstring& ppl)
 {
     SPDLOG_TRACE(L"->");
 
-    std::wstring imagePath(L"\"" + std::wstring(wil::GetModuleFileNameW().get()) + L"\" " + traits.Name(tag));
+    std::wstring imagePath(L"\"" + std::wstring(wil::GetModuleFileNameW().get()) + L"\" " + traits.Name);
 
     wil::unique_schandle scm(::OpenSCManagerW(nullptr, nullptr, SC_MANAGER_ALL_ACCESS));
     RETURN_LAST_ERROR_IF_NULL_MSG(scm.get(), "OpenSCManagerW failed");
 
     wil::unique_schandle service(
-        ::OpenServiceW(scm.get(), traits.Name(tag).c_str(), SERVICE_QUERY_CONFIG | SERVICE_CHANGE_CONFIG));
+        ::OpenServiceW(scm.get(), traits.Name.c_str(), SERVICE_QUERY_CONFIG | SERVICE_CHANGE_CONFIG));
 
     if (service)
     {
@@ -97,7 +111,7 @@ HRESULT ServiceBase::Register(const ServiceTraits& traits, const std::wstring& t
         serviceDependencies += L"|";
         std::replace(serviceDependencies.begin(), serviceDependencies.end(), L'|', L'\0');
 
-        wil::unique_schandle serv(::CreateServiceW(scm.get(), traits.Name(tag).c_str(), traits.Displayname.c_str(),
+        wil::unique_schandle serv(::CreateServiceW(scm.get(), traits.Name.c_str(), traits.Displayname.c_str(),
             SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, imagePath.c_str(),
             nullptr, nullptr, serviceDependencies.c_str(), nullptr, L""));
 
@@ -105,28 +119,39 @@ HRESULT ServiceBase::Register(const ServiceTraits& traits, const std::wstring& t
         SERVICE_DESCRIPTION desc = {(PTSTR)d.c_str()};
 
         RETURN_IF_WIN32_BOOL_FALSE(::ChangeServiceConfig2W(serv.get(), SERVICE_CONFIG_DESCRIPTION, &desc));
+
+        if (ppl == L"1")
+        {
+            SPDLOG_TRACE(L"Register as AM-PPL");
+
+            // TODO: the doc says we should call SetServiceObjectSecurity()
+            // https://docs.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-setserviceobjectsecurity
+
+            SERVICE_LAUNCH_PROTECTED_INFO protInfo{SERVICE_LAUNCH_PROTECTED_ANTIMALWARE_LIGHT};
+            RETURN_IF_WIN32_BOOL_FALSE(::ChangeServiceConfig2W(serv.get(), SERVICE_CONFIG_LAUNCH_PROTECTED, &protInfo));
+        }
     }
 
-    RETURN_IF_FAILED(AddEventSource(traits, tag));
+    RETURN_IF_FAILED(AddEventSource(traits));
 
     SPDLOG_TRACE(L"<-");
     return S_OK;
 }
 
-HRESULT ServiceBase::Unregister(const ServiceTraits& traits, const std::wstring& tag)
+HRESULT ServiceBase::Unregister(const ServiceTraits& traits, const std::wstring& unused)
 {
     SPDLOG_TRACE(L"->");
 
     // Stop and Delete; ignore return value, so that further unreg steps may run
-    StopImpl(traits, tag, true);
+    StopImpl(traits, true);
 
-    RemoveEventSource(traits, tag);
+    RemoveEventSource(traits);
 
     SPDLOG_TRACE(L"<-");
     return S_OK;
 }
 
-HRESULT ServiceBase::Start(const ServiceTraits& traits, const std::wstring& tag)
+HRESULT ServiceBase::Start(const ServiceTraits& traits, const std::wstring& unused)
 {
     SPDLOG_TRACE(L"->");
 
@@ -134,7 +159,7 @@ HRESULT ServiceBase::Start(const ServiceTraits& traits, const std::wstring& tag)
     RETURN_LAST_ERROR_IF_NULL_MSG(scm.get(), "OpenSCManagerW failed");
 
     wil::unique_schandle service(
-        ::OpenServiceW(scm.get(), traits.Name(tag).c_str(), SERVICE_STOP | SERVICE_START | SERVICE_CHANGE_CONFIG));
+        ::OpenServiceW(scm.get(), traits.Name.c_str(), SERVICE_STOP | SERVICE_START | SERVICE_CHANGE_CONFIG));
     RETURN_LAST_ERROR_IF_NULL_MSG(service.get(), "OpenServiceW failed");
 
     SPDLOG_INFO(L"Start service...");
@@ -152,24 +177,24 @@ HRESULT ServiceBase::Start(const ServiceTraits& traits, const std::wstring& tag)
     return S_OK;
 }
 
-HRESULT ServiceBase::Stop(const ServiceTraits& traits, const std::wstring& tag)
+HRESULT ServiceBase::Stop(const ServiceTraits& traits, const std::wstring& unused)
 {
     SPDLOG_TRACE(L"->");
 
-    RETURN_IF_FAILED(StopImpl(traits, tag, false));
+    RETURN_IF_FAILED(StopImpl(traits, false));
 
     SPDLOG_TRACE(L"<-");
     return S_OK;
 }
 
-HRESULT ServiceBase::StopImpl(const ServiceTraits& traits, const std::wstring& tag, bool deleteService)
+HRESULT ServiceBase::StopImpl(const ServiceTraits& traits, bool deleteService)
 {
     SPDLOG_TRACE(L"->");
 
     wil::unique_schandle scm(::OpenSCManagerW(nullptr, nullptr, SC_MANAGER_ALL_ACCESS));
     RETURN_LAST_ERROR_IF_NULL_MSG(scm.get(), "OpenSCManagerW failed");
 
-    wil::unique_schandle service(::OpenServiceW(scm.get(), traits.Name(tag).c_str(), SERVICE_STOP));
+    wil::unique_schandle service(::OpenServiceW(scm.get(), traits.Name.c_str(), SERVICE_STOP));
     RETURN_LAST_ERROR_IF_NULL_MSG(service.get(), "OpenServiceW failed");
 
     std::vector<byte> statusBuffer;
@@ -217,17 +242,17 @@ HRESULT ServiceBase::StopImpl(const ServiceTraits& traits, const std::wstring& t
     return S_OK;
 }
 
-HRESULT ServiceBase::Restart(const ServiceTraits& traits, const std::wstring& tag)
+HRESULT ServiceBase::Restart(const ServiceTraits& traits, const std::wstring& unused)
 {
     SPDLOG_TRACE(L"->");
 
-    RETURN_IF_FAILED(StopImpl(traits, tag, false));
+    RETURN_IF_FAILED(StopImpl(traits, false));
 
     wil::unique_schandle scm(::OpenSCManagerW(nullptr, nullptr, SC_MANAGER_ALL_ACCESS));
     RETURN_LAST_ERROR_IF_NULL_MSG(scm.get(), "OpenSCManagerW failed");
 
     wil::unique_schandle service(
-        ::OpenServiceW(scm.get(), traits.Name(tag).c_str(), SERVICE_STOP | SERVICE_START | SERVICE_CHANGE_CONFIG));
+        ::OpenServiceW(scm.get(), traits.Name.c_str(), SERVICE_STOP | SERVICE_START | SERVICE_CHANGE_CONFIG));
     RETURN_LAST_ERROR_IF_NULL_MSG(service.get(), "OpenServiceW failed");
 
     SPDLOG_INFO(L"Restart service...");
@@ -245,7 +270,7 @@ HRESULT ServiceBase::Restart(const ServiceTraits& traits, const std::wstring& ta
     return EXIT_SUCCESS;
 }
 
-HRESULT ServiceBase::AddEventSource(const ServiceTraits& traits, const std::wstring& tag)
+HRESULT ServiceBase::AddEventSource(const ServiceTraits& traits)
 {
     if (!traits.UsingEventLog())
         return S_OK;
@@ -254,7 +279,7 @@ HRESULT ServiceBase::AddEventSource(const ServiceTraits& traits, const std::wstr
 
     wil::unique_hkey service;
     RETURN_IF_WIN32_ERROR(::RegCreateKeyW(HKEY_LOCAL_MACHINE,
-        (LR"(SYSTEM\CurrentControlSet\Services\EventLog\Application\)" + traits.Name(tag)).c_str(), &service));
+        (LR"(SYSTEM\CurrentControlSet\Services\EventLog\Application\)" + traits.Name).c_str(), &service));
 
     RETURN_IF_WIN32_ERROR(::RegSetValueExW(service.get(), L"EventMessageFile", 0, REG_EXPAND_SZ, (BYTE*)imagePath.get(),
         2 * ((DWORD)wcslen(imagePath.get()) + 1)));
@@ -268,13 +293,13 @@ HRESULT ServiceBase::AddEventSource(const ServiceTraits& traits, const std::wstr
     return S_OK;
 }
 
-HRESULT ServiceBase::RemoveEventSource(const ServiceTraits& traits, const std::wstring& tag)
+HRESULT ServiceBase::RemoveEventSource(const ServiceTraits& traits)
 {
     if (!traits.UsingEventLog())
         return S_OK;
 
     std::wstring subKey(LR"(SYSTEM\CurrentControlSet\Services\EventLog\Application\%s)");
-    subKey += traits.Name(tag);
+    subKey += traits.Name;
 
     RETURN_IF_WIN32_ERROR(::RegDeleteKeyW(HKEY_LOCAL_MACHINE, subKey.c_str()));
 
@@ -323,7 +348,7 @@ void ServiceBase::ServiceMain(_In_ DWORD argc, _In_ PWSTR* argv)
 
     SPDLOG_TRACE(L"->");
 
-    StatusHandle = ::RegisterServiceCtrlHandlerExW(Traits.Name(Tag).c_str(), HandlerEx_, this);
+    StatusHandle = ::RegisterServiceCtrlHandlerExW(Traits.Name.c_str(), HandlerEx_, this);
     if (StatusHandle == nullptr)
     {
         LogEvent(L"Handler not installed");
@@ -497,7 +522,7 @@ HRESULT ServiceBase::LogEvent(PCWSTR format, ...)
 
     SPDLOG_INFO(msg);
 
-    HANDLE hEventSource = ::RegisterEventSource(nullptr, Traits.Name(Tag).c_str());
+    HANDLE hEventSource = ::RegisterEventSource(nullptr, Traits.Name.c_str());
     if (hEventSource != nullptr)
     {
         PWSTR lpszStrings[1];
