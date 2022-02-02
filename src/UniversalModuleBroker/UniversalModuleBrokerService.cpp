@@ -17,13 +17,12 @@ HRESULT UniversalModuleBrokerService::OnStart(DWORD dwArgc, LPTSTR* lpszArgv)
 
 void UniversalModuleBrokerService::OnStop()
 {
+    g_broker.Release();
 }
 
 void UniversalModuleBrokerService::OnSessionChange(DWORD dwEventType, DWORD dwSessionId)
 {
     SPDLOG_INFO(L"{} {}", dwEventType, dwSessionId);
 
-    if (dwEventType == WTS_SESSION_LOGON)
-    {
-    }
+    g_broker.OnSessionChange(dwEventType, dwSessionId);
 }

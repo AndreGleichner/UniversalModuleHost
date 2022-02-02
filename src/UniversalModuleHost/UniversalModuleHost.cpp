@@ -1,5 +1,7 @@
 #include "pch.h"
 #include <shellapi.h>
+#include <chrono>
+using namespace std::chrono_literals;
 
 #include "SpdlogCustomFormatter.h"
 
@@ -7,6 +9,7 @@
 #include "ManagedHost.h"
 
 #include "UmhProcess.h"
+#include "ipc.h"
 
 namespace ModuleHostApp
 {
@@ -28,18 +31,18 @@ void SetDefaultLogger()
         ::IsDebuggerPresent() ? "[%l] %-64v [%t][%! @ %s:%#]" : "[%l] %-64v [UMH-%t][%! @ %s:%#]");
     msvc_sink->set_formatter(std::move(formatter));
 
-    std::vector<spdlog::sink_ptr> sinks{msvc_sink};
+    std::vector<spdlog::sink_ptr> sinks {msvc_sink};
 
-    if (::GetStdHandle(STD_OUTPUT_HANDLE))
+    if (::GetStdHandle(STD_ERROR_HANDLE))
     {
-        auto console_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
+        auto err_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
 
         auto formatter = std::make_unique<spdlog::pattern_formatter>();
         formatter->add_flag<ThreadnameFlagFormatter>('t').add_flag<ProcessnameFlagFormatter>('P').set_pattern(
             "[%T.%e] [%^%l%$] %-64v [%P/%t][%! @ %s:%#]");
-        console_sink->set_formatter(std::move(formatter));
+        err_sink->set_formatter(std::move(formatter));
 
-        sinks.push_back(console_sink);
+        sinks.push_back(err_sink);
     }
 
     {
@@ -76,7 +79,7 @@ void SetDefaultLogger()
 //
 void FilterEnvVars()
 {
-    wil::unique_environstrings_ptr env{::GetEnvironmentStringsW()};
+    wil::unique_environstrings_ptr env {::GetEnvironmentStringsW()};
 
     const wchar_t* nextVar = env.get();
     while (nextVar && *nextVar)
@@ -143,7 +146,7 @@ int main()
         if (SUCCEEDED(wil::GetFailureLogString(logMessage, sizeOfLogMessageWithNul, failure)))
         {
             // TODO: log to broker
-            // spdlog::error(logMessage);
+            spdlog::error(logMessage);
         }
     });
 #pragma endregion
@@ -152,6 +155,23 @@ int main()
     SPDLOG_INFO(L"Starting UniversalModuleHost '{}'", ::GetCommandLineW());
     auto logExit = wil::scope_exit([&] { SPDLOG_INFO("Exiting UniversalModuleHost: {}", exitCode); });
 
+    /*   while (!::IsDebuggerPresent())
+       {
+           ::Sleep(1000);
+       }
+       ::DebugBreak();*/
 
+    spdlog::flush_every(1s);
+
+    // clang-format off
+    auto onMessage = [](const std::string_view msg, const ipc::Target& target)
+    {
+        spdlog::info("RX: {}", msg);
+    };
+    // clang-format on
+
+    FAIL_FAST_IF_FAILED(ipc::StartRead(onMessage));
+
+    ::Sleep(1000 * 1000);
     return exitCode;
 }

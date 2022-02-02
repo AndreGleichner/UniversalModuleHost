@@ -3,6 +3,8 @@
 #include "SpdlogCustomFormatter.h"
 #include "UniversalModuleBrokerService.h"
 #include "BrokerInstance.h"
+#include "ChildProcess.h"
+#include "ipc.h"
 
 #pragma region Logging
 namespace
@@ -81,6 +83,16 @@ int APIENTRY wWinMain(
                 FAIL_FAST_IF_FAILED(g_broker.Init());
             }
             SPDLOG_INFO("UniversalModuleBroker started in console mode");
+
+            auto         host = Process::ImagePath().replace_filename(L"UniversalModuleHost64.exe");
+            ChildProcess cp;
+            cp.Create(host.c_str());
+
+
+
+            (void)getc(stdin);
+
+            g_broker.Release();
         }
     }
 

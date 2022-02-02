@@ -1,17 +1,38 @@
 #include "pch.h"
 #include "ChildProcess.h"
+#include "ipc.h"
 
-HRESULT ChildProcess::Create(PCWSTR commandline)
+namespace
+{
+void DumpPipeInfos(HANDLE pipe)
+{
+    // https://docs.microsoft.com/en-us/windows/win32/api/namedpipeapi/nf-namedpipeapi-getnamedpipeinfo
+    DWORD flags = 0, outBufferSize = 0, inBufferSize = 0, maxInstances = 0;
+    BOOL  res = ::GetNamedPipeInfo(pipe, &flags, &outBufferSize, &inBufferSize, &maxInstances);
+
+    spdlog::info(L"flags:{} outSize:{} inSize:{} instances:{}", flags, outBufferSize, inBufferSize, maxInstances);
+}
+}
+extern HANDLE g_inWrite;
+HRESULT       ChildProcess::Create(PCWSTR commandline)
 {
     // https://docs.microsoft.com/en-us/windows/win32/procthread/creating-a-child-process-with-redirected-input-and-output
 
     // Set the bInheritHandle flag so pipe handles are inherited.
-    SECURITY_ATTRIBUTES saAttr{sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
+    SECURITY_ATTRIBUTES saAttr {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
 
     // Create pipes for the child process's STDOUT,STDERR,STDIN.
     RETURN_IF_WIN32_BOOL_FALSE(::CreatePipe(&outRead_, &outWrite_, &saAttr, 0));
     RETURN_IF_WIN32_BOOL_FALSE(::CreatePipe(&errRead_, &errWrite_, &saAttr, 0));
     RETURN_IF_WIN32_BOOL_FALSE(::CreatePipe(&inRead_, &inWrite_, &saAttr, 0));
+
+    // DumpPipeInfos(outRead_.get());
+    // DumpPipeInfos(errRead_.get());
+    // DumpPipeInfos(inRead_.get());
+
+    // DumpPipeInfos(outWrite_.get());
+    // DumpPipeInfos(errWrite_.get());
+    // DumpPipeInfos(inWrite_.get());
 
     // Ensure the read handle to the pipe for STDOUT,STDERR and write handle for STDIN are not inherited.
     // RETURN_IF_WIN32_BOOL_FALSE(::SetHandleInformation(outRead_.get(), HANDLE_FLAG_INHERIT, 0));
@@ -25,9 +46,9 @@ HRESULT ChildProcess::Create(PCWSTR commandline)
     // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-updateprocthreadattribute
     // https://devblogs.microsoft.com/oldnewthing/20111216-00/?p=8873
 
-    const DWORD attrCount = 3;
-    SIZE_T      attributeListSize;
-    RETURN_IF_WIN32_BOOL_FALSE(::InitializeProcThreadAttributeList(nullptr, attrCount, 0, &attributeListSize));
+    const DWORD attrCount         = 3;
+    SIZE_T      attributeListSize = 0;
+    ::InitializeProcThreadAttributeList(nullptr, attrCount, 0, &attributeListSize);
     LPPROC_THREAD_ATTRIBUTE_LIST attrList =
         reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(::HeapAlloc(::GetProcessHeap(), 0, attributeListSize));
     RETURN_IF_NULL_ALLOC(attrList);
@@ -75,7 +96,7 @@ HRESULT ChildProcess::Create(PCWSTR commandline)
         attrList, 0, PROC_THREAD_ATTRIBUTE_MITIGATION_POLICY, &policy, sizeof(policy), nullptr, nullptr));
 #pragma endregion
 
-    STARTUPINFOEX startInfo{0};
+    STARTUPINFOEX startInfo {0};
     startInfo.StartupInfo.cb         = sizeof(startInfo);
     startInfo.StartupInfo.hStdError  = errWrite_.get();
     startInfo.StartupInfo.hStdOutput = outWrite_.get();
@@ -103,6 +124,12 @@ HRESULT ChildProcess::Create(PCWSTR commandline)
     outWrite_.reset();
     errWrite_.reset();
     inRead_.reset();
+
+    ::SetStdHandle(STD_ERROR_HANDLE, errRead_.get());
+
+    g_inWrite = inWrite_.get();
+
+    ipc::Send("xxx", {ipc::KnownService::WebBrowser});
 
     return S_OK;
 }

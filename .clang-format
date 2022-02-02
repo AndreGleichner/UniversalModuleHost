@@ -1,5 +1,5 @@
 ---
-# https://releases.llvm.org/9.0.0/tools/clang/docs/ClangFormatStyleOptions.html
+# https://releases.llvm.org/13.0.0/tools/clang/docs/ClangFormatStyleOptions.html
 #
 # latest: 
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
@@ -58,11 +58,14 @@ SortUsingDeclarations: false
 SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeRangeBasedForLoopColon: true
 SpaceInEmptyParentheses: false
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-Standard: Cpp11
+Standard: Latest
 TabWidth: 4
 UseTab: Never
 ---

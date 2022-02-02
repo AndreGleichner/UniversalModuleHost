@@ -10,6 +10,7 @@ public:
     }
 
     HRESULT Create(PCWSTR commandline);
+    HRESULT SendMsg();
 
 private:
     wil::unique_process_handle process_;

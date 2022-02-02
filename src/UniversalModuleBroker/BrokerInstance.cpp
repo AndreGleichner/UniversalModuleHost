@@ -47,3 +47,10 @@ try
     return S_OK;
 }
 CATCH_RETURN();
+
+HRESULT BrokerInstance::OnSessionChange(DWORD dwEventType, DWORD dwSessionId) noexcept
+try
+{
+    return S_OK;
+}
+CATCH_RETURN();
