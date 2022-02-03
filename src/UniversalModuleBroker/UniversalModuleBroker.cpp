@@ -6,21 +6,63 @@
 #include "ChildProcess.h"
 #include "ipc.h"
 
-#pragma region Logging
+#pragma region                  Logging
+std::shared_ptr<spdlog::logger> g_loggerStdErr;
+
 namespace
 {
 void SetDefaultLogger()
 {
     // https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
 
-    auto console_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
-
+    auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
     auto formatter = std::make_unique<spdlog::pattern_formatter>();
-    formatter->add_flag<ThreadnameFlagFormatter>('t').add_flag<ProcessnameFlagFormatter>('P').set_pattern(
-        "[%Y-%m-%d %T.%e %z] [%^%l%$] %-64v [%P/%t][%! @ %s:%#]");
-    console_sink->set_formatter(std::move(formatter));
+    formatter->add_flag<ThreadnameFlagFormatter>('t').set_pattern(
+        ::IsDebuggerPresent() ? "[%l] %-64v [%t][%! @ %s:%#]" : "[%l] %-64v [UMH-%t][%! @ %s:%#]");
+    msvc_sink->set_formatter(std::move(formatter));
 
-    auto logger = std::make_shared<spdlog::logger>("umh", console_sink);
+    std::vector<spdlog::sink_ptr> sinks {msvc_sink};
+
+    if (::GetStdHandle(STD_ERROR_HANDLE))
+    {
+        {
+            auto err_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
+
+            auto formatter = std::make_unique<spdlog::pattern_formatter>();
+            formatter->add_flag<ThreadnameFlagFormatter>('t').add_flag<ProcessnameFlagFormatter>('P').set_pattern(
+                "[%T.%e] [%^%l%$] %-64v [%P/%t][%! @ %s:%#]");
+            err_sink->set_formatter(std::move(formatter));
+
+            sinks.push_back(err_sink);
+        }
+
+        // For stderr from host
+        {
+            auto err_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
+
+            auto formatter = std::make_unique<spdlog::pattern_formatter>();
+            formatter->add_flag<ThreadnameFlagFormatter>('t').add_flag<ProcessnameFlagFormatter>('P').set_pattern(
+                "[%T.%e] [%^%l%$] %-64v");
+            err_sink->set_formatter(std::move(formatter));
+            g_loggerStdErr = std::make_shared<spdlog::logger>("umh", err_sink);
+            g_loggerStdErr->set_level(spdlog::level::trace);
+        }
+    }
+
+    {
+        const auto file = L"c:\\temp\\native-logfile.txt";
+
+        auto daily_file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(file, 23, 59);
+
+        auto formatter = std::make_unique<spdlog::pattern_formatter>();
+        formatter->add_flag<ThreadnameFlagFormatter>('t').add_flag<ProcessnameFlagFormatter>('P').set_pattern(
+            "[%Y-%m-%d %T.%e %z] [%^%l%$] %-64v [%P/%t][%! @ %s:%#]");
+        daily_file_sink->set_formatter(std::move(formatter));
+
+        sinks.push_back(daily_file_sink);
+    }
+
+    auto logger = std::make_shared<spdlog::logger>("umh", sinks.begin(), sinks.end());
     logger->set_level(spdlog::level::trace);
     spdlog::set_default_logger(logger);
 }
@@ -69,6 +111,16 @@ int APIENTRY wWinMain(
             if (::AllocConsole())
             {
                 ::SetConsoleTitleW(L"UniversalModuleBroker Debug Console");
+
+                HANDLE err  = ::GetStdHandle(STD_ERROR_HANDLE);
+                DWORD  mode = 0;
+                if (::GetConsoleMode(err, &mode))
+                {
+                    // Enable ANSI escape codes
+                    mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                    ::SetConsoleMode(err, mode);
+                }
+
                 FILE* unused;
                 // Re-initialize the C runtime "FILE" handles
                 freopen_s(&unused, "CONIN$", "r", stdin);

@@ -27,40 +27,14 @@ void SetDefaultLogger()
 {
     // https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
 
-    auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+    auto console_sink = std::make_shared<spdlog::sinks::stderr_sink_mt>();
+
     auto formatter = std::make_unique<spdlog::pattern_formatter>();
-    formatter->add_flag<ThreadnameFlagFormatter>('t').set_pattern(
-        ::IsDebuggerPresent() ? "[%l] %-64v [%t][%! @ %s:%#]" : "[%l] %-64v [UMH-%t][%! @ %s:%#]");
-    msvc_sink->set_formatter(std::move(formatter));
+    formatter->add_flag<ThreadnameFlagFormatter>('t').add_flag<ProcessnameFlagFormatter>('P').set_pattern(
+        "[%l] %-64v [%P/%t][%! @ %s:%#]");
+    console_sink->set_formatter(std::move(formatter));
 
-    std::vector<spdlog::sink_ptr> sinks {msvc_sink};
-
-    if (::GetStdHandle(STD_ERROR_HANDLE))
-    {
-        auto err_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
-
-        auto formatter = std::make_unique<spdlog::pattern_formatter>();
-        formatter->add_flag<ThreadnameFlagFormatter>('t').add_flag<ProcessnameFlagFormatter>('P').set_pattern(
-            "[%T.%e] [%^%l%$] %-64v [%P/%t][%! @ %s:%#]");
-        err_sink->set_formatter(std::move(formatter));
-
-        sinks.push_back(err_sink);
-    }
-
-    {
-        const auto file = L"c:\\temp\\native-logfile.txt";
-
-        auto daily_file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(file, 23, 59);
-
-        auto formatter = std::make_unique<spdlog::pattern_formatter>();
-        formatter->add_flag<ThreadnameFlagFormatter>('t').add_flag<ProcessnameFlagFormatter>('P').set_pattern(
-            "[%Y-%m-%d %T.%e %z] [%^%l%$] %-64v [%P/%t][%! @ %s:%#]");
-        daily_file_sink->set_formatter(std::move(formatter));
-
-        sinks.push_back(daily_file_sink);
-    }
-
-    auto logger = std::make_shared<spdlog::logger>("umh", sinks.begin(), sinks.end());
+    auto logger = std::make_shared<spdlog::logger>("umh", console_sink);
     logger->set_level(spdlog::level::trace);
     spdlog::set_default_logger(logger);
 }
@@ -147,7 +121,6 @@ int main()
         wchar_t               logMessage[sizeOfLogMessageWithNul];
         if (SUCCEEDED(wil::GetFailureLogString(logMessage, sizeOfLogMessageWithNul, failure)))
         {
-            // TODO: log to broker
             spdlog::error(logMessage);
         }
     });
@@ -173,6 +146,8 @@ int main()
     // clang-format on
 
     FAIL_FAST_IF_FAILED(ipc::StartRead(onMessage));
+
+    std::cerr << "Hello from \x1b[32mUMH\x1b[0m host" << std::endl << std::flush;
 
     ::Sleep(1000 * 1000);
     return exitCode;

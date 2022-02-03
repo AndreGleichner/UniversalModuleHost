@@ -131,11 +131,31 @@ HRESULT ChildProcess::Create(PCWSTR commandline)
     errWrite_.reset();
     inRead_.reset();
 
-    ::SetStdHandle(STD_ERROR_HANDLE, errRead_.get());
+    StartForwardStderr();
 
     g_inWrite = inWrite_.get();
 
     ipc::Send("xxx", {ipc::KnownService::WebBrowser});
 
     return S_OK;
+}
+
+extern std::shared_ptr<spdlog::logger> g_loggerStdErr;
+
+void ChildProcess::StartForwardStderr() noexcept
+{
+    stderrForwarder_ = std::thread([&] {
+        char  buf[1024] = {};
+        DWORD read      = 0;
+        while (::ReadFile(errRead_.get(), buf, 1024, &read, NULL))
+        {
+            if (read < sizeof(buf))
+            {
+                buf[read] = 0;
+                // std::cerr << buf << std::flush;
+
+                g_loggerStdErr->info(buf);
+            }
+        }
+    });
 }

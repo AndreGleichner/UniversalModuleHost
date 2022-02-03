@@ -49,12 +49,10 @@ try
     static std::thread reader;
 
     reader = std::thread([=] {
-        SPDLOG_INFO(L"StartRead thread");
         HANDLE h    = ::GetStdHandle(STD_INPUT_HANDLE);
         DWORD  size = 0, read = 0;
         while (::ReadFile(h, &size, 4, &read, nullptr) && read == 4 && size > sizeof(Target))
         {
-            SPDLOG_INFO(L"StartRead read size {}", size);
             std::vector<uint8_t> buf;
             buf.resize(size);
 
@@ -63,13 +61,6 @@ try
                 Target target {*(DWORD*)&buf[0], *(Guid*)&buf[4]};
 
                 std::string_view msg((const char*)&buf[sizeof(Target)], size - sizeof(Target) - 1);
-                SPDLOG_INFO("StartRead read msg '{}'", msg);
-
-                // while (!::IsDebuggerPresent())
-                //{
-                //     ::Sleep(1000);
-                // }
-                //::DebugBreak();
 
                 onMessage(msg, target);
             }
