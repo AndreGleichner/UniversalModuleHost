@@ -160,8 +160,8 @@ protected:
 #pragma endregion
 
     ServiceTraits         Traits;
-    SERVICE_STATUS_HANDLE StatusHandle{};
-    SERVICE_STATUS        Status{SERVICE_WIN32_OWN_PROCESS};
+    SERVICE_STATUS_HANDLE StatusHandle {};
+    SERVICE_STATUS        Status {SERVICE_WIN32_OWN_PROCESS};
 
 private:
     void    ServiceMain(_In_ DWORD argc, _In_ PWSTR* argv);
@@ -169,9 +169,9 @@ private:
     void    SetServiceStatus(State state);
     HRESULT LogEvent(PCWSTR format, ...);
 
-    HDEVNOTIFY devNotify_{};
-    HANDLE     stopEvent_{};
-    HANDLE     waitForStop_{};
+    HDEVNOTIFY devNotify_ {};
+    HANDLE     stopEvent_ {};
+    HANDLE     waitForStop_ {};
 
 #pragma region CmdlineActions
     static HRESULT Register(const ServiceTraits& traits, const std::wstring& ppl);

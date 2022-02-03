@@ -127,7 +127,7 @@ HRESULT ServiceBase::Register(const ServiceTraits& traits, const std::wstring& p
             // TODO: the doc says we should call SetServiceObjectSecurity()
             // https://docs.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-setserviceobjectsecurity
 
-            SERVICE_LAUNCH_PROTECTED_INFO protInfo{SERVICE_LAUNCH_PROTECTED_ANTIMALWARE_LIGHT};
+            SERVICE_LAUNCH_PROTECTED_INFO protInfo {SERVICE_LAUNCH_PROTECTED_ANTIMALWARE_LIGHT};
             RETURN_IF_WIN32_BOOL_FALSE(::ChangeServiceConfig2W(serv.get(), SERVICE_CONFIG_LAUNCH_PROTECTED, &protInfo));
         }
     }

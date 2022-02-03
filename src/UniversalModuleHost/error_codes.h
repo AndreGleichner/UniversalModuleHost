@@ -1,10 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#ifndef __ERROR_CODES_H__
-#define __ERROR_CODES_H__
+#pragma once
 
 // These error and exit codes are document in the host-error-codes.md
+// clang-format off
 enum StatusCode
 {
     // Success
@@ -52,7 +52,6 @@ enum StatusCode
     CoreHostIncompatibleConfig          = 0x800080a5,
     HostApiUnsupportedScenario          = 0x800080a6,
 };
+// clang-format on
 
 #define STATUS_CODE_SUCCEEDED(status_code) ((static_cast<int>(static_cast<StatusCode>(status_code))) >= 0)
-
-#endif // __ERROR_CODES_H__

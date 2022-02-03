@@ -3,7 +3,7 @@
 #include <string>
 #include <string_view>
 #include <guiddef.h>
-#include "wil/resource.h"
+#include <wil/resource.h>
 
 struct Guid final : GUID
 {

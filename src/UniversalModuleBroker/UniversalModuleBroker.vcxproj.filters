@@ -41,9 +41,6 @@
     <ClInclude Include="UniversalModuleBrokerService.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>inc</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>inc</Filter>
     </ClInclude>
@@ -52,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="BrokerInstance.h">
       <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>res</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

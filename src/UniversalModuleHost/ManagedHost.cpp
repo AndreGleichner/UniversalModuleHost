@@ -57,7 +57,7 @@ bool ManagedHost::RunAsync()
     assemblyPath_       = imageDir / _X("ManagedHost.dll");
 
 #if INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_CMDLINE
-    const char_t* argv[]{assemblyPath_.c_str(), _X("arg1"), _X("-sw0 val0")};
+    const char_t* argv[] {assemblyPath_.c_str(), _X("arg1"), _X("-sw0 val0")};
     if (!InitHostContext((int)_countof(argv), argv))
         return false;
 #elif INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_RUNTIMECONFIG
@@ -93,7 +93,7 @@ bool ManagedHost::RunAsync()
         // returns only when the managed app finished
         int res = runApp_(hostContext_);
 #elif INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_RUNTIMECONFIG
-        MainArgs args{this, _X("arg1 -sw0 val0")};
+        MainArgs args {this, _X("arg1 -sw0 val0")};
         int      res = mainFunc(args);
 #endif
 
