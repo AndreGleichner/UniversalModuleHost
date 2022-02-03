@@ -13,8 +13,10 @@ void DumpPipeInfos(HANDLE pipe)
     spdlog::info(L"flags:{} outSize:{} inSize:{} instances:{}", flags, outBufferSize, inBufferSize, maxInstances);
 }
 }
+
 extern HANDLE g_inWrite;
-HRESULT       ChildProcess::Create(PCWSTR commandline)
+
+HRESULT ChildProcess::Create(PCWSTR commandline)
 {
     // https://docs.microsoft.com/en-us/windows/win32/procthread/creating-a-child-process-with-redirected-input-and-output
 
@@ -22,6 +24,7 @@ HRESULT       ChildProcess::Create(PCWSTR commandline)
     SECURITY_ATTRIBUTES saAttr {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
 
     // Create pipes for the child process's STDOUT,STDERR,STDIN.
+    // https://stackoverflow.com/questions/60645/overlapped-i-o-on-anonymous-pipe
     RETURN_IF_WIN32_BOOL_FALSE(::CreatePipe(&outRead_, &outWrite_, &saAttr, 0));
     RETURN_IF_WIN32_BOOL_FALSE(::CreatePipe(&errRead_, &errWrite_, &saAttr, 0));
     RETURN_IF_WIN32_BOOL_FALSE(::CreatePipe(&inRead_, &inWrite_, &saAttr, 0));
@@ -85,10 +88,13 @@ HRESULT       ChildProcess::Create(PCWSTR commandline)
         PROCESS_CREATION_MITIGATION_POLICY_STRICT_HANDLE_CHECKS_ALWAYS_ON |
         PROCESS_CREATION_MITIGATION_POLICY_EXTENSION_POINT_DISABLE_ALWAYS_ON |
         PROCESS_CREATION_MITIGATION_POLICY_CONTROL_FLOW_GUARD_ALWAYS_ON |
-        PROCESS_CREATION_MITIGATION_POLICY_FONT_DISABLE_ALWAYS_ON,
+        PROCESS_CREATION_MITIGATION_POLICY_FONT_DISABLE_ALWAYS_ON |
+        PROCESS_CREATION_MITIGATION_POLICY_IMAGE_LOAD_NO_REMOTE_ALWAYS_ON |
+        PROCESS_CREATION_MITIGATION_POLICY_IMAGE_LOAD_PREFER_SYSTEM32_ALWAYS_ON,
         // 2nd
         PROCESS_CREATION_MITIGATION_POLICY2_CET_USER_SHADOW_STACKS_ALWAYS_ON |
-        PROCESS_CREATION_MITIGATION_POLICY2_USER_CET_SET_CONTEXT_IP_VALIDATION_ALWAYS_ON
+        PROCESS_CREATION_MITIGATION_POLICY2_USER_CET_SET_CONTEXT_IP_VALIDATION_ALWAYS_ON |
+        PROCESS_CREATION_MITIGATION_POLICY2_LOADER_INTEGRITY_CONTINUITY_ALWAYS_ON
     };
     // clang-format on
 

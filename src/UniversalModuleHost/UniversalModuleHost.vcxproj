@@ -91,16 +91,16 @@
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <VcpkgUseStatic>false</VcpkgUseStatic>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <VcpkgUseStatic>false</VcpkgUseStatic>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <VcpkgUseStatic>false</VcpkgUseStatic>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <VcpkgUseStatic>false</VcpkgUseStatic>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -122,6 +122,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)vendor/nethost/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>nethost.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <CETCompat>true</CETCompat>
+      <DelayLoadDLLs>nethost.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectName).manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -149,6 +150,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)vendor/nethost/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>nethost.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <CETCompat>true</CETCompat>
+      <DelayLoadDLLs>nethost.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectName).manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -175,6 +177,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)vendor/nethost/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>nethost.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <CETCompat>true</CETCompat>
+      <DelayLoadDLLs>nethost.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectName).manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -202,6 +205,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)vendor/nethost/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>nethost.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <CETCompat>true</CETCompat>
+      <DelayLoadDLLs>nethost.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectName).manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>

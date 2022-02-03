@@ -11,6 +11,8 @@ using namespace std::chrono_literals;
 #include "UmhProcess.h"
 #include "ipc.h"
 
+#pragma comment(lib, "delayimp")
+
 namespace ModuleHostApp
 {
 bool StartAsync()
