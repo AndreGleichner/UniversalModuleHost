@@ -393,7 +393,7 @@ void ServiceBase::ServiceMain(_In_ DWORD argc, _In_ PWSTR* argv)
     SPDLOG_TRACE(L"<-");
 }
 
-void ServiceBase::ServiceStopping(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired)
+void CALLBACK ServiceBase::ServiceStopping(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired)
 {
     UNREFERENCED_PARAMETER(TimerOrWaitFired);
     auto service = (ServiceBase*)lpParameter;

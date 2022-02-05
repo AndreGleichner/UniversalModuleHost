@@ -4,6 +4,7 @@
 #include <string_view>
 #include <guiddef.h>
 #include <wil/resource.h>
+#include <nlohmann/json.hpp>
 
 struct Guid final : GUID
 {

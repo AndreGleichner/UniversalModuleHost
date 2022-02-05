@@ -20,21 +20,30 @@ try
 
     for (auto& p : conf["ChildProcesses"])
     {
-        std::string session = p["Session"];
-        if (session == "Broker")
-        {
-            // Launch in same session as the running broker process.
-        }
-        else if (session == "AllUsers")
-        {
-            bool higherIntegrityLevel = p["IntegrityLevel"] == "Higher";
-        }
+        bool        allUsers             = p["Session"] == "AllUsers";
+        bool        wow64                = (sizeof(void*) == 4) && p.contains("Wow64") && p["Wow64"];
+        bool        higherIntegrityLevel = p.contains("IntegrityLevel") && p["IntegrityLevel"] == "Higher";
+        std::string groupName            = p["GroupName"];
+        std::vector<std::wstring> modules;
 
-        std::string groupName = p["GroupName"];
         for (auto& m : p["Modules"])
         {
-            std::wstring moduleFile = ToUtf16(m);
+            modules.push_back(ToUtf16(m));
         }
+
+        auto cp = std::make_unique<ChildProcess>(allUsers, wow64, higherIntegrityLevel, groupName, modules);
+        childProcesses_.push_back(std::move(cp));
+
+        break;
+    }
+
+    for (auto& process : childProcesses_)
+    {
+        process->Launch();
+    }
+    for (auto& process : childProcesses_)
+    {
+        process->LoadModules();
     }
 
     return S_OK;
@@ -44,6 +53,10 @@ CATCH_RETURN();
 HRESULT BrokerInstance::Release() noexcept
 try
 {
+    for (auto& process : childProcesses_)
+    {
+        process->Terminate();
+    }
     return S_OK;
 }
 CATCH_RETURN();

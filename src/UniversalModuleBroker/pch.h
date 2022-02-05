@@ -84,6 +84,6 @@
 #include <spdlog/sinks/daily_file_sink.h>
 
 #include "magic_enum_extensions.h"
-
+#include "string_extensions.h"
 #include "resource.h"
 #include "HResult.h"

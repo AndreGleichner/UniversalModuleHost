@@ -3,6 +3,8 @@
 #include <chrono>
 using namespace std::chrono_literals;
 
+#include <nlohmann/json.hpp>
+
 #include "SpdlogCustomFormatter.h"
 
 #include "UniversalModuleHost.h"
@@ -10,16 +12,11 @@ using namespace std::chrono_literals;
 
 #include "UmhProcess.h"
 #include "ipc.h"
+#include "HostMsg.h"
+#include "FileImage.h"
+#include "magic_enum_extensions.h"
 
 #pragma comment(lib, "delayimp")
-
-namespace ModuleHostApp
-{
-bool StartAsync()
-{
-    return TheManagedHost.RunAsync();
-}
-}
 
 namespace
 {
@@ -130,25 +127,135 @@ int main()
     SPDLOG_INFO(L"Starting UniversalModuleHost '{}'", ::GetCommandLineW());
     auto logExit = wil::scope_exit([&] { SPDLOG_INFO("Exiting UniversalModuleHost: {}", exitCode); });
 
-    /*   while (!::IsDebuggerPresent())
-       {
-           ::Sleep(1000);
-       }
-       ::DebugBreak();*/
-
-    spdlog::flush_every(1s);
-
-    // clang-format off
-    auto onMessage = [](const std::string_view msg, const ipc::Target& target)
+    /*while (!::IsDebuggerPresent())
     {
-        spdlog::info("RX: {}", msg);
-    };
-    // clang-format on
+        ::Sleep(1000);
+    }
+    ::DebugBreak();*/
 
-    FAIL_FAST_IF_FAILED(ipc::StartRead(onMessage));
+    UniversalModuleHost host;
+    exitCode = host.Run();
 
-    std::cerr << "Hello from \x1b[32mUMH\x1b[0m host" << std::endl << std::flush;
-
-    ::Sleep(1000 * 1000);
     return exitCode;
 }
+
+int UniversalModuleHost::Run()
+{
+    std::thread reader;
+    FAIL_FAST_IF_FAILED(
+        ipc::StartRead(reader, [&](const std::string_view msg, const ipc::Target& target) { OnMessage(msg, target); }));
+
+    terminate_.wait();
+
+    if (reader.joinable())
+        reader.join();
+
+    return 0;
+}
+
+void UniversalModuleHost::OnMessage(const std::string_view msg, const ipc::Target& target)
+{
+    spdlog::info("RX-H: {} for {}", msg, Strings::ToUtf8(target.ToString()));
+    /*while (!::IsDebuggerPresent())
+    {
+        ::Sleep(1000);
+    }
+    ::DebugBreak();*/
+
+    if (target.Session == ipc::KnownSession::HostInit)
+    {
+        auto       j    = nlohmann::json::parse(msg);
+        const auto init = j.get<ipc::HostInitMsg>();
+
+        FAIL_FAST_IF_MSG(!target_.Equals(ipc::Target()), "Alread processed an init message before");
+
+        target_ = target;
+    }
+    else if (target == target_)
+    {
+        auto       j       = nlohmann::json::parse(msg);
+        const auto hostMsg = j.get<ipc::HostCmdMsg>();
+
+        switch (hostMsg.Cmd)
+        {
+            case ipc::HostCmdMsg::Cmd::Terminate:
+            {
+                terminate_.SetEvent();
+                break;
+            }
+
+            case ipc::HostCmdMsg::Cmd::CtrlModule:
+            {
+                auto       ja   = nlohmann::json::parse(hostMsg.Args);
+                const auto args = j.get<ipc::HostCtrlModuleArgs>();
+
+                if (args.Cmd == ipc::HostCtrlModuleArgs::Cmd::Load)
+                    LoadModule(ToUtf16(args.Module));
+                else
+                    UnloadModule(ToUtf16(args.Module));
+                break;
+            }
+
+            default:
+            {
+                SPDLOG_ERROR("Host received invalid command {}", hostMsg.Cmd);
+            }
+        }
+    }
+}
+
+void UniversalModuleHost::OnModOut(PCWSTR mod, PCWSTR message)
+{
+}
+
+HRESULT UniversalModuleHost::LoadModule(const std::wstring& path) noexcept
+try
+{
+    auto kind = FileImage::GetKind(path.c_str());
+    if (kind == FileImage::Kind::Unknown)
+        return E_FAIL;
+
+    if (AnyBitSet(kind, FileImage::Kind::Exe))
+        return E_FAIL;
+
+#if _WIN64
+    if (AnyBitSet(kind, FileImage::Kind::Bitness32))
+        return E_FAIL;
+#else
+    if (AnyBitSet(kind, FileImage::Kind::Bitness64))
+        return E_FAIL;
+#endif
+
+    if (AnyBitSet(kind, FileImage::Kind::Native))
+        return LoadNativeModule(path);
+
+    return LoadManagedModule(path);
+}
+CATCH_RETURN();
+
+HRESULT UniversalModuleHost::UnloadModule(const std::wstring& path) noexcept
+try
+{
+    return S_OK;
+}
+CATCH_RETURN();
+
+HRESULT UniversalModuleHost::LoadNativeModule(const std::wstring& path) noexcept
+try
+{
+    return S_OK;
+}
+CATCH_RETURN();
+
+HRESULT UniversalModuleHost::LoadManagedModule(const std::wstring& path) noexcept
+try
+{
+    if (!managedHost_)
+    {
+        managedHost_ = std::make_unique<ManagedHost>(this);
+        managedHost_->RunAsync();
+    }
+    RETURN_IF_FAILED(managedHost_->LoadModule(path));
+    return S_OK;
+}
+CATCH_RETURN();

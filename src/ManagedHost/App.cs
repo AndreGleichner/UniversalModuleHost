@@ -90,7 +90,7 @@ namespace ManagedHost
             //}
             //for (int i = 0; i < 10; ++i)
             //{
-            //    int res = NativeMethods.OnProgressFromManaged(IntPtr.Zero, i);
+            //    int res = NativeMethods.OnProgressFromManaged(i);
             //    _logger.LogInformation($"OnProgressFromManaged({i}) res={res}");
             //    Thread.Sleep(TimeSpan.FromSeconds(1));
             //}
@@ -140,17 +140,17 @@ namespace ManagedHost
     {
         #region OnProgress
         [DllImport("UniversalModuleHost64.exe", EntryPoint = "OnProgressFromManaged")]
-        static extern int OnProgressFromManaged64(IntPtr thisHost, int progress);
+        static extern int OnProgressFromManaged64(int progress);
 
         [DllImport("UniversalModuleHost32.exe", EntryPoint = "OnProgressFromManaged")]
-        static extern int OnProgressFromManaged32(IntPtr thisHost, int progress);
+        static extern int OnProgressFromManaged32(int progress);
 
-        public static int OnProgressFromManaged(IntPtr thisHost, int progress)
+        public static int OnProgressFromManaged(int progress)
         {
             if (IntPtr.Size == 4)
-                return OnProgressFromManaged32(thisHost, progress);
+                return OnProgressFromManaged32(progress);
             else
-                return OnProgressFromManaged64(thisHost, progress);
+                return OnProgressFromManaged64(progress);
         }
         #endregion
 

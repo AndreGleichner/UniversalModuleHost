@@ -2,6 +2,7 @@
 
 #include "ManagedHost.h"
 #include "error_codes.h"
+#include "UniversalModuleHost.h"
 
 
 #ifdef _WIN32
@@ -22,9 +23,9 @@
 
 using string_t = std::basic_string<char_t>;
 
-ManagedHost TheManagedHost;
+ManagedHost* TheManagedHost;
 
-ManagedHost::ManagedHost()
+ManagedHost::ManagedHost(UniversalModuleHost* host) : universalModuleHost_(host)
 {
 }
 
@@ -110,6 +111,11 @@ bool ManagedHost::RunAsync()
     return true;
 }
 
+HRESULT ManagedHost::LoadModule(const std::wstring& path)
+{
+    return S_OK;
+}
+
 void HOSTFXR_CALLTYPE ManagedHost::ErrorWriter(const char_t* message)
 {
     SPDLOG_ERROR(L".Net error: {}", message);
@@ -121,12 +127,12 @@ void HOSTFXR_CALLTYPE ManagedHost::DotnetEnvInfo(
     SPDLOG_INFO(L".Net environment info:");
     SPDLOG_INFO(L"    hostfxr: {} @ {}", info->hostfxr_version, info->hostfxr_commit_hash);
 
-    for (int sdk = 0; sdk < info->sdk_count; ++sdk)
+    for (size_t sdk = 0; sdk < info->sdk_count; ++sdk)
     {
         SPDLOG_INFO(L"    SDK    : {} @ {}", info->sdks[sdk].version, info->sdks[sdk].path);
     }
 
-    for (int fx = 0; fx < info->framework_count; ++fx)
+    for (size_t fx = 0; fx < info->framework_count; ++fx)
     {
         SPDLOG_INFO(L"    FX     : {} [{}] @ {}", info->frameworks[fx].version, info->frameworks[fx].name,
             info->frameworks[fx].path);
@@ -226,12 +232,21 @@ extern "C" __declspec(dllexport) void OnLog(int serilogLevel, PCWSTR message)
 }
 #pragma endregion
 
-extern "C" __declspec(dllexport) int OnProgressFromManaged(void* thisHost, int progress)
+extern "C" __declspec(dllexport) void ModOut(PCWSTR mod, PCWSTR message)
 {
-    SPDLOG_INFO(L"OnProgressFromManaged {}", thisHost);
+    TheManagedHost->OnModOut(mod, message);
+}
 
-    auto host = (ManagedHost*)thisHost;
-    return TheManagedHost.OnProgress(progress);
+void ManagedHost::OnModOut(PCWSTR mod, PCWSTR message)
+{
+    universalModuleHost_->OnModOut(mod, message);
+}
+
+extern "C" __declspec(dllexport) int OnProgressFromManaged(int progress)
+{
+    SPDLOG_INFO(L"OnProgressFromManaged {}", progress);
+
+    return TheManagedHost->OnProgress(progress);
 }
 
 int ManagedHost::OnProgress(int progress) const

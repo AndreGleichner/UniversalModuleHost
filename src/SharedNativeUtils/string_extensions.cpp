@@ -22,6 +22,11 @@ std::wstring ToUtf16(std::string_view s)
     return output;
 }
 
+std::string ToUtf8(std::wstring_view w)
+{
+    return ToUtf8(w.data(), w.size());
+}
+
 std::string ToUtf8(const wchar_t* w)
 {
     return ToUtf8(w, wcslen(w));

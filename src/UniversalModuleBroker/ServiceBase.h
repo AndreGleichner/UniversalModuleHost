@@ -190,7 +190,7 @@ private:
     // Called by the SCM whenever a control code is sent to the service.
     static DWORD WINAPI HandlerEx_(
         _In_ DWORD dwControl, _In_ DWORD dwEventType, _In_ PVOID lpEventData, _In_ PVOID lpContext);
-    static void ServiceStopping(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired);
+    static void CALLBACK ServiceStopping(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired);
 
     static ServiceBase* _this;
 };

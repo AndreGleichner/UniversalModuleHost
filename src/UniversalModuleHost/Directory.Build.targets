@@ -7,7 +7,7 @@
     <Message Text="PublishManagedHost: TargetDir=$(TargetDir)" Importance="High"/>
 
     <ItemGroup>
-      <_SourceFiles Include="$(UmhRepoRootDir)vendor\nethost\$(Platform)\nethost.dll" />
+      <_SourceFiles Include="$(UmhRepoRootDir)vendor\nethost\$(PlatformTarget)\nethost.dll" />
     </ItemGroup>
 
     <Copy SourceFiles="@(_SourceFiles)" DestinationFiles="@(_SourceFiles->'$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" />

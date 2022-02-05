@@ -19,12 +19,19 @@
 typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_get_dotnet_environment_info_fn)(const char_t* dotnet_root, void* reserved,
     hostfxr_get_dotnet_environment_info_result_fn result, void* result_context);
 
+class UniversalModuleHost;
+
 class ManagedHost final
 {
 public:
-    ManagedHost();
+    ManagedHost(UniversalModuleHost* host);
     ~ManagedHost();
-    bool RunAsync();
+    bool    RunAsync();
+    HRESULT LoadModule(const std::wstring& path);
+    // Message to module
+    void ModIn(PCWSTR mod, PCWSTR message);
+    // Message from module
+    void OnModOut(PCWSTR mod, PCWSTR message);
     int  OnProgress(int progress) const;
 
 private:
@@ -75,6 +82,6 @@ private:
     const char_t* dotnetType_ = _X("ManagedHost.Program, ManagedHost");
 
     std::thread mainThread_;
-};
 
-extern ManagedHost TheManagedHost;
+    UniversalModuleHost* universalModuleHost_;
+};

@@ -15,6 +15,14 @@
       ]
     },
     {
+      "GroupName": "C",
+      "Session": "Broker",
+      "Wow64": false,
+      "Modules": [
+        "SampleManagedModule2"
+      ]
+    },
+    {
       "GroupName": "UI",
       "Session": "AllUsers",
       "IntegrityLevel": "Higher",

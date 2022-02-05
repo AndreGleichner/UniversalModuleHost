@@ -16,6 +16,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)FileImage.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)guid.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HostMsg.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)HResult.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ipc.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)magic_enum_extensions.h" />
