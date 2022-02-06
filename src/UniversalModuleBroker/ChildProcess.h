@@ -17,7 +17,7 @@ public:
     {
     }
 
-    HRESULT Launch() noexcept;
+    HRESULT Launch(bool keepAlive = true) noexcept;
     HRESULT Terminate() noexcept;
     HRESULT LoadModules() noexcept;
     HRESULT UnloadModules() noexcept;
@@ -30,7 +30,7 @@ private:
     }
 
     ipc::Target                     target_;
-    wil::unique_process_handle      process_;
+    wil::unique_process_information processInfo_;
     wil::unique_handle              inRead_;
     wil::unique_handle              inWrite_;
     wil::unique_handle              outRead_;
@@ -39,6 +39,7 @@ private:
     wil::unique_handle              errWrite_;
     std::thread                     stderrForwarder_;
     std::thread                     reader_;
+    std::thread                     keepAlive_;
     bool                            allUsers_;
     bool                            wow64_;
     bool                            higherIntegrityLevel_;

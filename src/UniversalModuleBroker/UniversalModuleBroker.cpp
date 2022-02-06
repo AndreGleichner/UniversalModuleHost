@@ -134,7 +134,7 @@ int APIENTRY wWinMain(
     SPDLOG_INFO(L"Starting UniversalModuleBroker '{}'", lpCmdLine);
     auto logExit = wil::scope_exit([&] { SPDLOG_INFO("Exiting UniversalModuleBroker: {}", exitCode); });
 
-#pragma region Configure Job Object
+#pragma region ConfigureJobObject
     // Place the broker and all its child processes in a job, so that
     // if the broker dies the system also terminates any child processes.
     // Allow a child process to explicitly create child processes that don't belong to the job.

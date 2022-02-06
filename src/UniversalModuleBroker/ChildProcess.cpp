@@ -16,9 +16,21 @@ void DumpPipeInfos(HANDLE pipe)
 }
 }
 
-HRESULT ChildProcess::Launch() noexcept
+HRESULT ChildProcess::Launch(bool keepAlive /*= true*/) noexcept
 try
 {
+    // Cleanup if Launch() was run before
+    outRead_.reset();
+    errRead_.reset();
+    inWrite_.reset();
+    processInfo_.reset();
+    if (stderrForwarder_.joinable())
+        stderrForwarder_.join();
+    if (reader_.joinable())
+        reader_.join();
+    if (keepAlive_.joinable())
+        keepAlive_.join();
+
     PCWSTR name = wow64_ ? L"UniversalModuleHost32.exe" : L"UniversalModuleHost64.exe";
 
     std::wstring cmdline = Process::ImagePath().replace_filename(name).c_str();
@@ -41,14 +53,6 @@ try
     // DumpPipeInfos(outWrite_.get());
     // DumpPipeInfos(errWrite_.get());
     // DumpPipeInfos(inWrite_.get());
-
-    // Ensure the read handle to the pipe for STDOUT,STDERR and write handle for STDIN are not inherited.
-    // RETURN_IF_WIN32_BOOL_FALSE(::SetHandleInformation(outRead_.get(), HANDLE_FLAG_INHERIT, 0));
-    // RETURN_IF_WIN32_BOOL_FALSE(::SetHandleInformation(errRead_.get(), HANDLE_FLAG_INHERIT, 0));
-    // RETURN_IF_WIN32_BOOL_FALSE(::SetHandleInformation(inWrite_.get(), HANDLE_FLAG_INHERIT, 0));
-
-    wil::unique_process_information processInfo;
-    ZeroMemory(&processInfo, sizeof(PROCESS_INFORMATION));
 
 #pragma region Init process thread attributes
     // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-updateprocthreadattribute
@@ -118,7 +122,6 @@ try
     // clang-format on
     ipc::StartRead(outRead_.get(), reader_, onMessage);
 
-
     STARTUPINFOEX startInfo {0};
     startInfo.StartupInfo.cb         = sizeof(startInfo);
     startInfo.StartupInfo.hStdError  = errWrite_.get();
@@ -136,7 +139,7 @@ try
         nullptr,                                                 // use parent's environment
         nullptr,                                                 // use parent's current directory
         (LPSTARTUPINFOW)&startInfo,                              // STARTUPINFO pointer
-        &processInfo));                                          // receives PROCESS_INFORMATION
+        &processInfo_));                                         // receives PROCESS_INFORMATION
 
     // Close handles to the stdin and stdout pipes no longer needed by the parent process.
     // If they are not explicitly closed, there is no way to recognize that the child process has ended.
@@ -144,6 +147,24 @@ try
     outWrite_.reset();
     errWrite_.reset();
     inRead_.reset();
+
+    if (keepAlive)
+    {
+        keepAlive_ = std::thread([this] {
+            if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE))
+            {
+                // In case we've a console attached and just closed it, we'll get terminated soon
+                // by the default console control handler. Wait some time to be sure we're
+                // not in the process of shutting down.
+                // TODO: How does this behave in case of running as a service? May need some global shutdown flag.
+                ::Sleep(1000);
+
+                // run in another thread so that keepAlive_ can be joined
+                auto launcher = std::thread([this] { Launch(); });
+                launcher.detach();
+            }
+        });
+    }
 
     nlohmann::json msg = ipc::HostInitMsg {target_.Service, groupName_};
 
