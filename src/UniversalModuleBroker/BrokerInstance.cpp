@@ -8,6 +8,7 @@ using namespace Strings;
 using json = nlohmann::json;
 #include <wil/result.h>
 
+// Process broker.json and launch host child processes as configured.
 HRESULT BrokerInstance::Init() noexcept
 try
 {
@@ -34,7 +35,7 @@ try
         auto cp = std::make_unique<ChildProcess>(allUsers, wow64, higherIntegrityLevel, groupName, modules);
         childProcesses_.push_back(std::move(cp));
 
-        break;
+        break; // TODO remove
     }
 
     for (auto& process : childProcesses_)

@@ -133,6 +133,7 @@ int main()
     }
     ::DebugBreak();*/
 
+    // Process incoming messages and wait for termination.
     UniversalModuleHost host;
     exitCode = host.Run();
 

@@ -19,7 +19,7 @@ void DumpPipeInfos(HANDLE pipe)
 HRESULT ChildProcess::Launch(bool keepAlive /*= true*/) noexcept
 try
 {
-    // Cleanup if Launch() was run before
+    // Cleanup, in case Launch() was run before
     outRead_.reset();
     errRead_.reset();
     inWrite_.reset();
@@ -42,6 +42,7 @@ try
 
     // Create pipes for the child process's STDOUT,STDERR,STDIN.
     // https://stackoverflow.com/questions/60645/overlapped-i-o-on-anonymous-pipe
+    // Buffer size defaults to 4096
     RETURN_IF_WIN32_BOOL_FALSE(::CreatePipe(&outRead_, &outWrite_, &saAttr, 0));
     RETURN_IF_WIN32_BOOL_FALSE(::CreatePipe(&errRead_, &errWrite_, &saAttr, 0));
     RETURN_IF_WIN32_BOOL_FALSE(::CreatePipe(&inRead_, &inWrite_, &saAttr, 0));
@@ -101,6 +102,9 @@ try
         PROCESS_CREATION_MITIGATION_POLICY_IMAGE_LOAD_NO_REMOTE_ALWAYS_ON |
         PROCESS_CREATION_MITIGATION_POLICY_IMAGE_LOAD_PREFER_SYSTEM32_ALWAYS_ON,
         // 2nd
+        // .Net 6.0.1 fails to load with CETCompat.
+        // Background on CETCompat:
+        // https://techcommunity.microsoft.com/t5/windows-kernel-internals-blog/developer-guidance-for-hardware-enforced-stack-protection/ba-p/2163340
         //PROCESS_CREATION_MITIGATION_POLICY2_CET_USER_SHADOW_STACKS_ALWAYS_ON |
         //PROCESS_CREATION_MITIGATION_POLICY2_USER_CET_SET_CONTEXT_IP_VALIDATION_ALWAYS_ON |
         PROCESS_CREATION_MITIGATION_POLICY2_LOADER_INTEGRITY_CONTINUITY_ALWAYS_ON
@@ -112,6 +116,8 @@ try
 
 #pragma endregion
 
+    // If the host process writes to stderr it is logging output.
+    // This will be forwarded to a specific spdlog logger.
     StartForwardStderr();
 
     // clang-format off
@@ -121,6 +127,8 @@ try
         OnMessage(msg, target);
     };
     // clang-format on
+
+    // If the host process writes to stdout it is a message to some service/session.
     ipc::StartRead(outRead_.get(), reader_, onMessage);
 
     STARTUPINFOEX startInfo {0};
@@ -149,9 +157,11 @@ try
     errWrite_.reset();
     inRead_.reset();
 
+    // If the host process terminates unexpectedly we try to re-launch it.
     if (keepAlive)
     {
         keepAlive_ = std::thread([this] {
+            Process::SetThreadName(L"UMB-KeepAlive");
             if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE))
             {
                 // In case we've a console attached and just closed it, we'll get terminated soon
@@ -162,6 +172,7 @@ try
 
                 // run in another thread so that keepAlive_ can be joined
                 auto launcher = std::thread([this] {
+                    Process::SetThreadName(L"UMB-KeepAliveRelaunch");
                     Launch();
                     LoadModules();
                 });
@@ -171,6 +182,8 @@ try
     }
 
     // Tell the host his new Service GUID
+    // This is used to talk to the host as such.
+    // Modules hosted within the host process have their own one or multiple service GUIDs.
     nlohmann::json msg = ipc::HostInitMsg {target_.Service, groupName_};
     RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), ipc::Target(target_.Service, ipc::KnownSession::HostInit)));
 
@@ -213,6 +226,9 @@ extern std::shared_ptr<spdlog::logger> g_loggerStdErr;
 
 namespace
 {
+// Logs from host process via stderr are prefixed with e.g. [INF], [ERR]...
+// Convert this back to a spdlog level, so we can use the broker configured logger
+// for further processing.
 spdlog::level::level_enum LevelFromMsg(PCSTR msg)
 {
     static INIT_ONCE                                                    g_init {};
@@ -238,6 +254,7 @@ spdlog::level::level_enum LevelFromMsg(PCSTR msg)
 void ChildProcess::StartForwardStderr() noexcept
 {
     stderrForwarder_ = std::thread([&] {
+        Process::SetThreadName(L"UMB-ForwardStderr");
         char  buf[4096] = {};
         DWORD read      = 0;
         while (::ReadFile(errRead_.get(), buf, sizeof(buf), &read, NULL))

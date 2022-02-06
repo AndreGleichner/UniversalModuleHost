@@ -2,6 +2,7 @@
 #include <vector>
 #include <thread>
 #include "ipc.h"
+#include "UmhProcess.h"
 
 namespace ipc
 {
@@ -55,6 +56,7 @@ HRESULT StartRead(HANDLE in, std::thread& reader,
 try
 {
     reader = std::thread([=] {
+        Process::SetThreadName(L"UMH-IpcReader");
         DWORD size = 0, read = 0;
         while (::ReadFile(in, &size, 4, &read, nullptr) && read == 4 && size > sizeof(Target))
         {
