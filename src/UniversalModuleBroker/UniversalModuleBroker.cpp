@@ -134,6 +134,17 @@ int APIENTRY wWinMain(
     SPDLOG_INFO(L"Starting UniversalModuleBroker '{}'", lpCmdLine);
     auto logExit = wil::scope_exit([&] { SPDLOG_INFO("Exiting UniversalModuleBroker: {}", exitCode); });
 
+    wil::unique_handle job(::CreateJobObjectW(nullptr, nullptr));
+    FAIL_FAST_IF_MSG(!job, "Failed to create broker job object");
+
+    JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobOptions;
+    ZeroMemory(&jobOptions, sizeof(jobOptions));
+    jobOptions.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+    RETURN_IF_WIN32_BOOL_FALSE(
+        ::SetInformationJobObject(job.get(), JobObjectExtendedLimitInformation, &jobOptions, sizeof(jobOptions)));
+
+    RETURN_IF_WIN32_BOOL_FALSE(::AssignProcessToJobObject(job.get(), ::GetCurrentProcess()));
+
     if (Process::IsWindowsService())
     {
         UniversalModuleBrokerService service;

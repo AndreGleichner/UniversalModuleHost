@@ -41,10 +41,10 @@ try
     {
         process->Launch();
     }
-    for (auto& process : childProcesses_)
+    /*for (auto& process : childProcesses_)
     {
         process->LoadModules();
-    }
+    }*/
 
     return S_OK;
 }
