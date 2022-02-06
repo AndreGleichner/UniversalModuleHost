@@ -30,6 +30,7 @@ namespace ManagedHost
         {
             _logger.LogInformation("-> App.Run()");
 
+#if False
             // create module loaders
             string modulesDir = Path.Combine(AppContext.BaseDirectory, "modules");
             foreach (string dir in Directory.GetDirectories(modulesDir))
@@ -80,20 +81,20 @@ namespace ManagedHost
             {
                 moduleHost.DispatchEvent(42, Array.Empty<byte>());
             }
+#endif
 
-
-            //_logger.LogInformation($"Having {args.Length} args");
-            //int n = 0;
-            //foreach (string arg in args)
-            //{
-            //    _logger.LogInformation($"Args {n++}: '{arg}'");
-            //}
-            //for (int i = 0; i < 10; ++i)
-            //{
-            //    int res = NativeMethods.OnProgressFromManaged(i);
-            //    _logger.LogInformation($"OnProgressFromManaged({i}) res={res}");
-            //    Thread.Sleep(TimeSpan.FromSeconds(1));
-            //}
+            _logger.LogInformation($"Having {args.Length} args");
+            int n = 0;
+            foreach (string arg in args)
+            {
+                _logger.LogInformation($"Args {n++}: '{arg}'");
+            }
+            for (int i = 0; i < 10; ++i)
+            {
+                int res = NativeMethods.OnProgressFromManaged(i);
+                _logger.LogInformation($"OnProgressFromManaged({i}) res={res}");
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
 
             return 0;
         }

@@ -8,7 +8,7 @@ class ChildProcess final
 public:
     ChildProcess(bool allUsers, bool wow64, bool higherIntegrityLevel, const std::string& groupName,
         const std::vector<std::wstring>& modules)
-        : target_(Guid(true), ipc::KnownSession::HostInit)
+        : target_(Guid(true))
         , allUsers_(allUsers)
         , wow64_(wow64)
         , higherIntegrityLevel_(higherIntegrityLevel)

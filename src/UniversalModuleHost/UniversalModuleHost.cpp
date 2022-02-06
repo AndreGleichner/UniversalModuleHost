@@ -169,9 +169,9 @@ void UniversalModuleHost::OnMessage(const std::string_view msg, const ipc::Targe
 
         FAIL_FAST_IF_MSG(!target_.Equals(ipc::Target()), "Alread processed an init message before");
 
-        target_ = target;
+        target_ = ipc::Target(target.Service, ipc::KnownSession::Any);
     }
-    else if (target == target_)
+    else if (target.Service == target_.Service)
     {
         auto       j       = nlohmann::json::parse(msg);
         const auto hostMsg = j.get<ipc::HostCmdMsg>();
@@ -187,7 +187,7 @@ void UniversalModuleHost::OnMessage(const std::string_view msg, const ipc::Targe
             case ipc::HostCmdMsg::Cmd::CtrlModule:
             {
                 auto       ja   = nlohmann::json::parse(hostMsg.Args);
-                const auto args = j.get<ipc::HostCtrlModuleArgs>();
+                const auto args = ja.get<ipc::HostCtrlModuleArgs>();
 
                 if (args.Cmd == ipc::HostCtrlModuleArgs::Cmd::Load)
                     LoadModule(ToUtf16(args.Module));
@@ -208,15 +208,21 @@ void UniversalModuleHost::OnModOut(PCWSTR mod, PCWSTR message)
 {
 }
 
-HRESULT UniversalModuleHost::LoadModule(const std::wstring& path) noexcept
+HRESULT UniversalModuleHost::LoadModule(const std::wstring& name) noexcept
 try
 {
+    auto path = Process::ImagePath().replace_filename(L"modules") / name / (name + L".dll");
+
     auto kind = FileImage::GetKind(path.c_str());
     if (kind == FileImage::Kind::Unknown)
         return E_FAIL;
 
     if (AnyBitSet(kind, FileImage::Kind::Exe))
         return E_FAIL;
+
+    // Managed assembly may be a PE32 image although can be loaded into a 64bit host.
+    if (AnyBitSet(kind, FileImage::Kind::Managed))
+        return LoadManagedModule(path);
 
 #if _WIN64
     if (AnyBitSet(kind, FileImage::Kind::Bitness32))
@@ -226,14 +232,11 @@ try
         return E_FAIL;
 #endif
 
-    if (AnyBitSet(kind, FileImage::Kind::Native))
-        return LoadNativeModule(path);
-
-    return LoadManagedModule(path);
+    return LoadNativeModule(path);
 }
 CATCH_RETURN();
 
-HRESULT UniversalModuleHost::UnloadModule(const std::wstring& path) noexcept
+HRESULT UniversalModuleHost::UnloadModule(const std::wstring& name) noexcept
 try
 {
     return S_OK;

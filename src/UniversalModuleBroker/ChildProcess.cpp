@@ -109,6 +109,7 @@ try
 
     RETURN_IF_WIN32_BOOL_FALSE(::UpdateProcThreadAttribute(
         attrList, 0, PROC_THREAD_ATTRIBUTE_MITIGATION_POLICY, &policy, sizeof(policy), nullptr, nullptr));
+
 #pragma endregion
 
     StartForwardStderr();
@@ -166,9 +167,9 @@ try
         });
     }
 
+    // Tell the host his new Service GUID
     nlohmann::json msg = ipc::HostInitMsg {target_.Service, groupName_};
-
-    RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target_));
+    RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), ipc::Target(target_.Service, ipc::KnownSession::HostInit)));
 
     return S_OK;
 }

@@ -22,8 +22,8 @@ private:
 
     void OnModOut(PCWSTR mod, PCWSTR message);
 
-    HRESULT LoadModule(const std::wstring& path) noexcept;
-    HRESULT UnloadModule(const std::wstring& path) noexcept;
+    HRESULT LoadModule(const std::wstring& name) noexcept;
+    HRESULT UnloadModule(const std::wstring& name) noexcept;
 
     HRESULT LoadNativeModule(const std::wstring& path) noexcept;
     HRESULT LoadManagedModule(const std::wstring& path) noexcept;

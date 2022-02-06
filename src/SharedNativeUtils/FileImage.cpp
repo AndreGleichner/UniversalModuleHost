@@ -39,7 +39,7 @@ Kind GetKind(PCWSTR path)
     const uint32_t PeFileSignature = 0x5A4D;
 
     // The offset in the PE header to a WORD with bits like IMAGE_FILE_EXECUTABLE_IMAGE and IMAGE_FILE_DLL
-    const uint32_t CharacteristicsPeOffset = 22;
+    const uint32_t CharacteristicsPeOffset = sizeof(PeFileSignature) + 18;
 
     // The offset in the PE header where the optional header starts
     const uint32_t OptionalHeaderPeOffset = 24;
@@ -48,8 +48,8 @@ Kind GetKind(PCWSTR path)
     const uint16_t MagicPe64 = 0x020B;
 
     // The offset in the PE header where the CLR header RVA is located,
-    const uint32_t ClrHeaderPeOffset32 = 208;
-    const uint32_t ClrHeaderPeOffset64 = 224;
+    const uint32_t ClrHeaderPeOffset32 = OptionalHeaderPeOffset + 208;
+    const uint32_t ClrHeaderPeOffset64 = OptionalHeaderPeOffset + 224;
 
     try
     {
