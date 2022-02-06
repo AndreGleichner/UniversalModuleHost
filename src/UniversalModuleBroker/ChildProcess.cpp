@@ -101,8 +101,8 @@ try
         PROCESS_CREATION_MITIGATION_POLICY_IMAGE_LOAD_NO_REMOTE_ALWAYS_ON |
         PROCESS_CREATION_MITIGATION_POLICY_IMAGE_LOAD_PREFER_SYSTEM32_ALWAYS_ON,
         // 2nd
-        PROCESS_CREATION_MITIGATION_POLICY2_CET_USER_SHADOW_STACKS_ALWAYS_ON |
-        PROCESS_CREATION_MITIGATION_POLICY2_USER_CET_SET_CONTEXT_IP_VALIDATION_ALWAYS_ON |
+        //PROCESS_CREATION_MITIGATION_POLICY2_CET_USER_SHADOW_STACKS_ALWAYS_ON |
+        //PROCESS_CREATION_MITIGATION_POLICY2_USER_CET_SET_CONTEXT_IP_VALIDATION_ALWAYS_ON |
         PROCESS_CREATION_MITIGATION_POLICY2_LOADER_INTEGRITY_CONTINUITY_ALWAYS_ON
     };
     // clang-format on
@@ -161,7 +161,10 @@ try
                 ::Sleep(1000);
 
                 // run in another thread so that keepAlive_ can be joined
-                auto launcher = std::thread([this] { Launch(); });
+                auto launcher = std::thread([this] {
+                    Launch();
+                    LoadModules();
+                });
                 launcher.detach();
             }
         });
