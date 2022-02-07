@@ -29,6 +29,7 @@ private:
     HRESULT LoadManagedModule(const std::wstring& path) noexcept;
 
     ipc::Target                  target_;
+    std::string                  groupName_;
     wil::unique_event_failfast   terminate_ {wil::EventOptions::ManualReset};
     std::unique_ptr<ManagedHost> managedHost_;
 };

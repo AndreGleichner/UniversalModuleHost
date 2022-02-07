@@ -3,12 +3,14 @@
 #include <wil/resource.h>
 #include "ipc.h"
 
+class BrokerInstance;
 class ChildProcess final
 {
 public:
-    ChildProcess(bool allUsers, bool wow64, bool higherIntegrityLevel, const std::string& groupName,
-        const std::vector<std::wstring>& modules)
-        : target_(Guid(true))
+    ChildProcess(BrokerInstance* brokerInstance, bool allUsers, bool wow64, bool higherIntegrityLevel,
+        const std::string& groupName, const std::vector<std::wstring>& modules, DWORD session = ipc::KnownSession::Any)
+        : brokerInstance_(brokerInstance)
+        , target_(Guid(true), session)
         , allUsers_(allUsers)
         , wow64_(wow64)
         , higherIntegrityLevel_(higherIntegrityLevel)
@@ -22,13 +24,12 @@ public:
     HRESULT LoadModules() noexcept;
     HRESULT UnloadModules() noexcept;
 
+    HRESULT SendMsg(const nlohmann::json& msg, const ipc::Target& target);
+
 private:
     void StartForwardStderr() noexcept;
 
-    void OnMessage(const std::string_view msg, const ipc::Target& target)
-    {
-    }
-
+    BrokerInstance*                 brokerInstance_;
     ipc::Target                     target_;
     wil::unique_process_information processInfo_;
     wil::unique_handle              inRead_;

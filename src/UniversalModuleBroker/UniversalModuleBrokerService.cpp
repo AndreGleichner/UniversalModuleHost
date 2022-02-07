@@ -17,6 +17,7 @@ HRESULT UniversalModuleBrokerService::OnStart(DWORD dwArgc, LPTSTR* lpszArgv)
 
 void UniversalModuleBrokerService::OnStop()
 {
+    g_broker.ShuttingDown();
     g_broker.Release();
 }
 

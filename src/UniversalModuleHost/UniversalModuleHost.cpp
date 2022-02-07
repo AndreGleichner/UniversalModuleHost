@@ -163,44 +163,53 @@ void UniversalModuleHost::OnMessage(const std::string_view msg, const ipc::Targe
     }
     ::DebugBreak();*/
 
-    if (target.Session == ipc::KnownSession::HostInit)
+    if (target.Service == ipc::KnownService::HostInit)
     {
         auto       j    = nlohmann::json::parse(msg);
         const auto init = j.get<ipc::HostInitMsg>();
 
         FAIL_FAST_IF_MSG(!target_.Equals(ipc::Target()), "Alread processed an init message before");
 
-        target_ = ipc::Target(target.Service, ipc::KnownSession::Any);
+        target_    = ipc::Target(init.Service);
+        groupName_ = init.GroupName;
     }
-    else if (target.Service == target_.Service)
+    else
     {
-        auto       j       = nlohmann::json::parse(msg);
-        const auto hostMsg = j.get<ipc::HostCmdMsg>();
+        FAIL_FAST_IF_MSG(target_.Equals(ipc::Target()), "Host not initialized yet");
 
-        switch (hostMsg.Cmd)
+        if (target.Service == target_.Service)
         {
-            case ipc::HostCmdMsg::Cmd::Terminate:
-            {
-                terminate_.SetEvent();
-                break;
-            }
+            auto       j       = nlohmann::json::parse(msg);
+            const auto hostMsg = j.get<ipc::HostCmdMsg>();
 
-            case ipc::HostCmdMsg::Cmd::CtrlModule:
+            switch (hostMsg.Cmd)
             {
-                auto       ja   = nlohmann::json::parse(hostMsg.Args);
-                const auto args = ja.get<ipc::HostCtrlModuleArgs>();
+                case ipc::HostCmdMsg::Cmd::Terminate:
+                {
+                    terminate_.SetEvent();
+                    break;
+                }
 
-                if (args.Cmd == ipc::HostCtrlModuleArgs::Cmd::Load)
-                    LoadModule(ToUtf16(args.Module));
-                else
-                    UnloadModule(ToUtf16(args.Module));
-                break;
-            }
+                case ipc::HostCmdMsg::Cmd::CtrlModule:
+                {
+                    auto       ja   = nlohmann::json::parse(hostMsg.Args);
+                    const auto args = ja.get<ipc::HostCtrlModuleArgs>();
 
-            default:
-            {
-                SPDLOG_ERROR("Host received invalid command {}", hostMsg.Cmd);
+                    if (args.Cmd == ipc::HostCtrlModuleArgs::Cmd::Load)
+                        LoadModule(ToUtf16(args.Module));
+                    else
+                        UnloadModule(ToUtf16(args.Module));
+                    break;
+                }
+
+                default:
+                {
+                    SPDLOG_ERROR("Host received invalid command {}", hostMsg.Cmd);
+                }
             }
+        }
+        else
+        {
         }
     }
 }

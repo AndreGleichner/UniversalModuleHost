@@ -3,8 +3,6 @@
 #include "SpdlogCustomFormatter.h"
 #include "UniversalModuleBrokerService.h"
 #include "BrokerInstance.h"
-#include "ChildProcess.h"
-#include "ipc.h"
 
 #pragma region                  Logging
 std::shared_ptr<spdlog::logger> g_loggerStdErr;
@@ -93,18 +91,20 @@ void SetDefaultLogger()
 
 BrokerInstance g_broker;
 
-// BOOL WINAPI ConsoleCtrlHandler(_In_ DWORD dwCtrlType)
-//{
-//     try
-//     {
-//         SPDLOG_INFO(L"ConsoleCtrlHandler: {}", dwCtrlType);
-//         spdlog::default_logger_raw()->flush();
-//     }
-//     catch (...)
-//     {
-//     }
-//     return TRUE;
-// }
+// This typically gets called very late.
+BOOL WINAPI ConsoleCtrlHandler(_In_ DWORD dwCtrlType)
+{
+    try
+    {
+        g_broker.ShuttingDown();
+        SPDLOG_INFO(L"ConsoleCtrlHandler: {}", dwCtrlType);
+        spdlog::default_logger_raw()->flush();
+    }
+    catch (...)
+    {
+    }
+    return TRUE;
+}
 
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -163,7 +163,7 @@ int APIENTRY wWinMain(
             FAIL_FAST_IF_WIN32_BOOL_FALSE(::AllocConsole());
 
             ::SetConsoleTitleW(L"UniversalModuleBroker Debug Console");
-            //::SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
+            ::SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
 
             FILE* unused;
             // Re-initialize the C runtime "FILE" handles

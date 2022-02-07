@@ -3,6 +3,7 @@
 #include "ipc.h"
 #include "UmhProcess.h"
 #include "HostMsg.h"
+#include "BrokerInstance.h"
 
 namespace
 {
@@ -19,6 +20,9 @@ void DumpPipeInfos(HANDLE pipe)
 HRESULT ChildProcess::Launch(bool keepAlive /*= true*/) noexcept
 try
 {
+    if (brokerInstance_->IsShuttingDown())
+        return S_OK;
+
     // Cleanup, in case Launch() was run before
     outRead_.reset();
     errRead_.reset();
@@ -116,20 +120,13 @@ try
 
 #pragma endregion
 
-    // If the host process writes to stderr it is logging output.
-    // This will be forwarded to a specific spdlog logger.
-    StartForwardStderr();
-
     // clang-format off
     auto onMessage = [&](const std::string_view msg, const ipc::Target& target)
     {
         spdlog::info("RX-B: {} for {}", msg, Strings::ToUtf8(target.ToString()));
-        OnMessage(msg, target);
+        brokerInstance_->OnMessage(this, msg, target);
     };
     // clang-format on
-
-    // If the host process writes to stdout it is a message to some service/session.
-    ipc::StartRead(outRead_.get(), reader_, onMessage);
 
     STARTUPINFOEX startInfo {0};
     startInfo.StartupInfo.cb         = sizeof(startInfo);
@@ -137,19 +134,135 @@ try
     startInfo.StartupInfo.hStdOutput = outWrite_.get();
     startInfo.StartupInfo.hStdInput  = inRead_.get();
     startInfo.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
-    startInfo.lpAttributeList = attrList;
+    startInfo.StartupInfo.wShowWindow = SW_SHOWNORMAL;
+    startInfo.lpAttributeList         = attrList;
 
-    RETURN_IF_WIN32_BOOL_FALSE(::CreateProcessW(nullptr,         // applicationName
-        const_cast<PWSTR>(cmdline.data()),                       // commandLine shall be non-const
-        nullptr,                                                 // process security attributes
-        nullptr,                                                 // primary thread security attributes
-        TRUE,                                                    // handles are inherited
-        EXTENDED_STARTUPINFO_PRESENT | CREATE_PROTECTED_PROCESS, // creation flags
-        nullptr,                                                 // use parent's environment
-        nullptr,                                                 // use parent's current directory
-        (LPSTARTUPINFOW)&startInfo,                              // STARTUPINFO pointer
-        &processInfo_));                                         // receives PROCESS_INFORMATION
+    if (allUsers_)
+        startInfo.StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
 
+    if (target_.Session == ipc::KnownSession::Any)
+    {
+        // This either means we were requested to launch a process in the same session,
+        // or requested to lauch a process in every session but we're not a service (e.g. during debugging).
+        // In either case launch in same session.
+
+        RETURN_IF_WIN32_BOOL_FALSE(::CreateProcessW(nullptr, // applicationName
+            const_cast<PWSTR>(cmdline.data()),               // commandLine shall be non-const
+            nullptr,                                         // process security attributes
+            nullptr,                                         // primary thread security attributes
+            TRUE,                                            // handles are inherited
+            NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
+                CREATE_PROTECTED_PROCESS, // creation flags
+            nullptr,                      // use parent's environment
+            nullptr,                      // use parent's current directory
+            (LPSTARTUPINFOW)&startInfo,   // STARTUPINFO pointer
+            &processInfo_));              // receives PROCESS_INFORMATION
+    }
+    else
+    {
+        // We only get here if we're running as a service and were requested to launch
+        // a child process in every session.
+
+        // TODO: in case of higherIntegrityLevel_ we should also go here even while debugging
+
+        wil::unique_handle token;
+        if (::WTSQueryUserToken(target_.Session, &token))
+        {
+            wil::unique_handle dupToken;
+            ::DuplicateTokenEx(token.get(), MAXIMUM_ALLOWED, NULL, SecurityIdentification, TokenPrimary, &dupToken);
+
+            bool success = true;
+            if (higherIntegrityLevel_)
+            {
+                // Slightly increase the current integrity level to e.g. "Medium-Plus".
+                // Hint: the default Administrator account runs at "High" integrity level.
+
+                // https://zeltser.com/windows-integrity-levels-for-spyware-protection-processe/
+                // https://docs.microsoft.com/en-US/windows/security/identity-protection/access-control/security-identifiers
+
+                SID                      integritySid;
+                SID_IDENTIFIER_AUTHORITY sia = {SECURITY_MANDATORY_LABEL_AUTHORITY};
+                ::InitializeSid(&integritySid, &sia, 1);
+
+                // Integrity Level SIDs are in the form of S-1-16-0xXXXX. (e.g.
+                // S-1-16-0x1000 stands for low integrity level SID). There is one
+                // and only one subauthority.
+                DWORD* sidSubAuth = ::GetSidSubAuthority(&integritySid, 0);
+
+                // Read the integrity level from the users token and increase it slightly
+                DWORD len = 0;
+                if (!::GetTokenInformation(dupToken.get(), TokenIntegrityLevel, NULL, 0, &len) &&
+                    ERROR_INSUFFICIENT_BUFFER == ::GetLastError())
+                {
+                    TOKEN_MANDATORY_LABEL* tml = (TOKEN_MANDATORY_LABEL*)malloc(len);
+                    BOOL res = ::GetTokenInformation(dupToken.get(), TokenIntegrityLevel, tml, len, &len);
+                    if (res)
+                        *sidSubAuth = *::GetSidSubAuthority(tml->Label.Sid, 0) + 0x100;
+
+                    free(tml);
+
+                    if (!res)
+                        success = false;
+                }
+                else
+                {
+                    success = false;
+                }
+
+                if (success)
+                {
+                    TOKEN_MANDATORY_LABEL tml = {0};
+                    tml.Label.Attributes      = SE_GROUP_INTEGRITY;
+                    tml.Label.Sid             = &integritySid;
+
+                    if (!::SetTokenInformation(dupToken.get(), TokenIntegrityLevel, &tml,
+                            sizeof(TOKEN_MANDATORY_LABEL) + ::GetLengthSid(&integritySid)))
+                        success = false;
+                }
+            }
+
+            LPVOID env = nullptr;
+            if (success && ::CreateEnvironmentBlock(&env, dupToken.get(), FALSE))
+            {
+                auto cleaupEnv = wil::scope_exit([&] {
+                    if (env)
+                        ::DestroyEnvironmentBlock(env);
+                });
+
+                BOOL impersonated = ::ImpersonateLoggedOnUser(dupToken.get());
+                auto revert       = wil::scope_exit([&] {
+                    if (impersonated)
+                        ::RevertToSelf();
+                });
+
+                if (::CreateProcessAsUserW(dupToken.get(), // user token
+                        nullptr,                           // applicationName
+                        const_cast<PWSTR>(cmdline.data()), // commandLine shall be non-const
+                        nullptr,                           // process security attributes
+                        nullptr,                           // primary thread security attributes
+                        TRUE,                              // handles are inherited
+                        NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
+                            CREATE_PROTECTED_PROCESS | CREATE_NEW_CONSOLE |
+                            CREATE_UNICODE_ENVIRONMENT, // creation flags
+                        env,                            // use parent's environment
+                        nullptr,                        // use parent's current directory
+                        (LPSTARTUPINFOW)&startInfo,     // STARTUPINFO pointer
+                        &processInfo_))
+                {
+                }
+                else
+                {
+                }
+            }
+            else
+            {
+            }
+        }
+        else
+        {
+            // do not return on error as the respective session may just have closed
+        }
+    }
     // Close handles to the stdin and stdout pipes no longer needed by the parent process.
     // If they are not explicitly closed, there is no way to recognize that the child process has ended.
 
@@ -157,22 +270,33 @@ try
     errWrite_.reset();
     inRead_.reset();
 
+    // If the host process writes to stdout it is a message to some service/session.
+    ipc::StartRead(outRead_.get(), reader_, onMessage, processInfo_.dwProcessId);
+
+    // If the host process writes to stderr it is logging output.
+    // This will be forwarded to a specific spdlog logger.
+    StartForwardStderr();
+
     // If the host process terminates unexpectedly we try to re-launch it.
     if (keepAlive)
     {
         keepAlive_ = std::thread([this] {
-            Process::SetThreadName(L"UMB-KeepAlive");
-            if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE))
+            Process::SetThreadName(std::format(L"UMB-KeepAlive-{}", processInfo_.dwProcessId).c_str());
+            if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE) &&
+                !brokerInstance_->IsShuttingDown())
             {
                 // In case we've a console attached and just closed it, we'll get terminated soon
                 // by the default console control handler. Wait some time to be sure we're
                 // not in the process of shutting down.
-                // TODO: How does this behave in case of running as a service? May need some global shutdown flag.
+                // This only help when running e.g. 1 child process as it takes some time for the child
+                // to process the Ctrl-C. As long as not every child has completed processing the broker wont be
+                // terminated.
+
                 ::Sleep(1000);
 
                 // run in another thread so that keepAlive_ can be joined
                 auto launcher = std::thread([this] {
-                    Process::SetThreadName(L"UMB-KeepAliveRelaunch");
+                    Process::SetThreadName(std::format(L"UMB-KeepAliveRelaunch-{}", processInfo_.dwProcessId).c_str());
                     Launch();
                     LoadModules();
                 });
@@ -181,11 +305,10 @@ try
         });
     }
 
-    // Tell the host his new Service GUID
-    // This is used to talk to the host as such.
+    // Tell the host his Service GUID. This is used to talk to the host as such to e.g. load modules.
     // Modules hosted within the host process have their own one or multiple service GUIDs.
     nlohmann::json msg = ipc::HostInitMsg {target_.Service, groupName_};
-    RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), ipc::Target(target_.Service, ipc::KnownSession::HostInit)));
+    RETURN_IF_FAILED(SendMsg(msg, ipc::Target(ipc::KnownService::HostInit)));
 
     return S_OK;
 }
@@ -206,6 +329,9 @@ try
 {
     for (auto& mod : modules_)
     {
+        if (brokerInstance_->IsShuttingDown())
+            return S_OK;
+
         nlohmann::json args = ipc::HostCtrlModuleArgs {ipc::HostCtrlModuleArgs::Cmd::Load, ToUtf8(mod)};
         nlohmann::json msg  = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::CtrlModule, args.dump()};
 
@@ -254,7 +380,7 @@ spdlog::level::level_enum LevelFromMsg(PCSTR msg)
 void ChildProcess::StartForwardStderr() noexcept
 {
     stderrForwarder_ = std::thread([&] {
-        Process::SetThreadName(L"UMB-ForwardStderr");
+        Process::SetThreadName(std::format(L"UMB-ForwardStderr-{}", processInfo_.dwProcessId).c_str());
         char  buf[4096] = {};
         DWORD read      = 0;
         while (::ReadFile(errRead_.get(), buf, sizeof(buf), &read, NULL))
@@ -290,4 +416,18 @@ void ChildProcess::StartForwardStderr() noexcept
             }
         }
     });
+}
+
+HRESULT ChildProcess::SendMsg(const nlohmann::json& msg, const ipc::Target& target)
+{
+    if (target.Session != ipc::KnownSession::Any)
+    {
+        // Only send to a single session
+        DWORD session = ipc::KnownSession::Any;
+        if (!::ProcessIdToSessionId(processInfo_.dwProcessId, &session) || session != target.Session)
+            return S_FALSE;
+    }
+    RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target));
+
+    return S_OK;
 }

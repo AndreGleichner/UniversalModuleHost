@@ -1,6 +1,8 @@
 #include "pch.h"
 #include <process.h>
 #include "UmhProcess.h"
+#include <wil/resource.h>
+#include <wil/win32_helpers.h>
 
 namespace Process
 {
@@ -9,7 +11,7 @@ void Enumerate(std::function<EnumerateCallbackResult(PPROCESSENTRY32W)> callback
     wil::unique_handle processSnap(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 956));
     FAIL_FAST_IF_NULL(processSnap);
 
-    PROCESSENTRY32W pe32{sizeof(PROCESSENTRY32W)};
+    PROCESSENTRY32W pe32 {sizeof(PROCESSENTRY32W)};
 
     FAIL_FAST_IF_WIN32_BOOL_FALSE(::Process32FirstW(processSnap.get(), &pe32));
 
@@ -26,38 +28,43 @@ void Enumerate(std::function<EnumerateCallbackResult(PPROCESSENTRY32W)> callback
 // Or an equivalent go impl: https://github.com/golang/sys/blob/0d417f636930/windows/svc/security.go#L77
 bool IsWindowsService()
 {
-    DWORD myPid         = ::GetCurrentProcessId();
-    bool  myParentIsScm = false;
+    static INIT_ONCE g_init {};
+    static bool      g_isWindowsService = false;
 
-    Enumerate([&](PPROCESSENTRY32W pe32) {
-        if (pe32->th32ProcessID == myPid)
-        {
-            DWORD parentSessionId;
-            if (::ProcessIdToSessionId(pe32->th32ParentProcessID, &parentSessionId) && parentSessionId == 0)
+    wil::init_once(g_init, [] {
+        DWORD myPid = ::GetCurrentProcessId();
+
+        Enumerate([&](PPROCESSENTRY32W pe32) {
+            if (pe32->th32ProcessID == myPid)
             {
-                // Opening the services.exe process requires admin, so if it fails we're anyhow not a service.
-                wil::unique_handle parent(
-                    ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pe32->th32ParentProcessID));
-                if (parent)
+                DWORD parentSessionId;
+                if (::ProcessIdToSessionId(pe32->th32ParentProcessID, &parentSessionId) && parentSessionId == 0)
                 {
-                    std::wstring imagePath;
-                    if (SUCCEEDED_LOG(wil::QueryFullProcessImageNameW(parent.get(), 0, imagePath)))
+                    // Opening the services.exe process requires admin, so if it fails we're anyhow not a service.
+                    wil::unique_handle parent(
+                        ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pe32->th32ParentProcessID));
+                    if (parent)
                     {
-                        myParentIsScm = 0 == _wcsicmp(L"services.exe", ::PathFindFileNameW(imagePath.c_str()));
+                        std::wstring imagePath;
+                        if (SUCCEEDED_LOG(wil::QueryFullProcessImageNameW(parent.get(), 0, imagePath)))
+                        {
+                            std::filesystem::path p(imagePath);
+                            g_isWindowsService = 0 == _wcsicmp(L"services.exe", p.filename().c_str());
+                        }
                     }
                 }
+                return EnumerateCallbackResult::Cancel;
             }
-            return EnumerateCallbackResult::Cancel;
-        }
-        return EnumerateCallbackResult::Continue;
+            return EnumerateCallbackResult::Continue;
+        });
     });
 
-    return myParentIsScm;
+    return g_isWindowsService;
 }
 
 std::filesystem::path ImagePath()
 {
-    static INIT_ONCE             g_init{};
+    static INIT_ONCE             g_init {};
     static std::filesystem::path g_imageFullPath;
 
     wil::init_once(g_init, [] {
@@ -70,7 +77,7 @@ std::filesystem::path ImagePath()
 
 std::wstring Name()
 {
-    static INIT_ONCE             g_init{};
+    static INIT_ONCE             g_init {};
     static std::filesystem::path g_imageBasename;
 
     wil::init_once(g_init, [] {
@@ -93,7 +100,7 @@ void SetThreadNameViaException(PCSTR name)
         LPCSTR szName;     // Pointer to name (in user addr space).
         DWORD  dwThreadID; // Thread ID (-1=caller thread).
         DWORD  dwFlags;    // Reserved for future use, must be zero.
-    } info{0x1000, name, 0xffffffff, 0};
+    } info {0x1000, name, 0xffffffff, 0};
 #pragma pack(pop)
 
     __try

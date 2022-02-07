@@ -49,7 +49,7 @@ bool ServiceBase::CmdlineAction(PCWSTR commandLine, const ServiceTraits& traits,
             pat = std::format(L"^[ ]*--{}([ ]+--{}|)[ ]*$", a.Arg, a.Option);
 
         std::wregex re(pat, std::regex::icase);
-        if (std::regex_match(cmdLine, match, re) && (match.size() == 2 || match.size() == 3))
+        if (std::regex_match(cmdLine, match, re) && (match.size() == 1 || match.size() == 2 || match.size() == 3))
         {
             HRESULT hres;
             if (a.Option.empty())
@@ -71,7 +71,7 @@ HRESULT ServiceBase::Register(const ServiceTraits& traits, const std::wstring& p
 {
     SPDLOG_TRACE(L"->");
 
-    std::wstring imagePath(L"\"" + std::wstring(wil::GetModuleFileNameW().get()) + L"\" " + traits.Name);
+    std::wstring imagePath(L"\"" + std::wstring(wil::GetModuleFileNameW().get()) + L"\"");
 
     wil::unique_schandle scm(::OpenSCManagerW(nullptr, nullptr, SC_MANAGER_ALL_ACCESS));
     RETURN_LAST_ERROR_IF_NULL_MSG(scm.get(), "OpenSCManagerW failed");
@@ -86,8 +86,8 @@ HRESULT ServiceBase::Register(const ServiceTraits& traits, const std::wstring& p
         // read current service config
         std::vector<byte> configBuffer;
         DWORD             configSize;
-        RETURN_IF_WIN32_BOOL_FALSE(::QueryServiceConfigW(service.get(), nullptr, 0, &configSize));
-        RETURN_HR_IF(HRESULT_FROM_WIN32(::GetLastError()), ::GetLastError() == ERROR_INSUFFICIENT_BUFFER);
+        (void)::QueryServiceConfigW(service.get(), nullptr, 0, &configSize);
+        RETURN_HR_IF(HRESULT_FROM_WIN32(::GetLastError()), ::GetLastError() != ERROR_INSUFFICIENT_BUFFER);
         configBuffer.resize(configSize);
 
         auto config = (QUERY_SERVICE_CONFIGW*)configBuffer.data();
@@ -143,11 +143,15 @@ HRESULT ServiceBase::Unregister(const ServiceTraits& traits, const std::wstring&
     SPDLOG_TRACE(L"->");
 
     // Stop and Delete; ignore return value, so that further unreg steps may run
-    StopImpl(traits, true);
+    HRESULT res1 = StopImpl(traits, true);
 
-    RemoveEventSource(traits);
+    HRESULT res2 = RemoveEventSource(traits);
 
     SPDLOG_TRACE(L"<-");
+
+    RETURN_IF_FAILED_MSG(res1, "Unregister failed in StopImpl");
+    RETURN_IF_FAILED_MSG(res2, "Unregister failed in RemoveEventSource");
+
     return S_OK;
 }
 
@@ -194,13 +198,15 @@ HRESULT ServiceBase::StopImpl(const ServiceTraits& traits, bool deleteService)
     wil::unique_schandle scm(::OpenSCManagerW(nullptr, nullptr, SC_MANAGER_ALL_ACCESS));
     RETURN_LAST_ERROR_IF_NULL_MSG(scm.get(), "OpenSCManagerW failed");
 
-    wil::unique_schandle service(::OpenServiceW(scm.get(), traits.Name.c_str(), SERVICE_STOP));
-    RETURN_LAST_ERROR_IF_NULL_MSG(service.get(), "OpenServiceW failed");
+    wil::unique_schandle service(::OpenServiceW(
+        scm.get(), traits.Name.c_str(), SERVICE_STOP | SERVICE_QUERY_STATUS | (deleteService ? DELETE : 0)));
+    if (!service.get())
+        return S_FALSE;
 
     std::vector<byte> statusBuffer;
     DWORD             statusSize;
-    RETURN_IF_WIN32_BOOL_FALSE(::QueryServiceStatusEx(service.get(), SC_STATUS_PROCESS_INFO, nullptr, 0, &statusSize));
-    RETURN_HR_IF(HRESULT_FROM_WIN32(::GetLastError()), ::GetLastError() == ERROR_INSUFFICIENT_BUFFER);
+    (void)::QueryServiceStatusEx(service.get(), SC_STATUS_PROCESS_INFO, nullptr, 0, &statusSize);
+    RETURN_HR_IF(HRESULT_FROM_WIN32(::GetLastError()), ::GetLastError() != ERROR_INSUFFICIENT_BUFFER);
     statusBuffer.resize(statusSize);
 
     auto statusProcess = (SERVICE_STATUS_PROCESS*)statusBuffer.data();
@@ -217,19 +223,22 @@ HRESULT ServiceBase::StopImpl(const ServiceTraits& traits, bool deleteService)
         ::ControlService(service.get(), SERVICE_CONTROL_STOP, &status);
     }
 
-    // Ensure the process actually stopped.
-    wil::unique_process_handle process(::OpenProcess(SYNCHRONIZE, FALSE, statusProcess->dwProcessId));
-    if (process)
+    if (statusProcess->dwProcessId)
     {
-        SPDLOG_TRACE(L"Wait until the service process fade away");
-        if (::WaitForSingleObject(process.get(), 10000) == WAIT_OBJECT_0)
-            SPDLOG_TRACE(L"Service process finished");
-    }
-    else
-    {
-        const DWORD waitMilliSec = 3000;
-        SPDLOG_TRACE(L"Couldn't open service process => wait {} ms", waitMilliSec);
-        ::Sleep(waitMilliSec);
+        // Ensure the process actually stopped.
+        wil::unique_process_handle process(::OpenProcess(SYNCHRONIZE, FALSE, statusProcess->dwProcessId));
+        if (process)
+        {
+            SPDLOG_TRACE(L"Wait until the service process fade away");
+            if (::WaitForSingleObject(process.get(), 10000) == WAIT_OBJECT_0)
+                SPDLOG_TRACE(L"Service process finished");
+        }
+        else
+        {
+            const DWORD waitMilliSec = 3000;
+            SPDLOG_TRACE(L"Couldn't open service process => wait {} ms", waitMilliSec);
+            ::Sleep(waitMilliSec);
+        }
     }
 
     if (deleteService)
@@ -298,10 +307,9 @@ HRESULT ServiceBase::RemoveEventSource(const ServiceTraits& traits)
     if (!traits.UsingEventLog())
         return S_OK;
 
-    std::wstring subKey(LR"(SYSTEM\CurrentControlSet\Services\EventLog\Application\%s)");
-    subKey += traits.Name;
+    std::wstring subKey(LR"(SYSTEM\CurrentControlSet\Services\EventLog\Application\)" + traits.Name);
 
-    RETURN_IF_WIN32_ERROR(::RegDeleteKeyW(HKEY_LOCAL_MACHINE, subKey.c_str()));
+    RETURN_IF_WIN32_ERROR_EXPECTED(::RegDeleteKeyW(HKEY_LOCAL_MACHINE, subKey.c_str()));
 
     return S_OK;
 }
