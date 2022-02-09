@@ -57,6 +57,7 @@
 #pragma warning(push)
 #pragma warning(disable : 6001 6031 6387 26451 28196)
 #include <wil/stl.h>
+#include <wil/common.h>
 #include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/win32_helpers.h>

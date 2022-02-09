@@ -134,23 +134,6 @@ int APIENTRY wWinMain(
     SPDLOG_INFO(L"Starting UniversalModuleBroker '{}'", lpCmdLine);
     auto logExit = wil::scope_exit([&] { SPDLOG_INFO("Exiting UniversalModuleBroker: {}", exitCode); });
 
-#pragma region ConfigureJobObject
-    // Place the broker and all its child processes in a job, so that
-    // if the broker dies the system also terminates any child processes.
-    // Allow a child process to explicitly create child processes that don't belong to the job.
-    // This may be usefull to create UI processes like default browsers which shouldn't terminate on broker exit.
-    wil::unique_handle job(::CreateJobObjectW(nullptr, nullptr));
-    FAIL_FAST_IF_MSG(!job, "Failed to create broker job object");
-
-    JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobOptions;
-    ZeroMemory(&jobOptions, sizeof(jobOptions));
-    jobOptions.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE | JOB_OBJECT_LIMIT_BREAKAWAY_OK;
-    RETURN_IF_WIN32_BOOL_FALSE(
-        ::SetInformationJobObject(job.get(), JobObjectExtendedLimitInformation, &jobOptions, sizeof(jobOptions)));
-
-    RETURN_IF_WIN32_BOOL_FALSE(::AssignProcessToJobObject(job.get(), ::GetCurrentProcess()));
-#pragma endregion
-
     if (Process::IsWindowsService())
     {
         UniversalModuleBrokerService service;

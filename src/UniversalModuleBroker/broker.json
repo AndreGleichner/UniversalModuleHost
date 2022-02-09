@@ -23,17 +23,19 @@
       ]
     },
     {
-      "GroupName": "UI",
+      "GroupName": "D",
       "Session": "AllUsers",
       "IntegrityLevel": "Higher",
+      "Ui": true,
       "Modules": [
         "SampleManagedModuleUi"
       ]
     },
     {
-      "GroupName": "UI",
+      "GroupName": "E",
       "Session": "AllUsers",
       "IntegrityLevel": "Default",
+      "Ui": true,
       "Modules": [
         "SampleManagedModuleUi"
       ]

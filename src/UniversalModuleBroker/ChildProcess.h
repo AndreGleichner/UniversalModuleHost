@@ -6,14 +6,17 @@
 class BrokerInstance;
 class ChildProcess final
 {
+    friend BrokerInstance;
+
 public:
-    ChildProcess(BrokerInstance* brokerInstance, bool allUsers, bool wow64, bool higherIntegrityLevel,
+    ChildProcess(BrokerInstance* brokerInstance, bool allUsers, bool wow64, bool higherIntegrityLevel, bool ui,
         const std::string& groupName, const std::vector<std::wstring>& modules, DWORD session = ipc::KnownSession::Any)
         : brokerInstance_(brokerInstance)
         , target_(Guid(true), session)
         , allUsers_(allUsers)
         , wow64_(wow64)
         , higherIntegrityLevel_(higherIntegrityLevel)
+        , ui_(ui)
         , groupName_(groupName)
         , modules_(modules)
     {
@@ -44,6 +47,7 @@ private:
     bool                            allUsers_;
     bool                            wow64_;
     bool                            higherIntegrityLevel_;
+    bool                            ui_;
     const std::string               groupName_;
     const std::vector<std::wstring> modules_;
 };

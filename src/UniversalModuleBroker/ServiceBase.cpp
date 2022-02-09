@@ -112,8 +112,8 @@ HRESULT ServiceBase::Register(const ServiceTraits& traits, const std::wstring& p
         std::replace(serviceDependencies.begin(), serviceDependencies.end(), L'|', L'\0');
 
         wil::unique_schandle serv(::CreateServiceW(scm.get(), traits.Name.c_str(), traits.Displayname.c_str(),
-            SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, imagePath.c_str(),
-            nullptr, nullptr, serviceDependencies.c_str(), nullptr, L""));
+            SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START /*SERVICE_AUTO_START*/,
+            SERVICE_ERROR_NORMAL, imagePath.c_str(), nullptr, nullptr, serviceDependencies.c_str(), nullptr, L""));
 
         auto                d    = traits.Description;
         SERVICE_DESCRIPTION desc = {(PTSTR)d.c_str()};

@@ -63,7 +63,7 @@ try
     // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-updateprocthreadattribute
     // https://devblogs.microsoft.com/oldnewthing/20111216-00/?p=8873
 
-    const DWORD attrCount         = 3;
+    const DWORD attrCount         = ui_ ? 2 : 3;
     SIZE_T      attributeListSize = 0;
     ::InitializeProcThreadAttributeList(nullptr, attrCount, 0, &attributeListSize);
     LPPROC_THREAD_ATTRIBUTE_LIST attrList =
@@ -75,14 +75,19 @@ try
         ::HeapFree(GetProcessHeap(), 0, attrList);
     });
 
-    // https://docs.microsoft.com/en-us/windows/win32/services/protecting-anti-malware-services-
-    // If the running process is not a AM-PPL the PROTECTION_LEVEL_SAME and CREATE_PROTECTED_PROCESS wont harm.
-    // Limitations:
-    //  1. A protected process can't have a GUI
-    //  2. HTTPS from a protected process only works since Win10-1703
-    DWORD protectionLevel = PROTECTION_LEVEL_SAME;
-    RETURN_IF_WIN32_BOOL_FALSE(::UpdateProcThreadAttribute(attrList, 0, PROC_THREAD_ATTRIBUTE_PROTECTION_LEVEL,
-        &protectionLevel, sizeof(protectionLevel), nullptr, nullptr));
+    if (!ui_)
+    {
+        // UI processes can't run protected
+        //
+        // https://docs.microsoft.com/en-us/windows/win32/services/protecting-anti-malware-services-
+        // If the running process is not a AM-PPL the PROTECTION_LEVEL_SAME and CREATE_PROTECTED_PROCESS wont harm.
+        // Limitations:
+        //  1. A protected process can't have a GUI
+        //  2. HTTPS from a protected process only works since Win10-1703
+        DWORD protectionLevel = PROTECTION_LEVEL_SAME;
+        RETURN_IF_WIN32_BOOL_FALSE(::UpdateProcThreadAttribute(attrList, 0, PROC_THREAD_ATTRIBUTE_PROTECTION_LEVEL,
+            &protectionLevel, sizeof(protectionLevel), nullptr, nullptr));
+    }
 
     // Ensure only these handles are inherited.
     // We may launch multiple child processes and w/o this call each would inherit all pipe handles created so far.
@@ -137,8 +142,14 @@ try
     startInfo.StartupInfo.wShowWindow = SW_SHOWNORMAL;
     startInfo.lpAttributeList         = attrList;
 
-    if (allUsers_)
+    if (ui_)
         startInfo.StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
+
+    DWORD creationFlags = 0;
+    if (brokerInstance_->ShouldBreakAwayFromJob(this))
+    {
+        creationFlags |= CREATE_BREAKAWAY_FROM_JOB | CREATE_SUSPENDED;
+    }
 
     if (target_.Session == ipc::KnownSession::Any)
     {
@@ -146,17 +157,19 @@ try
         // or requested to lauch a process in every session but we're not a service (e.g. during debugging).
         // In either case launch in same session.
 
+        creationFlags |= NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
+                         (ui_ ? 0 : CREATE_PROTECTED_PROCESS);
+
         RETURN_IF_WIN32_BOOL_FALSE(::CreateProcessW(nullptr, // applicationName
             const_cast<PWSTR>(cmdline.data()),               // commandLine shall be non-const
             nullptr,                                         // process security attributes
             nullptr,                                         // primary thread security attributes
             TRUE,                                            // handles are inherited
-            NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
-                CREATE_PROTECTED_PROCESS, // creation flags
-            nullptr,                      // use parent's environment
-            nullptr,                      // use parent's current directory
-            (LPSTARTUPINFOW)&startInfo,   // STARTUPINFO pointer
-            &processInfo_));              // receives PROCESS_INFORMATION
+            creationFlags,                                   // creation flags
+            nullptr,                                         // use parent's environment
+            nullptr,                                         // use parent's current directory
+            (LPSTARTUPINFOW)&startInfo,                      // STARTUPINFO pointer
+            &processInfo_));                                 // receives PROCESS_INFORMATION
     }
     else
     {
@@ -166,12 +179,12 @@ try
         // TODO: in case of higherIntegrityLevel_ we should also go here even while debugging
 
         wil::unique_handle token;
+        // Ignor any error as the respective session may just have closed
         if (::WTSQueryUserToken(target_.Session, &token))
         {
             wil::unique_handle dupToken;
             ::DuplicateTokenEx(token.get(), MAXIMUM_ALLOWED, NULL, SecurityIdentification, TokenPrimary, &dupToken);
 
-            bool success = true;
             if (higherIntegrityLevel_)
             {
                 // Slightly increase the current integrity level to e.g. "Medium-Plus".
@@ -191,76 +204,49 @@ try
 
                 // Read the integrity level from the users token and increase it slightly
                 DWORD len = 0;
-                if (!::GetTokenInformation(dupToken.get(), TokenIntegrityLevel, NULL, 0, &len) &&
-                    ERROR_INSUFFICIENT_BUFFER == ::GetLastError())
-                {
-                    TOKEN_MANDATORY_LABEL* tml = (TOKEN_MANDATORY_LABEL*)malloc(len);
-                    BOOL res = ::GetTokenInformation(dupToken.get(), TokenIntegrityLevel, tml, len, &len);
-                    if (res)
-                        *sidSubAuth = *::GetSidSubAuthority(tml->Label.Sid, 0) + 0x100;
+                (void)::GetTokenInformation(dupToken.get(), TokenIntegrityLevel, NULL, 0, &len);
+                RETURN_HR_IF(HRESULT_FROM_WIN32(::GetLastError()), ::GetLastError() != ERROR_INSUFFICIENT_BUFFER);
 
-                    free(tml);
+                TOKEN_MANDATORY_LABEL* ptml = (TOKEN_MANDATORY_LABEL*)malloc(len);
+                RETURN_IF_WIN32_BOOL_FALSE(::GetTokenInformation(dupToken.get(), TokenIntegrityLevel, ptml, len, &len));
+                *sidSubAuth = *::GetSidSubAuthority(ptml->Label.Sid, 0) + 0x100;
+                free(ptml);
 
-                    if (!res)
-                        success = false;
-                }
-                else
-                {
-                    success = false;
-                }
+                TOKEN_MANDATORY_LABEL tml = {0};
+                tml.Label.Attributes      = SE_GROUP_INTEGRITY;
+                tml.Label.Sid             = &integritySid;
 
-                if (success)
-                {
-                    TOKEN_MANDATORY_LABEL tml = {0};
-                    tml.Label.Attributes      = SE_GROUP_INTEGRITY;
-                    tml.Label.Sid             = &integritySid;
-
-                    if (!::SetTokenInformation(dupToken.get(), TokenIntegrityLevel, &tml,
-                            sizeof(TOKEN_MANDATORY_LABEL) + ::GetLengthSid(&integritySid)))
-                        success = false;
-                }
+                RETURN_IF_WIN32_BOOL_FALSE(::SetTokenInformation(dupToken.get(), TokenIntegrityLevel, &tml,
+                    sizeof(TOKEN_MANDATORY_LABEL) + ::GetLengthSid(&integritySid)));
             }
 
-            LPVOID env = nullptr;
-            if (success && ::CreateEnvironmentBlock(&env, dupToken.get(), FALSE))
+            wil::unique_environment_block env;
+            RETURN_IF_WIN32_BOOL_FALSE(::CreateEnvironmentBlock(&env, dupToken.get(), FALSE));
+            BOOL impersonated = ::ImpersonateLoggedOnUser(dupToken.get());
+            auto revert       = wil::scope_exit([&] {
+                if (impersonated)
+                    ::RevertToSelf();
+            });
+
+            creationFlags |= NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
+                             /*CREATE_NEW_CONSOLE |*/ CREATE_UNICODE_ENVIRONMENT;
+
+            if (!ui_)
             {
-                auto cleaupEnv = wil::scope_exit([&] {
-                    if (env)
-                        ::DestroyEnvironmentBlock(env);
-                });
-
-                BOOL impersonated = ::ImpersonateLoggedOnUser(dupToken.get());
-                auto revert       = wil::scope_exit([&] {
-                    if (impersonated)
-                        ::RevertToSelf();
-                });
-
-                if (::CreateProcessAsUserW(dupToken.get(), // user token
-                        nullptr,                           // applicationName
-                        const_cast<PWSTR>(cmdline.data()), // commandLine shall be non-const
-                        nullptr,                           // process security attributes
-                        nullptr,                           // primary thread security attributes
-                        TRUE,                              // handles are inherited
-                        NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
-                            CREATE_PROTECTED_PROCESS | CREATE_NEW_CONSOLE |
-                            CREATE_UNICODE_ENVIRONMENT, // creation flags
-                        env,                            // use parent's environment
-                        nullptr,                        // use parent's current directory
-                        (LPSTARTUPINFOW)&startInfo,     // STARTUPINFO pointer
-                        &processInfo_))
-                {
-                }
-                else
-                {
-                }
+                creationFlags |= CREATE_PROTECTED_PROCESS;
             }
-            else
-            {
-            }
-        }
-        else
-        {
-            // do not return on error as the respective session may just have closed
+
+            RETURN_IF_WIN32_BOOL_FALSE(::CreateProcessAsUserW(dupToken.get(), // user token
+                nullptr,                                                      // applicationName
+                const_cast<PWSTR>(cmdline.data()),                            // commandLine shall be non-const
+                nullptr,                                                      // process security attributes
+                nullptr,                                                      // primary thread security attributes
+                TRUE,                                                         // handles are inherited
+                creationFlags,                                                // creation flags
+                env.get(),                                                    // use parent's environment
+                nullptr,                                                      // use parent's current directory
+                (LPSTARTUPINFOW)&startInfo,                                   // STARTUPINFO pointer
+                &processInfo_));
         }
     }
     // Close handles to the stdin and stdout pipes no longer needed by the parent process.
@@ -269,6 +255,16 @@ try
     outWrite_.reset();
     errWrite_.reset();
     inRead_.reset();
+
+    if (WI_IsFlagSet(creationFlags, CREATE_BREAKAWAY_FROM_JOB))
+    {
+        brokerInstance_->AssignProcessToJobObject(this);
+    }
+
+    if (WI_IsFlagSet(creationFlags, CREATE_SUSPENDED))
+    {
+        ::ResumeThread(processInfo_.hThread);
+    }
 
     // If the host process writes to stdout it is a message to some service/session.
     ipc::StartRead(outRead_.get(), reader_, onMessage, processInfo_.dwProcessId);
