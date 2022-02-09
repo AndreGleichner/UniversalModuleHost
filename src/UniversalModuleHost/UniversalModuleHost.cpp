@@ -272,3 +272,33 @@ try
     return S_OK;
 }
 CATCH_RETURN();
+
+HRESULT Module::Load()
+{
+#define LoadEntry(fn)                                                                    \
+    fn##_ = reinterpret_cast<decltype(Entry::fn)*>(GetProcAddress(hmodule_.get(), #fn)); \
+    RETURN_LAST_ERROR_IF_NULL_MSG(fn##_, "Failed to load module entry " #fn)
+
+    LoadEntry(InitModule);
+    LoadEntry(TermModule);
+    LoadEntry(ConnectModule);
+    LoadEntry(OnMessage);
+
+    RETURN_IF_FAILED(InitModule_());
+    ConnectModule_(this, /*OnMsg,*/ OnDiag);
+
+#undef LoadEntry
+    return S_OK;
+}
+
+HRESULT Module::Send(const std::string& msg, const ipc::Target& target) noexcept
+{
+}
+
+HRESULT CALLBACK Module::OnMsg(void* mod, PCSTR msg, const ipc::Target& target)
+{
+}
+
+HRESULT CALLBACK Module::OnDiag(void* mod, PCSTR msg)
+{
+}

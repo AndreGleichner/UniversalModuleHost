@@ -28,7 +28,7 @@
       "IntegrityLevel": "Higher",
       "Ui": true,
       "Modules": [
-        "SampleManagedModuleUi"
+        "SampleManagedModuleUi1"
       ]
     },
     {

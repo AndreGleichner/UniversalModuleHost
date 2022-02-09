@@ -68,4 +68,8 @@ HRESULT StartRead(
 HRESULT StartRead(HANDLE in, std::thread& reader,
     std::function<void(const std::string_view msg, const Target& target)> onRead, DWORD pid) noexcept;
 
+// Message sender passed to ConnectModule() in a module DLL so that it may send messages to its host.
+typedef HRESULT(CALLBACK* SendMsg)(void* mod, PCSTR msg, const Guid* service);
+// Diagnostic output a spdlog logger within a module will use
+typedef HRESULT(CALLBACK* SendDiag)(void* mod, PCSTR msg);
 }

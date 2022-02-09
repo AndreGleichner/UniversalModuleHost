@@ -3,10 +3,41 @@
 #include "ipc.h"
 #include "ManagedHost.h"
 
-namespace ModuleHostApp
+// forward declarations for module entry points
+namespace Entry
 {
-bool StartAsync();
+HRESULT InitModule();
+HRESULT TermModule();
+HRESULT ConnectModule(void* mod, /*ipc::SendMsg sendMsg,*/ ipc::SendDiag sendDiag);
+HRESULT OnMessage(PCSTR msg, const ipc::Target* target);
 }
+
+class Module final
+{
+public:
+    Module(const std::wstring& path)
+    {
+    }
+
+    HRESULT Load();
+    HRESULT Unload();
+
+    // send message to module
+    HRESULT Send(const std::string& msg, const ipc::Target& target) noexcept;
+    // message from module
+    static HRESULT CALLBACK OnMsg(void* mod, PCSTR msg, const ipc::Target& target);
+    // log from module
+    static HRESULT CALLBACK OnDiag(void* mod, PCSTR msg);
+
+private:
+    const std::wstring  path_;
+    wil::unique_hmodule hmodule_;
+
+    decltype(&Entry::InitModule)    InitModule_;
+    decltype(&Entry::TermModule)    TermModule_;
+    decltype(&Entry::ConnectModule) ConnectModule_;
+    decltype(&Entry::OnMessage)     OnMessage_;
+};
 
 class UniversalModuleHost final
 {
