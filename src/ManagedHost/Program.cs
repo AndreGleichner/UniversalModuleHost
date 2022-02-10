@@ -96,6 +96,8 @@ namespace ManagedHost
                 ? Marshal.PtrToStringUni(service)
                 : Marshal.PtrToStringUTF8(service);
 
+            Log.Information($"OnMessageFromHost: '{m}' '{s}' {session}");
+
             return 0;
         }
 

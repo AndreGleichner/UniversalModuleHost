@@ -31,9 +31,9 @@ public:
     bool    RunAsync();
     HRESULT LoadModule(const std::wstring& path);
     HRESULT UnloadModule(const std::wstring& name);
-    // send message to module
+    // send message to all modules
     HRESULT Send(const std::string_view msg, const ipc::Target& target) noexcept;
-    // Message from module
+    // Message from any module
     HRESULT OnMessageFromModule(const std::string_view msg, const ipc::Target& target);
     int     OnProgress(int progress) const;
 
@@ -91,5 +91,5 @@ private:
     using OnMessageFromHostFuncSig =
         std::add_pointer_t<int CORECLR_DELEGATE_CALLTYPE(const char_t* msg, const char_t* service, uint32_t session)>;
 
-    OnMessageFromHostFuncSig onMessageFromHost_;
+    OnMessageFromHostFuncSig invokeManagedOnMessageFromHost_ = nullptr;
 };

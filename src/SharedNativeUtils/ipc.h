@@ -21,6 +21,7 @@ static const Guid Broker {L"{92D627A3-6C62-4C5B-8477-484A34ED3B82}"};
 
 // ipc::HostInitMsg
 static const Guid HostInit {L"{AA810FBD-B33C-4895-8E82-8814EE849E02}"};
+static const Guid ManagedHost {L"{7924FE60-C967-449C-BA5D-2EBAA7D16024}"};
 
 static const Guid WebBrowser {L"{BEA684E7-697F-4201-844F-98224FA16D2F}"};
 static const Guid ConfStore {L"{8583CDC9-DB92-45BE-90CE-4D3AA4CD14F5}"};

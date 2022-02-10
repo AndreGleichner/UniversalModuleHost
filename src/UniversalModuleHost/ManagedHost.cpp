@@ -1,9 +1,12 @@
 #include "pch.h"
 
+#include <nlohmann/json.hpp>
+
 #include "ManagedHost.h"
 #include "error_codes.h"
 #include "UniversalModuleHost.h"
 #include "ipc.h"
+#include "HostMsg.h"
 #include "string_extensions.h"
 using namespace Strings;
 
@@ -75,8 +78,8 @@ bool ManagedHost::RunAsync()
     if (!InitFunctionPointerFactory())
         return false;
 
-    onMessageFromHost_ = (OnMessageFromHostFuncSig)CreateFunction(_X("OnMessageFromHost"));
-    if (!onMessageFromHost_)
+    invokeManagedOnMessageFromHost_ = (OnMessageFromHostFuncSig)CreateFunction(_X("OnMessageFromHost"));
+    if (!invokeManagedOnMessageFromHost_)
     {
         SPDLOG_ERROR(L"Failed to load OnMessageFromHost from managed assembly");
         return false;
@@ -126,6 +129,11 @@ bool ManagedHost::RunAsync()
 
 HRESULT ManagedHost::LoadModule(const std::wstring& path)
 {
+    nlohmann::json args = ipc::HostCtrlModuleArgs {ipc::HostCtrlModuleArgs::Cmd::Load, ToUtf8(path)};
+    nlohmann::json msg  = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::CtrlModule, args.dump()};
+
+    RETURN_IF_FAILED(Send(msg.dump(), ipc::Target(ipc::KnownService::ManagedHost)));
+
     return S_OK;
 }
 
@@ -255,20 +263,21 @@ extern "C" __declspec(dllexport) HRESULT OnMessageFromModule(PCSTR msg, GUID* se
     return TheManagedHost->OnMessageFromModule(msg, ipc::Target(*service, session));
 }
 
+// Message from any module
 HRESULT ManagedHost::OnMessageFromModule(const std::string_view msg, const ipc::Target& target)
 {
     return universalModuleHost_->OnMessageFromModule(nullptr, msg, target);
 }
 
-// send message to module
+// send message to all modules
 HRESULT ManagedHost::Send(const std::string_view msg, const ipc::Target& target) noexcept
 {
-    RETURN_HR_IF_NULL(E_FAIL, onMessageFromHost_);
+    RETURN_HR_IF_NULL(E_FAIL, invokeManagedOnMessageFromHost_);
 
     std::wstring m = ToUtf16(msg);
     std::wstring s = target.Service.ToString();
 
-    int res = onMessageFromHost_(m.c_str(), s.c_str(), target.Session);
+    int res = invokeManagedOnMessageFromHost_(m.c_str(), s.c_str(), target.Session);
 
     return S_OK;
 }
