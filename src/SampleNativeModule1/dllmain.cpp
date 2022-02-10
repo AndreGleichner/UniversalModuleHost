@@ -15,11 +15,13 @@ extern "C" __declspec(dllexport) HRESULT TermModule()
     return S_OK;
 }
 
+void*         Mod      = nullptr;
 ipc::SendMsg  SendMsg  = nullptr;
 ipc::SendDiag SendDiag = nullptr;
 
-extern "C" __declspec(dllexport) HRESULT ConnectModule(void* ctx, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag)
+extern "C" __declspec(dllexport) HRESULT ConnectModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag)
 {
+    Mod      = mod;
     SendMsg  = sendMsg;
     SendDiag = sendDiag;
     return S_OK;

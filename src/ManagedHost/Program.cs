@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using ManagedHost.Utils;
 using Microsoft.Extensions.Configuration;
@@ -84,8 +85,23 @@ namespace ManagedHost
                 .CreateLogger();
         }
 
+        [UnmanagedCallersOnly]
+        public static int OnMessageFromHost(IntPtr msg, IntPtr service, uint session)
+        {
+            string m = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? Marshal.PtrToStringUni(msg)
+                : Marshal.PtrToStringUTF8(msg);
+
+            string s = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? Marshal.PtrToStringUni(service)
+                : Marshal.PtrToStringUTF8(service);
+
+            return 0;
+        }
 
 #if FALSE
+see cpp code under #if INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_RUNTIMECONFIG
+
         [StructLayout(LayoutKind.Sequential)]
         public struct MainArgs
         {

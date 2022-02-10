@@ -120,8 +120,9 @@ void BrokerInstance::OnMessage(const ChildProcess* fromProcess, const std::strin
 
     for (auto& process : childProcesses_)
     {
-        if (process.get() != fromProcess)
-            process->SendMsg(msg, target);
+        // TODO: optimization in case the host know how to route in-proc service messages
+        // if (process.get() != fromProcess)
+        process->SendMsg(msg, target);
     }
 }
 

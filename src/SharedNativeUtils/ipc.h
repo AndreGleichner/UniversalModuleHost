@@ -2,6 +2,8 @@
 #include <Windows.h>
 #include <functional>
 #include <string_view>
+#include <format>
+#include <thread>
 #include "guid.h"
 
 namespace ipc
@@ -55,10 +57,10 @@ struct Target final
 };
 
 // Usually be used with host
-HRESULT Send(const std::string& msg, const Target& target) noexcept;
+HRESULT Send(const std::string_view msg, const Target& target) noexcept;
 
 // Usually be used with broker
-HRESULT Send(HANDLE out, const std::string& msg, const Target& target) noexcept;
+HRESULT Send(HANDLE out, const std::string_view msg, const Target& target) noexcept;
 
 // Usually be used with host
 HRESULT StartRead(
@@ -69,7 +71,7 @@ HRESULT StartRead(HANDLE in, std::thread& reader,
     std::function<void(const std::string_view msg, const Target& target)> onRead, DWORD pid) noexcept;
 
 // Message sender passed to ConnectModule() in a module DLL so that it may send messages to its host.
-typedef HRESULT(CALLBACK* SendMsg)(void* mod, PCSTR msg, const Guid* service);
+typedef HRESULT(CALLBACK* SendMsg)(void* mod, PCSTR msg, const Guid* service, DWORD session);
 // Diagnostic output a spdlog logger within a module will use
 typedef HRESULT(CALLBACK* SendDiag)(void* mod, PCSTR msg);
 }

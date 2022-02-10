@@ -31,5 +31,10 @@
       Projects="..\SampleManagedModule2\SampleManagedModule2.csproj"
       Targets="Publish"
       Properties="Configuration=$(Configuration);PublishDir=$(OutputPath)/../modules/SampleManagedModule2/" />
+
+    <MSBuild
+      Projects="..\SampleManagedModuleUi1\SampleManagedModuleUi1.csproj"
+      Targets="Publish"
+      Properties="Configuration=$(Configuration);PublishDir=$(OutputPath)/../modules/SampleManagedModuleUi1/" />
   </Target>
 </Project>

@@ -143,8 +143,8 @@ int main()
 int UniversalModuleHost::Run()
 {
     std::thread reader;
-    FAIL_FAST_IF_FAILED(
-        ipc::StartRead(reader, [&](const std::string_view msg, const ipc::Target& target) { OnMessage(msg, target); }));
+    FAIL_FAST_IF_FAILED(ipc::StartRead(
+        reader, [&](const std::string_view msg, const ipc::Target& target) { OnMessageFromBroker(msg, target); }));
 
     terminate_.wait();
 
@@ -154,7 +154,7 @@ int UniversalModuleHost::Run()
     return 0;
 }
 
-void UniversalModuleHost::OnMessage(const std::string_view msg, const ipc::Target& target)
+HRESULT UniversalModuleHost::OnMessageFromBroker(const std::string_view msg, const ipc::Target& target)
 {
     spdlog::info("RX-H: {} for {}", msg, Strings::ToUtf8(target.ToString()));
     /*while (!::IsDebuggerPresent())
@@ -210,22 +210,46 @@ void UniversalModuleHost::OnMessage(const std::string_view msg, const ipc::Targe
         }
         else
         {
+            for (auto& mod : nativeModules_)
+            {
+                LOG_IF_FAILED(mod->Send(msg, target));
+            }
         }
     }
+
+    return S_OK;
 }
 
-void UniversalModuleHost::OnModOut(PCWSTR mod, PCWSTR message)
+HRESULT UniversalModuleHost::OnMessageFromModule(
+    NativeModule* mod, const std::string_view msg, const ipc::Target& target)
 {
+    // TODO: maybe have a service registry/discovery to optimize sending messages to services in same process directly
+    // instead over broker.
+    RETURN_IF_FAILED(ipc::Send(msg, target));
+    return S_OK;
 }
 
 HRESULT UniversalModuleHost::LoadModule(const std::wstring& name) noexcept
 try
 {
-    auto path = Process::ImagePath().replace_filename(L"modules") / name / (name + L".dll");
+    // while (!::IsDebuggerPresent())
+    //{
+    //     ::Sleep(1000);
+    // }
+    //::DebugBreak();
+
+    const std::wstring bitness = sizeof(void*) == 4 ? L"32.dll" : L"64.dll";
+    auto               path    = Process::ImagePath().replace_filename(L"modules") / name / (name + bitness);
 
     auto kind = FileImage::GetKind(path.c_str());
     if (kind == FileImage::Kind::Unknown)
-        return E_FAIL;
+    {
+        // managed asseblies are typically AnyCPU, so no need to have both 32 and 64bit versions.
+        path = Process::ImagePath().replace_filename(L"modules") / name / (name + L".dll");
+        kind = FileImage::GetKind(path.c_str());
+        if (kind == FileImage::Kind::Unknown)
+            return E_FAIL;
+    }
 
     if (AnyBitSet(kind, FileImage::Kind::Exe))
         return E_FAIL;
@@ -249,18 +273,37 @@ CATCH_RETURN();
 HRESULT UniversalModuleHost::UnloadModule(const std::wstring& name) noexcept
 try
 {
+    // try to find a native module with given name
+    auto mod = std::find_if(nativeModules_.begin(), nativeModules_.end(),
+        [&](const std::unique_ptr<NativeModule>& m) { return wcscmp(m->path_.stem().c_str(), name.c_str()) == 0; });
+
+    if (mod != nativeModules_.end())
+    {
+        HRESULT hr = (*mod)->Unload();
+        nativeModules_.erase(mod);
+        RETURN_HR_MSG(hr, "native module unload failed %ls", name.c_str());
+    }
+
+    RETURN_HR_IF_NULL_MSG(E_FAIL, managedHost_, "Managed host not initialized");
+    RETURN_IF_FAILED(managedHost_->UnloadModule(name));
+
     return S_OK;
 }
 CATCH_RETURN();
 
-HRESULT UniversalModuleHost::LoadNativeModule(const std::wstring& path) noexcept
+HRESULT UniversalModuleHost::LoadNativeModule(const std::filesystem::path& path) noexcept
 try
 {
+    auto mod = std::make_unique<NativeModule>(this, path);
+    RETURN_IF_FAILED(mod->Load());
+
+    nativeModules_.push_back(std::move(mod));
+
     return S_OK;
 }
 CATCH_RETURN();
 
-HRESULT UniversalModuleHost::LoadManagedModule(const std::wstring& path) noexcept
+HRESULT UniversalModuleHost::LoadManagedModule(const std::filesystem::path& path) noexcept
 try
 {
     if (!managedHost_)
@@ -273,8 +316,11 @@ try
 }
 CATCH_RETURN();
 
-HRESULT Module::Load()
+HRESULT NativeModule::Load()
 {
+    hmodule_ = wil::unique_hmodule(::LoadLibraryW(path_.c_str()));
+    RETURN_HR_IF_NULL_MSG(E_FAIL, hmodule_.get(), "Failed to load native module %ls", path_.c_str());
+
 #define LoadEntry(fn)                                                                    \
     fn##_ = reinterpret_cast<decltype(Entry::fn)*>(GetProcAddress(hmodule_.get(), #fn)); \
     RETURN_LAST_ERROR_IF_NULL_MSG(fn##_, "Failed to load module entry " #fn)
@@ -285,20 +331,35 @@ HRESULT Module::Load()
     LoadEntry(OnMessage);
 
     RETURN_IF_FAILED(InitModule_());
-    ConnectModule_(this, /*OnMsg,*/ OnDiag);
+    ConnectModule_(this, OnMsg, OnDiag);
 
 #undef LoadEntry
     return S_OK;
 }
 
-HRESULT Module::Send(const std::string& msg, const ipc::Target& target) noexcept
+HRESULT NativeModule::Unload()
 {
+    auto freeLib = wil::scope_exit([&] { hmodule_.reset(); });
+
+    RETURN_IF_FAILED(TermModule_());
+
+    return S_OK;
 }
 
-HRESULT CALLBACK Module::OnMsg(void* mod, PCSTR msg, const ipc::Target& target)
+HRESULT NativeModule::Send(const std::string_view msg, const ipc::Target& target) noexcept
 {
+    return OnMessage_(msg.data(), &target);
 }
 
-HRESULT CALLBACK Module::OnDiag(void* mod, PCSTR msg)
+HRESULT CALLBACK NativeModule::OnMsg(void* mod, PCSTR msg, const Guid* service, DWORD session) noexcept
 {
+    auto m = static_cast<NativeModule*>(mod);
+    RETURN_IF_FAILED(m->host_->OnMessageFromModule(m, msg, ipc::Target(*service, session)));
+    return S_OK;
+}
+
+HRESULT CALLBACK NativeModule::OnDiag(void* mod, PCSTR msg) noexcept
+{
+    auto m = static_cast<NativeModule*>(mod);
+    return S_OK;
 }

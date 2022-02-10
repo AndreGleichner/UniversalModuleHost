@@ -3,7 +3,9 @@
 #include "ManagedHost.h"
 #include "error_codes.h"
 #include "UniversalModuleHost.h"
-
+#include "ipc.h"
+#include "string_extensions.h"
+using namespace Strings;
 
 #ifdef _WIN32
 #    include <Windows.h>
@@ -27,6 +29,8 @@ ManagedHost* TheManagedHost;
 
 ManagedHost::ManagedHost(UniversalModuleHost* host) : universalModuleHost_(host)
 {
+    FAIL_FAST_IF_MSG(TheManagedHost != 0, "There shall be only one ManagedHost");
+    TheManagedHost = this;
 }
 
 ManagedHost::~ManagedHost()
@@ -38,6 +42,8 @@ ManagedHost::~ManagedHost()
     }
     if (mainThread_.joinable())
         mainThread_.join();
+
+    TheManagedHost = nullptr;
 }
 
 // https://docs.microsoft.com/en-us/dotnet/core/tutorials/netcore-hosting
@@ -68,6 +74,13 @@ bool ManagedHost::RunAsync()
 #endif
     if (!InitFunctionPointerFactory())
         return false;
+
+    onMessageFromHost_ = (OnMessageFromHostFuncSig)CreateFunction(_X("OnMessageFromHost"));
+    if (!onMessageFromHost_)
+    {
+        SPDLOG_ERROR(L"Failed to load OnMessageFromHost from managed assembly");
+        return false;
+    }
 
 #if INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_RUNTIMECONFIG
     struct MainArgs
@@ -112,6 +125,11 @@ bool ManagedHost::RunAsync()
 }
 
 HRESULT ManagedHost::LoadModule(const std::wstring& path)
+{
+    return S_OK;
+}
+
+HRESULT ManagedHost::UnloadModule(const std::wstring& name)
 {
     return S_OK;
 }
@@ -232,14 +250,27 @@ extern "C" __declspec(dllexport) void OnLog(int serilogLevel, PCWSTR message)
 }
 #pragma endregion
 
-extern "C" __declspec(dllexport) void ModOut(PCWSTR mod, PCWSTR message)
+extern "C" __declspec(dllexport) HRESULT OnMessageFromModule(PCSTR msg, GUID* service, DWORD session)
 {
-    TheManagedHost->OnModOut(mod, message);
+    return TheManagedHost->OnMessageFromModule(msg, ipc::Target(*service, session));
 }
 
-void ManagedHost::OnModOut(PCWSTR mod, PCWSTR message)
+HRESULT ManagedHost::OnMessageFromModule(const std::string_view msg, const ipc::Target& target)
 {
-    universalModuleHost_->OnModOut(mod, message);
+    return universalModuleHost_->OnMessageFromModule(nullptr, msg, target);
+}
+
+// send message to module
+HRESULT ManagedHost::Send(const std::string_view msg, const ipc::Target& target) noexcept
+{
+    RETURN_HR_IF_NULL(E_FAIL, onMessageFromHost_);
+
+    std::wstring m = ToUtf16(msg);
+    std::wstring s = target.Service.ToString();
+
+    int res = onMessageFromHost_(m.c_str(), s.c_str(), target.Session);
+
+    return S_OK;
 }
 
 extern "C" __declspec(dllexport) int OnProgressFromManaged(int progress)
@@ -259,14 +290,14 @@ void* ManagedHost::CreateFunction(const char_t* name) const
 {
     void* func = nullptr;
 #if INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_CMDLINE
-    int rc = functionFactory_(dotnetType_, name, UNMANAGEDCALLERSONLY_METHOD, hostContext_, nullptr, (void**)&func);
+    int rc = functionFactory_(dotnetType_, name, UNMANAGEDCALLERSONLY_METHOD, nullptr, nullptr, (void**)&func);
 #elif INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_RUNTIMECONFIG
     int rc =
         functionFactory_(assemblyPath_.c_str(), dotnetType_, name, UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&func);
 #endif
     if (!STATUS_CODE_SUCCEEDED(rc) || !func)
     {
-        SPDLOG_INFO(L"Failure: functionFactory_(NativeHostMain)");
+        SPDLOG_INFO(L"Failure: functionFactory_({})", name);
         return nullptr;
     }
     return func;

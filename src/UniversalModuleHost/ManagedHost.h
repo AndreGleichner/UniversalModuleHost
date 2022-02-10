@@ -4,6 +4,8 @@
 #include <nethost/coreclr_delegates.h>
 #include <nethost/hostfxr.h>
 
+#include "ipc.h"
+
 #ifdef _WIN32
 #    define _X(s) L##s
 #else
@@ -28,11 +30,12 @@ public:
     ~ManagedHost();
     bool    RunAsync();
     HRESULT LoadModule(const std::wstring& path);
-    // Message to module
-    void ModIn(PCWSTR mod, PCWSTR message);
+    HRESULT UnloadModule(const std::wstring& name);
+    // send message to module
+    HRESULT Send(const std::string_view msg, const ipc::Target& target) noexcept;
     // Message from module
-    void OnModOut(PCWSTR mod, PCWSTR message);
-    int  OnProgress(int progress) const;
+    HRESULT OnMessageFromModule(const std::string_view msg, const ipc::Target& target);
+    int     OnProgress(int progress) const;
 
 private:
     bool LoadFxr();
@@ -84,4 +87,9 @@ private:
     std::thread mainThread_;
 
     UniversalModuleHost* universalModuleHost_;
+
+    using OnMessageFromHostFuncSig =
+        std::add_pointer_t<int CORECLR_DELEGATE_CALLTYPE(const char_t* msg, const char_t* service, uint32_t session)>;
+
+    OnMessageFromHostFuncSig onMessageFromHost_;
 };

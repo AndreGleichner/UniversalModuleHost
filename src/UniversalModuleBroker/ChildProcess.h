@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <wil/resource.h>
+#include <nlohmann/json.hpp>
 #include "ipc.h"
 
 class BrokerInstance;

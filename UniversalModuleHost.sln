@@ -29,14 +29,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalModuleBroker", "sr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedNativeUtils", "src\SharedNativeUtils\SharedNativeUtils.vcxitems", "{1E83DDDB-014F-4BFA-ACC4-333758ECD732}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleManagedModuleUi1", "src\SampleManagedModuleUi1\SampleManagedModuleUi1.csproj", "{B7799BA6-0564-42A2-ABE3-95E4BAE521C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleManagedModuleUi1", "src\SampleManagedModuleUi1\SampleManagedModuleUi1.csproj", "{B7799BA6-0564-42A2-ABE3-95E4BAE521C4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleNativeModule1", "src\SampleNativeModule1\SampleNativeModule1.vcxproj", "{3F4025E8-CA16-43B6-A088-3B69A2A029CB}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{1e83dddb-014f-4bfa-acc4-333758ecd732}*SharedItemsImports = 9
-		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{3f4025e8-ca16-43b6-a088-3b69a2a029cb}*SharedItemsImports = 4
 		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{59d3d010-5ca7-4a5a-ba49-534a046db566}*SharedItemsImports = 4
 		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{7185569d-3107-4776-8fb9-8a45e2b2b8b0}*SharedItemsImports = 4
 	EndGlobalSection

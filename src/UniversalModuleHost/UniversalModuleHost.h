@@ -2,20 +2,24 @@
 
 #include "ipc.h"
 #include "ManagedHost.h"
+#include "guid.h"
 
 // forward declarations for module entry points
 namespace Entry
 {
 HRESULT InitModule();
 HRESULT TermModule();
-HRESULT ConnectModule(void* mod, /*ipc::SendMsg sendMsg,*/ ipc::SendDiag sendDiag);
+HRESULT ConnectModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag);
 HRESULT OnMessage(PCSTR msg, const ipc::Target* target);
 }
 
-class Module final
+class UniversalModuleHost;
+class NativeModule final
 {
+    friend UniversalModuleHost;
+
 public:
-    Module(const std::wstring& path)
+    NativeModule(UniversalModuleHost* host, const std::filesystem::path& path) : host_(host), path_(path)
     {
     }
 
@@ -23,25 +27,27 @@ public:
     HRESULT Unload();
 
     // send message to module
-    HRESULT Send(const std::string& msg, const ipc::Target& target) noexcept;
+    HRESULT Send(const std::string_view msg, const ipc::Target& target) noexcept;
     // message from module
-    static HRESULT CALLBACK OnMsg(void* mod, PCSTR msg, const ipc::Target& target);
+    static HRESULT CALLBACK OnMsg(void* mod, PCSTR msg, const Guid* service, DWORD session) noexcept;
     // log from module
-    static HRESULT CALLBACK OnDiag(void* mod, PCSTR msg);
+    static HRESULT CALLBACK OnDiag(void* mod, PCSTR msg) noexcept;
 
 private:
-    const std::wstring  path_;
-    wil::unique_hmodule hmodule_;
+    UniversalModuleHost*        host_ = nullptr;
+    const std::filesystem::path path_;
+    wil::unique_hmodule         hmodule_;
 
-    decltype(&Entry::InitModule)    InitModule_;
-    decltype(&Entry::TermModule)    TermModule_;
-    decltype(&Entry::ConnectModule) ConnectModule_;
-    decltype(&Entry::OnMessage)     OnMessage_;
+    decltype(&Entry::InitModule)    InitModule_    = nullptr;
+    decltype(&Entry::TermModule)    TermModule_    = nullptr;
+    decltype(&Entry::ConnectModule) ConnectModule_ = nullptr;
+    decltype(&Entry::OnMessage)     OnMessage_     = nullptr;
 };
 
 class UniversalModuleHost final
 {
     friend ManagedHost;
+    friend NativeModule;
 
 public:
     UniversalModuleHost() = default;
@@ -49,18 +55,19 @@ public:
 
 private:
     // message from broker
-    void OnMessage(const std::string_view msg, const ipc::Target& target);
+    HRESULT OnMessageFromBroker(const std::string_view msg, const ipc::Target& target);
 
-    void OnModOut(PCWSTR mod, PCWSTR message);
+    HRESULT OnMessageFromModule(NativeModule* mod, const std::string_view msg, const ipc::Target& target);
 
     HRESULT LoadModule(const std::wstring& name) noexcept;
     HRESULT UnloadModule(const std::wstring& name) noexcept;
 
-    HRESULT LoadNativeModule(const std::wstring& path) noexcept;
-    HRESULT LoadManagedModule(const std::wstring& path) noexcept;
+    HRESULT LoadNativeModule(const std::filesystem::path& path) noexcept;
+    HRESULT LoadManagedModule(const std::filesystem::path& path) noexcept;
 
-    ipc::Target                  target_;
-    std::string                  groupName_;
-    wil::unique_event_failfast   terminate_ {wil::EventOptions::ManualReset};
-    std::unique_ptr<ManagedHost> managedHost_;
+    ipc::Target                                target_;
+    std::string                                groupName_;
+    wil::unique_event_failfast                 terminate_ {wil::EventOptions::ManualReset};
+    std::unique_ptr<ManagedHost>               managedHost_;
+    std::vector<std::unique_ptr<NativeModule>> nativeModules_;
 };

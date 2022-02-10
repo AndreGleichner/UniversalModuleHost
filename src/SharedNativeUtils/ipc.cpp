@@ -6,12 +6,12 @@
 
 namespace ipc
 {
-HRESULT Send(const std::string& msg, const Target& target) noexcept
+HRESULT Send(const std::string_view msg, const Target& target) noexcept
 {
     return Send(::GetStdHandle(STD_OUTPUT_HANDLE), msg, target);
 };
 
-HRESULT Send(HANDLE out, const std::string& msg, const Target& target) noexcept
+HRESULT Send(HANDLE out, const std::string_view msg, const Target& target) noexcept
 try
 {
     RETURN_HR_IF_MSG(E_FAIL, target.Service == KnownService::None, "Can't send IPC msg to None");
