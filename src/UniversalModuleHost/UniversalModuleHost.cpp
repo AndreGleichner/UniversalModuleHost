@@ -232,11 +232,11 @@ HRESULT UniversalModuleHost::OnMessageFromModule(
 HRESULT UniversalModuleHost::LoadModule(const std::wstring& name) noexcept
 try
 {
-    // while (!::IsDebuggerPresent())
-    //{
-    //     ::Sleep(1000);
-    // }
-    //::DebugBreak();
+    /*while (!::IsDebuggerPresent())
+    {
+        ::Sleep(1000);
+    }
+    ::DebugBreak();*/
 
     const std::wstring bitness = sizeof(void*) == 4 ? L"32.dll" : L"64.dll";
     auto               path    = Process::ImagePath().replace_filename(L"modules") / name / (name + bitness);
@@ -251,8 +251,8 @@ try
             return E_FAIL;
     }
 
-    if (AnyBitSet(kind, FileImage::Kind::Exe))
-        return E_FAIL;
+    /*if (AnyBitSet(kind, FileImage::Kind::Exe))
+        return E_FAIL;*/
 
     // Managed assembly may be a PE32 image although can be loaded into a 64bit host.
     if (AnyBitSet(kind, FileImage::Kind::Managed))

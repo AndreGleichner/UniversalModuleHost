@@ -8,8 +8,6 @@ namespace ManagedModuleContract
 {
     public interface IModuleHost : IDisposable
     {
-        bool Subscribe(ulong id);
-        bool Unsubscribe(ulong id);
-        bool PublishEvent(ulong id, byte[] data);
+        bool SendMsgToHost(IModule module, string msg, Guid service, int session);
     }
 }

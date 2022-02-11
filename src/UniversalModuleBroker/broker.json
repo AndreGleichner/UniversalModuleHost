@@ -11,7 +11,7 @@
       "GroupName": "B",
       "Session": "Broker",
       "Modules": [
-        "SampleManagedModule2"
+        "SampleManagedModule1"
       ]
     },
     {

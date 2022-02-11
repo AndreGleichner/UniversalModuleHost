@@ -78,8 +78,8 @@ bool ManagedHost::RunAsync()
     if (!InitFunctionPointerFactory())
         return false;
 
-    invokeManagedOnMessageFromHost_ = (OnMessageFromHostFuncSig)CreateFunction(_X("OnMessageFromHost"));
-    if (!invokeManagedOnMessageFromHost_)
+    invokeManageMessageFromHostToModule_ = (OnMessageFromHostFuncSig)CreateFunction(_X("MessageFromHostToModule"));
+    if (!invokeManageMessageFromHostToModule_)
     {
         SPDLOG_ERROR(L"Failed to load OnMessageFromHost from managed assembly");
         return false;
@@ -258,9 +258,11 @@ extern "C" __declspec(dllexport) void OnLog(int serilogLevel, PCWSTR message)
 }
 #pragma endregion
 
-extern "C" __declspec(dllexport) HRESULT OnMessageFromModule(PCSTR msg, GUID* service, DWORD session)
+extern "C" __declspec(dllexport) HRESULT MessageFromModuleToHost(PCWSTR msg, PCWSTR service, int session)
 {
-    return TheManagedHost->OnMessageFromModule(msg, ipc::Target(*service, session));
+    Guid guid;
+    RETURN_IF_FAILED(guid.Parse(service));
+    return TheManagedHost->OnMessageFromModule(ToUtf8(msg), ipc::Target(guid, (DWORD)session));
 }
 
 // Message from any module
@@ -272,12 +274,12 @@ HRESULT ManagedHost::OnMessageFromModule(const std::string_view msg, const ipc::
 // send message to all modules
 HRESULT ManagedHost::Send(const std::string_view msg, const ipc::Target& target) noexcept
 {
-    RETURN_HR_IF_NULL(E_FAIL, invokeManagedOnMessageFromHost_);
+    RETURN_HR_IF_NULL(E_FAIL, invokeManageMessageFromHostToModule_);
 
     std::wstring m = ToUtf16(msg);
     std::wstring s = target.Service.ToString();
 
-    int res = invokeManagedOnMessageFromHost_(m.c_str(), s.c_str(), target.Session);
+    int res = invokeManageMessageFromHostToModule_(m.c_str(), s.c_str(), target.Session);
 
     return S_OK;
 }

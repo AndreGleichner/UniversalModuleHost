@@ -3,16 +3,16 @@ using ManagedModuleContract;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace SampleManagedModule1
+namespace SampleManagedModuleUi1
 {
-    public class Module1 : IModule, IDisposable
+    public class Module : IModule, IDisposable
     {
         private readonly IConfigurationRoot _config;
         private readonly ILogger _logger;
         private bool _disposed;
         private IModuleHost _moduleHost;
 
-        public Module1(IConfigurationRoot config, ILogger logger)
+        public Module(IConfigurationRoot config, ILogger logger)
         {
             _config = config;
             _logger = logger;
@@ -27,7 +27,7 @@ namespace SampleManagedModule1
 
         public bool OnMessageFromHost(string msg, Guid service, int session)
         {
-            _logger.LogInformation($"{nameof(Module1)}: Received event {msg}");
+            _logger.LogInformation($"{nameof(Module)}: Received event {msg}");
             return true;
         }
         #endregion

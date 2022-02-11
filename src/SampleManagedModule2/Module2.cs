@@ -25,9 +25,9 @@ namespace SampleManagedModule1
             return true;
         }
 
-        public bool DispatchEvent(ulong id, byte[] data)
+        public bool OnMessageFromHost(string msg, Guid service, int session)
         {
-            _logger.LogInformation($"{nameof(Module2)}: Received event {id}");
+            _logger.LogInformation($"{nameof(Module2)}: Received event {msg}");
             return true;
         }
         #endregion

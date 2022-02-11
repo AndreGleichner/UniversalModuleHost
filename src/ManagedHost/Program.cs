@@ -1,24 +1,32 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Threading;
 using ManagedHost.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Templates;
-using Serilog.Templates.Themes;
 
 namespace ManagedHost
 {
     class Program
     {
         private const int FailureExitCode = 213;
+        private static readonly ManualResetEvent initialized_ = new(false);
+        private static readonly ManualResetEvent terminated_ = new(false);
+        private static ModuleHost _moduleHost;
 
         private static int Main(string[] args)
         {
+            //while (!Debugger.IsAttached)
+            //{
+            //    Thread.Sleep(1000);
+            //}
+            //Debugger.Break();
+
             // Strange that the thread name as set on native side is not visible here,
             // but setting it here also makes it visible in any callback into native code.
             Thread.CurrentThread.Name = "UMH-NetMain";
@@ -30,10 +38,13 @@ namespace ManagedHost
 
             var serviceProvider = services.BuildServiceProvider();
 
-            int res = serviceProvider.GetService<App>().Run(args);
+            _moduleHost = serviceProvider.GetService<ModuleHost>();
+            initialized_.Set();
 
-            Log.Information($"Exiting managed Main() with {res}");
-            return res;
+            terminated_.WaitOne();
+
+            Log.Information($"Exiting managed Main()");
+            return 0;
         }
 
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -52,7 +63,7 @@ namespace ManagedHost
             services.AddSingleton(config);
             services.AddSingleton<IConfigurationRoot>((serviceProvider) => config);
             services.AddSingleton<Microsoft.Extensions.Logging.ILogger>(new SerilogAsMicrosoftLogger());
-            services.AddTransient<App>();
+            services.AddTransient<ModuleHost>();
 
             return services;
         }
@@ -85,9 +96,19 @@ namespace ManagedHost
                 .CreateLogger();
         }
 
+        private const string ManagedHost = "{7924FE60-C967-449C-BA5D-2EBAA7D16024}";
+
         [UnmanagedCallersOnly]
-        public static int OnMessageFromHost(IntPtr msg, IntPtr service, uint session)
+        public static int MessageFromHostToModule(IntPtr msg, IntPtr service, uint session)
         {
+            initialized_.WaitOne();
+
+            //while (!Debugger.IsAttached)
+            //{
+            //    Thread.Sleep(1000);
+            //}
+            //Debugger.Break();
+
             string m = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? Marshal.PtrToStringUni(msg)
                 : Marshal.PtrToStringUTF8(msg);
@@ -96,9 +117,29 @@ namespace ManagedHost
                 ? Marshal.PtrToStringUni(service)
                 : Marshal.PtrToStringUTF8(service);
 
-            Log.Information($"OnMessageFromHost: '{m}' '{s}' {session}");
+            Log.Information($"MessageFromHostToModule: '{m}' '{s}' {session}");
 
-            return 0;
+            if (s == ManagedHost)
+            {
+                var hostCmdMsg = JsonSerializer.Deserialize<HostCmdMsg>(m);
+                if (hostCmdMsg.Cmd == HostCmdMsg.ECmd.Terminate)
+                {
+                    terminated_.Set();
+                }
+                else if (hostCmdMsg.Cmd == HostCmdMsg.ECmd.CtrlModule)
+                {
+                    var args = JsonSerializer.Deserialize<HostCtrlModuleArgs>(hostCmdMsg.Args);
+                    if (args.Cmd == HostCtrlModuleArgs.ECmd.Load)
+                    {
+                        _moduleHost.LoadModule(args.Module);
+                    }
+                    else if (args.Cmd == HostCtrlModuleArgs.ECmd.Unload)
+                    {
+                        _moduleHost.UnloadModule(args.Module);
+                    }
+                }
+            }
+            return 42;
         }
 
 #if FALSE
@@ -131,5 +172,22 @@ see cpp code under #if INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_RUNTIMECONFIG
             return res;
         }
 #endif
+    }
+
+    internal static class NativeMethods
+    {
+        [DllImport("UniversalModuleHost64.exe", EntryPoint = "OnMessageFromModule", CharSet = CharSet.Unicode)]
+        static extern int MessageFromModuleToHost64(string msg, string service, int session);
+
+        [DllImport("UniversalModuleHost32.exe", EntryPoint = "OnMessageFromModule", CharSet = CharSet.Unicode)]
+        static extern int MessageFromModuleToHost32(string msg, string service, int session);
+
+        public static int MessageFromModuleToHost(string msg, string service, int session)
+        {
+            if (IntPtr.Size == 4)
+                return MessageFromModuleToHost32(msg, service, session);
+            else
+                return MessageFromModuleToHost64(msg, service, session);
+        }
     }
 }

@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using Serilog;
 using Serilog.Configuration;
@@ -28,7 +30,7 @@ namespace ManagedHost.Utils
             _formatter.Format(logEvent, stringWriter);
             string message = stringWriter.ToString();
 
-            ManagedHost.NativeMethods.OnLog((int)logEvent.Level, message);
+            NativeMethods.OnLog((int)logEvent.Level, message);
         }
     }
 
@@ -41,5 +43,24 @@ namespace ManagedHost.Utils
         {
             return loggerConfiguration.Sink(new SerilogToNativeSink(formatter, restrictedToMinimumLevel));
         }
+    }
+
+    internal static class NativeMethods
+    {
+        #region OnLog
+        [DllImport("UniversalModuleHost64.exe", EntryPoint = "OnLog", CharSet = CharSet.Unicode)]
+        static extern int OnLog64(int level, string message);
+
+        [DllImport("UniversalModuleHost32.exe", EntryPoint = "OnLog", CharSet = CharSet.Unicode)]
+        static extern int OnLog32(int level, string message);
+
+        public static int OnLog(int level, string message)
+        {
+            if (IntPtr.Size == 4)
+                return OnLog32(level, message);
+            else
+                return OnLog64(level, message);
+        }
+        #endregion
     }
 }

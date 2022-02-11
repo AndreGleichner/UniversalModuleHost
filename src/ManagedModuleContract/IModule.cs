@@ -5,6 +5,6 @@ namespace ManagedModuleContract
     public interface IModule : IDisposable
     {
         bool Initialize(IModuleHost moduleHost);
-        bool DispatchEvent(ulong id, byte[] data);
+        bool OnMessageFromHost(string msg, Guid service, int session);
     }
 }
