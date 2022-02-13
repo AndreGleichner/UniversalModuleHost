@@ -15,6 +15,7 @@ using namespace std::chrono_literals;
 #include "HostMsg.h"
 #include "FileImage.h"
 #include "magic_enum_extensions.h"
+#include "Permission.h"
 
 #pragma comment(lib, "delayimp")
 
@@ -100,6 +101,15 @@ void FilterEnvVars()
 
 int main()
 {
+#ifndef DEBUG
+    // Ensure we've been launched by the broker.
+    auto parentPath = Process::ImagePath(Process::ParentProcessId());
+    FAIL_FAST_IF(parentPath.stem() != L"UniversalModuleBroker64" || parentPath.stem() != L"UniversalModuleBroker32");
+
+    // ensure our image dir is only admin writeable
+    FAIL_FAST_IF(!Permission::IsDirectoryOnlyWriteableByElevatedUser(Process::ImagePath().parent_path()));
+#endif
+
     FilterEnvVars();
 
     Process::SetThreadName(L"UMH-Native");

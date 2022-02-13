@@ -3,6 +3,7 @@
 #include "SpdlogCustomFormatter.h"
 #include "UniversalModuleBrokerService.h"
 #include "BrokerInstance.h"
+#include "Permission.h"
 
 #pragma region                  Logging
 std::shared_ptr<spdlog::logger> g_loggerStdErr;
@@ -109,6 +110,11 @@ BOOL WINAPI ConsoleCtrlHandler(_In_ DWORD dwCtrlType)
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
+#ifndef DEBUG
+    // ensure our image dir is only admin writeable
+    FAIL_FAST_IF(!Permission::IsDirectoryOnlyWriteableByElevatedUser(Process::ImagePath().parent_path()));
+#endif
+
     Process::SetThreadName(L"UMB-Native");
 
 #ifdef DEBUG
@@ -141,8 +147,10 @@ int APIENTRY wWinMain(
     }
     else
     {
+#ifdef DEBUG
         if (!ServiceBase::CmdlineAction(lpCmdLine, UniversalModuleBrokerService::UMHTraits, exitCode))
         {
+            FAIL_FAST_IF_MSG(wcslen(lpCmdLine) != 0, "Unknown commandline");
             FAIL_FAST_IF_WIN32_BOOL_FALSE(::AllocConsole());
 
             ::SetConsoleTitleW(L"UniversalModuleBroker Debug Console");
@@ -170,6 +178,9 @@ int APIENTRY wWinMain(
             // Maybe not call Release and depend on Ctrl-C propagation to child processes
             // g_broker.Release();
         }
+#else
+        exitCode = 1;
+#endif
     }
 
     return exitCode;

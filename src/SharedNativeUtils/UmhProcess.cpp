@@ -8,8 +8,8 @@ namespace Process
 {
 void Enumerate(std::function<EnumerateCallbackResult(PPROCESSENTRY32W)> callback)
 {
-    wil::unique_handle processSnap(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 956));
-    FAIL_FAST_IF_NULL(processSnap);
+    wil::unique_tool_help_snapshot processSnap(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 956));
+    FAIL_FAST_IF_MSG(!processSnap, "Failed to create processes snapshot");
 
     PROCESSENTRY32W pe32 {sizeof(PROCESSENTRY32W)};
 
@@ -62,6 +62,28 @@ bool IsWindowsService()
     return g_isWindowsService;
 }
 
+DWORD ParentProcessId()
+{
+    static INIT_ONCE g_init {};
+    static DWORD     g_parentId = (DWORD)-1;
+
+    wil::init_once(g_init, [] {
+        DWORD myPid = ::GetCurrentProcessId();
+
+        Enumerate([&](PPROCESSENTRY32W pe32) {
+            if (pe32->th32ProcessID == myPid)
+            {
+                g_parentId = pe32->th32ParentProcessID;
+
+                return EnumerateCallbackResult::Cancel;
+            }
+            return EnumerateCallbackResult::Continue;
+        });
+    });
+    FAIL_FAST_IF_MSG(g_parentId == (DWORD)-1, "ParentProcessId() failed");
+    return g_parentId;
+}
+
 std::filesystem::path ImagePath()
 {
     static INIT_ONCE             g_init {};
@@ -73,6 +95,20 @@ std::filesystem::path ImagePath()
         g_imageFullPath = path;
     });
     return g_imageFullPath;
+}
+
+std::filesystem::path ImagePath(DWORD pid)
+{
+    wil::unique_handle parent(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid));
+    if (parent)
+    {
+        std::wstring imagePath;
+        if (SUCCEEDED_LOG(wil::QueryFullProcessImageNameW(parent.get(), 0, imagePath)))
+        {
+            return std::filesystem::path(imagePath);
+        }
+    }
+    return std::filesystem::path();
 }
 
 std::wstring Name()
