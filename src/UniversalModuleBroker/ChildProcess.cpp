@@ -139,13 +139,10 @@ try
     startInfo.StartupInfo.hStdOutput = outWrite_.get();
     startInfo.StartupInfo.hStdInput  = inRead_.get();
     startInfo.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
-    startInfo.StartupInfo.wShowWindow = SW_SHOWNORMAL;
-    startInfo.lpAttributeList         = attrList;
+    startInfo.lpAttributeList = attrList;
 
-    if (ui_)
-        startInfo.StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
-
-    DWORD creationFlags = 0;
+    DWORD creationFlags = NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
+                          CREATE_NO_WINDOW | (ui_ ? 0 : CREATE_PROTECTED_PROCESS);
     if (brokerInstance_->ShouldBreakAwayFromJob(this))
     {
         creationFlags |= CREATE_BREAKAWAY_FROM_JOB | CREATE_SUSPENDED;
@@ -156,9 +153,6 @@ try
         // This either means we were requested to launch a process in the same session,
         // or requested to lauch a process in every session but we're not a service (e.g. during debugging).
         // In either case launch in same session.
-
-        creationFlags |= NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
-                         (ui_ ? 0 : CREATE_PROTECTED_PROCESS);
 
         RETURN_IF_WIN32_BOOL_FALSE(::CreateProcessW(nullptr, // applicationName
             const_cast<PWSTR>(cmdline.data()),               // commandLine shall be non-const
@@ -228,13 +222,7 @@ try
                     ::RevertToSelf();
             });
 
-            creationFlags |= NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
-                             /*CREATE_NEW_CONSOLE |*/ CREATE_UNICODE_ENVIRONMENT;
-
-            if (!ui_)
-            {
-                creationFlags |= CREATE_PROTECTED_PROCESS;
-            }
+            creationFlags |= CREATE_UNICODE_ENVIRONMENT;
 
             RETURN_IF_WIN32_BOOL_FALSE(::CreateProcessAsUserW(dupToken.get(), // user token
                 nullptr,                                                      // applicationName
