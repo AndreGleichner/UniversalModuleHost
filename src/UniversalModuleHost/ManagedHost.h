@@ -26,7 +26,7 @@ class UniversalModuleHost;
 class ManagedHost final
 {
 public:
-    ManagedHost(UniversalModuleHost* host);
+    ManagedHost(UniversalModuleHost* host, const std::wstring& assemblyPath = L"");
     ~ManagedHost();
     bool    RunAsync();
     HRESULT LoadModule(const std::wstring& path);
@@ -80,13 +80,9 @@ private:
 
     std::filesystem::path assemblyPath_;
 
-    // https://docs.microsoft.com/en-us/dotnet/api/system.type.assemblyqualifiedname?view=net-5.0
-    // https://docs.microsoft.com/en-us/dotnet/framework/reflection-and-codedom/specifying-fully-qualified-type-names
-    const char_t* dotnetType_ = _X("ManagedHost.Program, ManagedHost");
-
     std::thread mainThread_;
 
-    UniversalModuleHost* universalModuleHost_;
+    UniversalModuleHost* universalModuleHost_ = nullptr;
 
     using OnMessageFromHostFuncSig =
         std::add_pointer_t<int CORECLR_DELEGATE_CALLTYPE(const char_t* msg, const char_t* service, uint32_t session)>;

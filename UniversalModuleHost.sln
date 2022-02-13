@@ -33,11 +33,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleManagedModuleUi1", "s
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleNativeModule1", "src\SampleNativeModule1\SampleNativeModule1.vcxproj", "{3F4025E8-CA16-43B6-A088-3B69A2A029CB}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SharedManagedUtils", "src\SharedManagedUtils\SharedManagedUtils.shproj", "{AAF7C4AC-6CAF-4D40-9FD7-84875B55AD88}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		src\SharedManagedUtils\SharedManagedUtils.projitems*{1b5cbfc7-cec4-4350-a0e9-654c0e5e2d00}*SharedItemsImports = 5
 		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{1e83dddb-014f-4bfa-acc4-333758ecd732}*SharedItemsImports = 9
 		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{59d3d010-5ca7-4a5a-ba49-534a046db566}*SharedItemsImports = 4
 		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{7185569d-3107-4776-8fb9-8a45e2b2b8b0}*SharedItemsImports = 4
+		src\SharedManagedUtils\SharedManagedUtils.projitems*{aaf7c4ac-6caf-4d40-9fd7-84875b55ad88}*SharedItemsImports = 13
+		src\SharedManagedUtils\SharedManagedUtils.projitems*{b7799ba6-0564-42a2-abe3-95e4bae521c4}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -232,11 +232,11 @@ HRESULT UniversalModuleHost::OnMessageFromModule(
 HRESULT UniversalModuleHost::LoadModule(const std::wstring& name) noexcept
 try
 {
-    /*while (!::IsDebuggerPresent())
-    {
-        ::Sleep(1000);
-    }
-    ::DebugBreak();*/
+    // while (!::IsDebuggerPresent())
+    //{
+    //     ::Sleep(1000);
+    // }
+    //::DebugBreak();
 
     const std::wstring bitness = sizeof(void*) == 4 ? L"32.dll" : L"64.dll";
     auto               path    = Process::ImagePath().replace_filename(L"modules") / name / (name + bitness);
@@ -251,12 +251,15 @@ try
             return E_FAIL;
     }
 
-    /*if (AnyBitSet(kind, FileImage::Kind::Exe))
-        return E_FAIL;*/
-
     // Managed assembly may be a PE32 image although can be loaded into a 64bit host.
     if (AnyBitSet(kind, FileImage::Kind::Managed))
-        return LoadManagedModule(path);
+    {
+        if (AnyBitSet(kind, FileImage::Kind::Exe))
+            return LoadManagedExeModule(path);
+
+        return LoadManagedDllModule(path);
+    }
+
 
 #if _WIN64
     if (AnyBitSet(kind, FileImage::Kind::Bitness32))
@@ -303,7 +306,7 @@ try
 }
 CATCH_RETURN();
 
-HRESULT UniversalModuleHost::LoadManagedModule(const std::filesystem::path& path) noexcept
+HRESULT UniversalModuleHost::LoadManagedDllModule(const std::filesystem::path& path) noexcept
 try
 {
     if (!managedHost_)
@@ -312,6 +315,18 @@ try
         managedHost_->RunAsync();
     }
     RETURN_IF_FAILED(managedHost_->LoadModule(path));
+    return S_OK;
+}
+CATCH_RETURN();
+
+HRESULT UniversalModuleHost::LoadManagedExeModule(const std::filesystem::path& path) noexcept
+try
+{
+    RETURN_HR_IF(E_FAIL, managedHost_ != nullptr);
+
+    managedHost_ = std::make_unique<ManagedHost>(this, path.c_str());
+    managedHost_->RunAsync();
+
     return S_OK;
 }
 CATCH_RETURN();

@@ -37,26 +37,10 @@ namespace ManagedHost
                 path,
                 sharedTypes: new[] { typeof(IModule), typeof(IModuleHost), typeof(IConfigurationRoot), typeof(ILogger) });
 
-            //foreach (var moduleType in loader
-            //        .LoadDefaultAssembly()
-            //        .GetTypes()
-            //        .Where(t => typeof(IModule).IsAssignableFrom(t) && !t.IsAbstract))
-
-            var defAss = loader.LoadDefaultAssembly();
-            Type[] types;
-
-            try
-            {
-                types = defAss.GetTypes();
-            }
-            catch (Exception ex)
-            {
-                types = null;
-            }
-
-            foreach (var moduleType in types
-                .Where(t => typeof(IModule).IsAssignableFrom(t) && !t.IsAbstract))
-
+            foreach (var moduleType in loader
+                    .LoadDefaultAssembly()
+                    .GetTypes()
+                    .Where(t => typeof(IModule).IsAssignableFrom(t) && !t.IsAbstract))
             {
                 var module = Activator.CreateInstance(moduleType, _config, _logger) as IModule;
                 if (module != null)

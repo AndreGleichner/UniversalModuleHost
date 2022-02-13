@@ -30,7 +30,8 @@ using string_t = std::basic_string<char_t>;
 
 ManagedHost* TheManagedHost;
 
-ManagedHost::ManagedHost(UniversalModuleHost* host) : universalModuleHost_(host)
+ManagedHost::ManagedHost(UniversalModuleHost* host, const std::wstring& assemblyPath /*= L""*/)
+    : assemblyPath_(assemblyPath), universalModuleHost_(host)
 {
     FAIL_FAST_IF_MSG(TheManagedHost != 0, "There shall be only one ManagedHost");
     TheManagedHost = this;
@@ -61,10 +62,19 @@ bool ManagedHost::RunAsync()
         return false;
     }
 
-    // Get the current executable's directory.
-    // This assumes the managed assembly to load and its runtime configuration file are next to the host.
-    const auto imageDir = Process::ImagePath().parent_path();
-    assemblyPath_       = imageDir / _X("ManagedHost.dll");
+    // while (!::IsDebuggerPresent())
+    //{
+    //     ::Sleep(1000);
+    // }
+    //::DebugBreak();
+
+    if (assemblyPath_.empty())
+    {
+        // Get the current executable's directory.
+        // This assumes the managed assembly to load and its runtime configuration file are next to the host.
+        const auto imageDir = Process::ImagePath().parent_path();
+        assemblyPath_       = imageDir / _X("ManagedHost.dll");
+    }
 
 #if INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_CMDLINE
     const char_t* argv[] {assemblyPath_.c_str(), _X("arg1"), _X("-sw0 val0")};
@@ -81,7 +91,7 @@ bool ManagedHost::RunAsync()
     invokeManageMessageFromHostToModule_ = (OnMessageFromHostFuncSig)CreateFunction(_X("MessageFromHostToModule"));
     if (!invokeManageMessageFromHostToModule_)
     {
-        SPDLOG_ERROR(L"Failed to load OnMessageFromHost from managed assembly");
+        SPDLOG_ERROR(L"Failed to load MessageFromHostToModule from managed assembly '{}'", assemblyPath_.c_str());
         return false;
     }
 
@@ -299,12 +309,17 @@ int ManagedHost::OnProgress(int progress) const
 
 void* ManagedHost::CreateFunction(const char_t* name) const
 {
+    // https://docs.microsoft.com/en-us/dotnet/api/system.type.assemblyqualifiedname?view=net-5.0
+    // https://docs.microsoft.com/en-us/dotnet/framework/reflection-and-codedom/specifying-fully-qualified-type-names
+
+    const std::wstring dotnetType = std::format(L"SharedManagedUtils.Ipc, {}", assemblyPath_.stem().c_str());
+
     void* func = nullptr;
 #if INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_CMDLINE
-    int rc = functionFactory_(dotnetType_, name, UNMANAGEDCALLERSONLY_METHOD, nullptr, nullptr, (void**)&func);
+    int rc = functionFactory_(dotnetType.c_str(), name, UNMANAGEDCALLERSONLY_METHOD, nullptr, nullptr, (void**)&func);
 #elif INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_RUNTIMECONFIG
-    int rc =
-        functionFactory_(assemblyPath_.c_str(), dotnetType_, name, UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&func);
+    int rc = functionFactory_(
+        assemblyPath_.c_str(), dotnetType.c_str(), name, UNMANAGEDCALLERSONLY_METHOD, nullptr, (void**)&func);
 #endif
     if (!STATUS_CODE_SUCCEEDED(rc) || !func)
     {

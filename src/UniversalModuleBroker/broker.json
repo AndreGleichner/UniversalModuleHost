@@ -37,7 +37,7 @@
       "IntegrityLevel": "Default",
       "Ui": true,
       "Modules": [
-        "SampleManagedModuleUi"
+        "SampleManagedModuleUi1"
       ]
     }
   ]

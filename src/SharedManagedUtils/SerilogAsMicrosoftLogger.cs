@@ -1,6 +1,6 @@
 using System;
 
-namespace ManagedHost.Utils
+namespace SharedManagedUtils
 {
     class SerilogAsMicrosoftLogger : Microsoft.Extensions.Logging.ILogger
     {

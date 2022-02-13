@@ -8,7 +8,7 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;
 
-namespace ManagedHost.Utils
+namespace SharedManagedUtils
 {
     public class SerilogToNativeSink : ILogEventSink
     {

@@ -4,18 +4,17 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
-using ManagedHost.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Templates;
+using SharedManagedUtils;
 
 namespace ManagedHost
 {
     class Program
     {
         private const int FailureExitCode = 213;
-        private static readonly ManualResetEvent initialized_ = new(false);
         private static readonly ManualResetEvent terminated_ = new(false);
         private static ModuleHost _moduleHost;
 
@@ -39,12 +38,40 @@ namespace ManagedHost
             var serviceProvider = services.BuildServiceProvider();
 
             _moduleHost = serviceProvider.GetService<ModuleHost>();
-            initialized_.Set();
+            Ipc.Init(OnMessageFromHost, OnTerminate);
 
             terminated_.WaitOne();
 
             Log.Information($"Exiting managed Main()");
             return 0;
+        }
+
+        private static int OnMessageFromHost(string msg, string service, uint session)
+        {
+            Log.Information($"MessageFromHostToModule: '{msg}' '{service}' {session}");
+
+            if (service == Ipc.ManagedHost)
+            {
+                var hostCmdMsg = JsonSerializer.Deserialize<HostCmdMsg>(msg);
+                if (hostCmdMsg.Cmd == HostCmdMsg.ECmd.CtrlModule)
+                {
+                    var args = JsonSerializer.Deserialize<HostCtrlModuleArgs>(hostCmdMsg.Args);
+                    if (args.Cmd == HostCtrlModuleArgs.ECmd.Load)
+                    {
+                        _moduleHost.LoadModule(args.Module);
+                    }
+                    else if (args.Cmd == HostCtrlModuleArgs.ECmd.Unload)
+                    {
+                        _moduleHost.UnloadModule(args.Module);
+                    }
+                }
+            }
+            return 0;
+        }
+
+        private static void OnTerminate()
+        {
+            terminated_.Set();
         }
 
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -94,52 +121,6 @@ namespace ManagedHost
                 .MinimumLevel.Verbose()
                 .ReadFrom.Configuration(config)
                 .CreateLogger();
-        }
-
-        private const string ManagedHost = "{7924FE60-C967-449C-BA5D-2EBAA7D16024}";
-
-        [UnmanagedCallersOnly]
-        public static int MessageFromHostToModule(IntPtr msg, IntPtr service, uint session)
-        {
-            initialized_.WaitOne();
-
-            //while (!Debugger.IsAttached)
-            //{
-            //    Thread.Sleep(1000);
-            //}
-            //Debugger.Break();
-
-            string m = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? Marshal.PtrToStringUni(msg)
-                : Marshal.PtrToStringUTF8(msg);
-
-            string s = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? Marshal.PtrToStringUni(service)
-                : Marshal.PtrToStringUTF8(service);
-
-            Log.Information($"MessageFromHostToModule: '{m}' '{s}' {session}");
-
-            if (s == ManagedHost)
-            {
-                var hostCmdMsg = JsonSerializer.Deserialize<HostCmdMsg>(m);
-                if (hostCmdMsg.Cmd == HostCmdMsg.ECmd.Terminate)
-                {
-                    terminated_.Set();
-                }
-                else if (hostCmdMsg.Cmd == HostCmdMsg.ECmd.CtrlModule)
-                {
-                    var args = JsonSerializer.Deserialize<HostCtrlModuleArgs>(hostCmdMsg.Args);
-                    if (args.Cmd == HostCtrlModuleArgs.ECmd.Load)
-                    {
-                        _moduleHost.LoadModule(args.Module);
-                    }
-                    else if (args.Cmd == HostCtrlModuleArgs.ECmd.Unload)
-                    {
-                        _moduleHost.UnloadModule(args.Module);
-                    }
-                }
-            }
-            return 42;
         }
 
 #if FALSE

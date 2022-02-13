@@ -63,7 +63,8 @@ private:
     HRESULT UnloadModule(const std::wstring& name) noexcept;
 
     HRESULT LoadNativeModule(const std::filesystem::path& path) noexcept;
-    HRESULT LoadManagedModule(const std::filesystem::path& path) noexcept;
+    HRESULT LoadManagedDllModule(const std::filesystem::path& path) noexcept;
+    HRESULT LoadManagedExeModule(const std::filesystem::path& path) noexcept;
 
     ipc::Target                                target_;
     std::string                                groupName_;
