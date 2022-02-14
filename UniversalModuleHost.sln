@@ -37,12 +37,15 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SharedManagedUtils", "src\S
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleNativeModuleUi1", "src\SampleNativeModuleUi1\SampleNativeModuleUi1.vcxproj", "{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IpcMonitor", "src\IpcMonitor\IpcMonitor.csproj", "{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\SharedManagedUtils\SharedManagedUtils.projitems*{1b5cbfc7-cec4-4350-a0e9-654c0e5e2d00}*SharedItemsImports = 5
 		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{1e83dddb-014f-4bfa-acc4-333758ecd732}*SharedItemsImports = 9
 		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{59d3d010-5ca7-4a5a-ba49-534a046db566}*SharedItemsImports = 4
 		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{7185569d-3107-4776-8fb9-8a45e2b2b8b0}*SharedItemsImports = 4
+		src\SharedManagedUtils\SharedManagedUtils.projitems*{9af8a4f8-5a53-43f1-9df1-a3fa64ca31e3}*SharedItemsImports = 5
 		src\SharedManagedUtils\SharedManagedUtils.projitems*{aaf7c4ac-6caf-4d40-9fd7-84875b55ad88}*SharedItemsImports = 13
 		src\SharedManagedUtils\SharedManagedUtils.projitems*{b7799ba6-0564-42a2-abe3-95e4bae521c4}*SharedItemsImports = 5
 	EndGlobalSection
@@ -160,6 +163,18 @@ Global
 		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Release|Win32.Build.0 = Release|Win32
 		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Release|x64.ActiveCfg = Release|x64
 		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Release|x64.Build.0 = Release|x64
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Debug|Win32.Build.0 = Debug|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Debug|x64.Build.0 = Debug|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Release|Win32.ActiveCfg = Release|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Release|Win32.Build.0 = Release|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Release|x64.ActiveCfg = Release|Any CPU
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

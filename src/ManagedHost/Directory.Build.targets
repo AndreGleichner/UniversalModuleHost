@@ -36,5 +36,10 @@
       Projects="..\SampleManagedModuleUi1\SampleManagedModuleUi1.csproj"
       Targets="Publish"
       Properties="Configuration=$(Configuration);PublishDir=$(OutputPath)/../modules/SampleManagedModuleUi1/" />
+
+    <MSBuild
+      Projects="..\IpcMonitor\IpcMonitor.csproj"
+      Targets="Publish"
+      Properties="Configuration=$(Configuration);PublishDir=$(OutputPath)/../modules/IpcMonitor/" />
   </Target>
 </Project>

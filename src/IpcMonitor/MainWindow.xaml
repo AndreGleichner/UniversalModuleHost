@@ -1,0 +1,31 @@
+<Window x:Class="IpcMonitor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IpcMonitor"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition />
+      <RowDefinition Height="Auto" />
+      <RowDefinition MinHeight="70" />
+    </Grid.RowDefinitions>
+    <DockPanel Grid.Row="0" Grid.RowSpan="1" HorizontalAlignment="Stretch" Margin="0" Name="DockPanel1">
+      <ListView x:Name="Messages" SelectionChanged="Messages_SelectionChanged">
+        <ListView.View>
+          <GridView AllowsColumnReorder="True">
+            <GridViewColumn x:Name="Message" Header="Message" DisplayMemberBinding="{Binding Path=Message}"></GridViewColumn>
+            <GridViewColumn x:Name="Service" Header="Service" DisplayMemberBinding="{Binding Path=Service}"></GridViewColumn>
+            <GridViewColumn x:Name="Session" Header="Session" DisplayMemberBinding="{Binding Path=Session}"></GridViewColumn>
+          </GridView>
+        </ListView.View>
+      </ListView>
+    </DockPanel>
+    <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeDirection="Rows" Height="5" Width="Auto" Background="#FFF2B9B3"/>
+    <DockPanel Grid.Row="2" Grid.RowSpan="1" HorizontalAlignment="Stretch" Margin="0" Name="DockPanel2">
+      <RichTextBox DockPanel.Dock="Bottom" Height="Auto" Width="Auto" Background="LightBlue" IsReadOnly="True" Name="MessageDetails" />
+    </DockPanel>
+  </Grid>
+</Window>

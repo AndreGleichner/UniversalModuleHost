@@ -41,12 +41,21 @@
       ]
     },
     {
-      "GroupName": "E",
+      "GroupName": "F",
       "Session": "AllUsers",
       "IntegrityLevel": "Default",
       "Ui": true,
       "Modules": [
         "SampleNativeModuleUi1"
+      ]
+    },
+    {
+      "GroupName": "G",
+      "Session": "AllUsers",
+      "IntegrityLevel": "Default",
+      "Ui": true,
+      "Modules": [
+        "IpcMonitor"
       ]
     }
   ]

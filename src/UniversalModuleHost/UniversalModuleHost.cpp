@@ -224,6 +224,11 @@ HRESULT UniversalModuleHost::OnMessageFromBroker(const std::string_view msg, con
             {
                 LOG_IF_FAILED(mod->Send(msg, target));
             }
+
+            if (managedHost_)
+            {
+                managedHost_->Send(msg, target);
+            }
         }
     }
 
