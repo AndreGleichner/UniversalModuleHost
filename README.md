@@ -56,7 +56,7 @@ COM:
 
 ### Process Mitigations
 Using quite some flags with UpdateProcThreadAttribute()
-* Inherit only dfined handles (currently only pipe)
+* Inherit only defined handles (currently only pipe)
 * ASLR: High entropy, Bottom up
 * DEP:
 * Control flow guard
@@ -87,3 +87,7 @@ https://github.com/microsoft/vcpkg-tool/raw/main/vcpkg-init/vcpkg-init.ps1
 This installs vcpkg into ~\.vcpkg
 
 TODO: Need some Build.ps1
+
+# Run
+
+Just start the UniversalModuleBroker64.exe
