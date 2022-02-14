@@ -35,7 +35,6 @@ public:
     HRESULT Send(const std::string_view msg, const ipc::Target& target) noexcept;
     // Message from any module
     HRESULT OnMessageFromModule(const std::string_view msg, const ipc::Target& target);
-    int     OnProgress(int progress) const;
 
 private:
     bool LoadFxr();

@@ -294,19 +294,6 @@ HRESULT ManagedHost::Send(const std::string_view msg, const ipc::Target& target)
     return S_OK;
 }
 
-extern "C" __declspec(dllexport) int OnProgressFromManaged(int progress)
-{
-    SPDLOG_INFO(L"OnProgressFromManaged {}", progress);
-
-    return TheManagedHost->OnProgress(progress);
-}
-
-int ManagedHost::OnProgress(int progress) const
-{
-    SPDLOG_INFO(L"Progress {}", progress);
-    return progress * 10;
-}
-
 void* ManagedHost::CreateFunction(const char_t* name) const
 {
     // https://docs.microsoft.com/en-us/dotnet/api/system.type.assemblyqualifiedname?view=net-5.0
