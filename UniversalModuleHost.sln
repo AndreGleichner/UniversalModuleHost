@@ -35,6 +35,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleNativeModule1", "src\
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SharedManagedUtils", "src\SharedManagedUtils\SharedManagedUtils.shproj", "{AAF7C4AC-6CAF-4D40-9FD7-84875B55AD88}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleNativeModuleUi1", "src\SampleNativeModuleUi1\SampleNativeModuleUi1.vcxproj", "{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		src\SharedManagedUtils\SharedManagedUtils.projitems*{1b5cbfc7-cec4-4350-a0e9-654c0e5e2d00}*SharedItemsImports = 5
@@ -146,6 +148,18 @@ Global
 		{3F4025E8-CA16-43B6-A088-3B69A2A029CB}.Release|Win32.Build.0 = Release|Win32
 		{3F4025E8-CA16-43B6-A088-3B69A2A029CB}.Release|x64.ActiveCfg = Release|x64
 		{3F4025E8-CA16-43B6-A088-3B69A2A029CB}.Release|x64.Build.0 = Release|x64
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Debug|Any CPU.Build.0 = Debug|x64
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Debug|Win32.Build.0 = Debug|Win32
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Debug|x64.ActiveCfg = Debug|x64
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Debug|x64.Build.0 = Debug|x64
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Release|Any CPU.ActiveCfg = Release|x64
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Release|Any CPU.Build.0 = Release|x64
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Release|Win32.ActiveCfg = Release|Win32
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Release|Win32.Build.0 = Release|Win32
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Release|x64.ActiveCfg = Release|x64
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

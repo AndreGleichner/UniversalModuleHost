@@ -27,13 +27,13 @@ namespace SharedManagedUtils
             initialized_.Set();
         }
 
-        [DllImport("UniversalModuleHost64.exe", EntryPoint = "OnMessageFromModule", CharSet = CharSet.Unicode)]
+        [DllImport("UniversalModuleHost64.exe", EntryPoint = "MessageFromModuleToHost", CharSet = CharSet.Unicode)]
         static extern int MessageFromModuleToHost64(string msg, string service, int session);
 
-        [DllImport("UniversalModuleHost32.exe", EntryPoint = "OnMessageFromModule", CharSet = CharSet.Unicode)]
+        [DllImport("UniversalModuleHost32.exe", EntryPoint = "MessageFromModuleToHost", CharSet = CharSet.Unicode)]
         static extern int MessageFromModuleToHost32(string msg, string service, int session);
 
-        public static int SendMessage(string msg, string service, int session)
+        public static int SendMessage(string msg, string service, int session = -1)
         {
             if (IntPtr.Size == 4)
                 return MessageFromModuleToHost32(msg, service, session);

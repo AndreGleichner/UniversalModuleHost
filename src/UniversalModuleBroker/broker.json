@@ -39,6 +39,15 @@
       "Modules": [
         "SampleManagedModuleUi1"
       ]
+    },
+    {
+      "GroupName": "E",
+      "Session": "AllUsers",
+      "IntegrityLevel": "Default",
+      "Ui": true,
+      "Modules": [
+        "SampleNativeModuleUi1"
+      ]
     }
   ]
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +23,11 @@ namespace SampleManagedModuleUi1
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            SharedManagedUtils.Ipc.SendMessage("https://www.heise.de/", "{BEA684E7-697F-4201-844F-98224FA16D2F}");
         }
     }
 }
