@@ -5,12 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SampleManagedModuleUi1"
         mc:Ignorable="d"
-        Title="MainWindow" Width="322"  Height="152">
+        Title="MainWindow" Width="322"  Height="186">
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
     </Grid.ColumnDefinitions>
     <Label Content="Hello World" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Height="30" Width="80"/>
     <Button Content="Browse" HorizontalAlignment="Center" Height="50" Margin="0,55,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click" />
+    <Button Content="Send Message" HorizontalAlignment="Center" Height="50" Margin="0,55,0,0" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_1" />
   </Grid>
 </Window>

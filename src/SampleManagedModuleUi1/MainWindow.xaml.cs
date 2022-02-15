@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SharedManagedUtils;
 
 namespace SampleManagedModuleUi1
 {
@@ -27,7 +28,17 @@ namespace SampleManagedModuleUi1
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            SharedManagedUtils.Ipc.SendMessage("https://www.heise.de/", "{BEA684E7-697F-4201-844F-98224FA16D2F}");
+            Ipc.SendMessage("https://www.heise.de/", "{BEA684E7-697F-4201-844F-98224FA16D2F}");
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            var rnd = new Random();
+            string msg = $@"{{
+""Prop1"": {rnd.Next(1, 100)},
+""Prop2"": ""Hello World""
+}}";
+            Ipc.SendMessage(msg, "{60DE68BB-50FD-4CB8-A808-1CEBEE3B034E}", 1);
         }
     }
 }

@@ -16,6 +16,7 @@
       <ListView x:Name="Messages" SelectionChanged="Messages_SelectionChanged">
         <ListView.View>
           <GridView AllowsColumnReorder="True">
+            <GridViewColumn x:Name="Timestamp" Header="Timestamp" DisplayMemberBinding="{Binding Path=Timestamp}"></GridViewColumn>
             <GridViewColumn x:Name="Message" Header="Message" DisplayMemberBinding="{Binding Path=Message}"></GridViewColumn>
             <GridViewColumn x:Name="Service" Header="Service" DisplayMemberBinding="{Binding Path=Service}"></GridViewColumn>
             <GridViewColumn x:Name="Session" Header="Session" DisplayMemberBinding="{Binding Path=Session}"></GridViewColumn>

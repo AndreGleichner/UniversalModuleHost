@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace IpcMonitor
 {
@@ -27,6 +29,30 @@ namespace IpcMonitor
 
         private void Messages_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            var mi = ((sender as ListView).SelectedItem as MessageItem);
+            if (mi == null)
+                return;
+
+            JToken token = null;
+            try
+            {
+                token = JValue.Parse(mi.Message);
+            }
+            catch
+            {
+            }
+
+            if (token != null)
+            {
+                string msg = token.ToString(Formatting.Indented);
+                var doc = new FlowDocument(new Paragraph(new Run(msg)));
+                MessageDetails.Document = doc;
+            }
+            else
+            {
+                var doc = new FlowDocument(new Paragraph(new Run(mi.Message)));
+                MessageDetails.Document = doc;
+            }
 
         }
     }

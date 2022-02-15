@@ -292,7 +292,7 @@ try
     // Tell the host his Service GUID. This is used to talk to the host as such to e.g. load modules.
     // Modules hosted within the host process have their own one or multiple service GUIDs.
     nlohmann::json msg = ipc::HostInitMsg {target_.Service, groupName_};
-    RETURN_IF_FAILED(SendMsg(msg, ipc::Target(ipc::KnownService::HostInit)));
+    RETURN_IF_FAILED(SendMsg(msg.dump(), ipc::Target(ipc::KnownService::HostInit)));
 
     return S_OK;
 }
@@ -402,7 +402,7 @@ void ChildProcess::StartForwardStderr() noexcept
     });
 }
 
-HRESULT ChildProcess::SendMsg(const nlohmann::json& msg, const ipc::Target& target)
+HRESULT ChildProcess::SendMsg(const std::string_view msg, const ipc::Target& target)
 {
     if (target.Session != ipc::KnownSession::Any)
     {
@@ -411,7 +411,7 @@ HRESULT ChildProcess::SendMsg(const nlohmann::json& msg, const ipc::Target& targ
         if (!::ProcessIdToSessionId(processInfo_.dwProcessId, &session) || session != target.Session)
             return S_FALSE;
     }
-    RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target));
+    RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg, target));
 
     return S_OK;
 }

@@ -28,7 +28,7 @@ public:
     HRESULT LoadModules() noexcept;
     HRESULT UnloadModules() noexcept;
 
-    HRESULT SendMsg(const nlohmann::json& msg, const ipc::Target& target);
+    HRESULT SendMsg(const std::string_view msg, const ipc::Target& target);
 
 private:
     void StartForwardStderr() noexcept;

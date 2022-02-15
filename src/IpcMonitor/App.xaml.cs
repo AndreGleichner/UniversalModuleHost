@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,7 +25,8 @@ namespace IpcMonitor
         private static int OnMessageFromHost(string msg, string service, uint session)
         {
             //Log.Information($"MessageFromHostToModule: '{msg}' '{service}' {session}");
-            var mi = new MessageItem(Message: msg, Service: service, Session: ((int)session).ToString());
+            var mi = new MessageItem(Timestamp: DateTime.Now.ToString("HH:mm:ss"), Message: msg.Replace("\r\n", ""), Service: service, Session: ((int)session).ToString());
+
             Application.Current.Dispatcher.BeginInvoke(() =>
                 {
                     ((MainWindow)Application.Current.MainWindow).Messages.Items.Add(mi);

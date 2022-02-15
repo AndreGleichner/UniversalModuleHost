@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace IpcMonitor
 {
-    public record MessageItem(string Message, string Service, string Session);
+    public record MessageItem(string Timestamp, string Message, string Service, string Session);
 }
