@@ -128,7 +128,13 @@ try
     // clang-format off
     auto onMessage = [&](const std::string_view msg, const ipc::Target& target)
     {
-        spdlog::info("RX-B: {} for {}", msg, Strings::ToUtf8(target.ToString()));
+        if (spdlog::should_log(spdlog::level::trace))
+        {
+            std::string m = msg.data();
+            std::erase_if(m, [](char c) { return c=='\r'||c=='\n'; });
+            spdlog::trace("RX-B: {} for {}", m, Strings::ToUtf8(target.ToString()));
+        }
+                        
         brokerInstance_->OnMessage(this, msg, target);
     };
     // clang-format on
@@ -396,7 +402,7 @@ void ChildProcess::StartForwardStderr() noexcept
                 msg.append(pos);
 
                 auto level = LevelFromMsg(msg.c_str());
-                if (level != 0)
+                if (level != spdlog::level::off)
                 {
                     // skip leading "[INF] " etc
                     g_loggerStdErr->log(level, msg.c_str() + 6);

@@ -21,7 +21,7 @@ namespace SampleManagedModuleUi1
 
         private static int OnMessageFromHost(string msg, string service, uint session)
         {
-            //Log.Information($"MessageFromHostToModule: '{msg}' '{service}' {session}");
+            //Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{service}' {session}");
 
             return 0;
         }

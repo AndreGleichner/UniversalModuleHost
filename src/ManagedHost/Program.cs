@@ -48,7 +48,7 @@ namespace ManagedHost
 
         private static int OnMessageFromHost(string msg, string service, uint session)
         {
-            Log.Information($"MessageFromHostToModule: '{msg}' '{service}' {session}");
+            Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{service}' {session}");
 
             if (service == Ipc.ManagedHost)
             {

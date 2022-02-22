@@ -24,7 +24,7 @@ namespace IpcMonitor
 
         private static int OnMessageFromHost(string msg, string service, uint session)
         {
-            //Log.Information($"MessageFromHostToModule: '{msg}' '{service}' {session}");
+            //Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{service}' {session}");
             var mi = new MessageItem(Timestamp: DateTime.Now.ToString("HH:mm:ss"), Message: msg.Replace("\r\n", ""), Service: service, Session: ((int)session).ToString());
 
             Application.Current.Dispatcher.BeginInvoke(() =>

@@ -99,7 +99,8 @@ void FilterEnvVars()
 }
 }
 
-int main()
+int APIENTRY wWinMain(
+    _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
 #ifndef DEBUG
     // Ensure we've been launched by the broker.
@@ -166,7 +167,13 @@ int UniversalModuleHost::Run()
 
 HRESULT UniversalModuleHost::OnMessageFromBroker(const std::string_view msg, const ipc::Target& target)
 {
-    spdlog::info("RX-H: {} for {}", msg, Strings::ToUtf8(target.ToString()));
+    if (spdlog::should_log(spdlog::level::trace))
+    {
+        std::string m = msg.data();
+        std::erase_if(m, [](char c) { return c == '\r' || c == '\n'; });
+        spdlog::trace("RX-H: {} for {}", m, Strings::ToUtf8(target.ToString()));
+    }
+
     /*while (!::IsDebuggerPresent())
     {
         ::Sleep(1000);
