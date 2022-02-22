@@ -2,8 +2,12 @@
 #include <Windows.h>
 #include <string>
 #include <string_view>
+#include <chrono>
 
 #include "ipc.h"
+using namespace std::chrono_literals;
+
+std::unique_ptr<std::jthread> PingThread;
 
 extern "C" __declspec(dllexport) HRESULT InitModule()
 {
@@ -12,6 +16,12 @@ extern "C" __declspec(dllexport) HRESULT InitModule()
 
 extern "C" __declspec(dllexport) HRESULT TermModule()
 {
+    if (PingThread)
+    {
+        PingThread->request_stop();
+        PingThread->join();
+    }
+
     return S_OK;
 }
 
@@ -24,6 +34,27 @@ extern "C" __declspec(dllexport) HRESULT ConnectModule(void* mod, ipc::SendMsg s
     Mod      = mod;
     SendMsg  = sendMsg;
     SendDiag = sendDiag;
+
+    /* while (!::IsDebuggerPresent())
+     {
+         ::Sleep(1000);
+     }
+
+     ::DebugBreak();*/
+
+    PingThread = std::make_unique<std::jthread>([](std::stop_token stoken) {
+        Guid svc(L"{DA20876D-E81D-4AE7-912D-92E229EB871E}");
+        int  n = 0;
+        while (!stoken.stop_requested())
+        {
+            /*char msg[] = "[INF] A123456789\r\n[INF] B123456789\r\n";
+            SendDiag(Mod, msg);*/
+
+            SendMsg(Mod, std::format("{} Hello World!", n++).c_str(), &svc, 1);
+
+            std::this_thread::sleep_for(5s);
+        }
+    });
     return S_OK;
 }
 

@@ -363,40 +363,47 @@ spdlog::level::level_enum LevelFromMsg(PCSTR msg)
 
 void ChildProcess::StartForwardStderr() noexcept
 {
+    // Host process is writing UTF8.
+    // This may be multiple messages separated by \r\n
+    // => split and process one-by-one.
+    // Messages maybe aren't read by a single ReadFile(), e.g. if writing into stderr is faster than reading here.
+    // Thus we need to find line endings (\r\n) and accumulate until then.
     stderrForwarder_ = std::thread([&] {
         Process::SetThreadName(std::format(L"UMB-ForwardStderr-{}", processInfo_.dwProcessId).c_str());
-        char  buf[4096] = {};
-        DWORD read      = 0;
-        while (::ReadFile(errRead_.get(), buf, sizeof(buf), &read, NULL))
+        const size_t bufSize = 4096;
+
+        std::string msg;
+        char        buf[bufSize] = {};
+        DWORD       read         = 0;
+        while (::ReadFile(errRead_.get(), buf, bufSize - 1, &read, nullptr) && read < bufSize)
         {
-            if (read < sizeof(buf))
+            buf[read] = 0; // so we can do str ops
+
+            char* pos = buf;
+            while (*pos)
             {
-                buf[read] = 0;
-                // This may be multiple messages separated by \r\n
-                // => split and process one-by-one.
-                char* pos = buf;
-                while (*pos)
+                char* end = strchr(pos, '\r');
+                if (!end)
                 {
-                    char* end = strchr(pos, '\r');
-                    if (!end)
-                        break;
-
-                    const char* str = pos;
-
-                    *end++ = 0;
-                    if (*end == '\n')
-                        *end++ = 0;
-
-                    auto level = LevelFromMsg(str);
-                    if (level != spdlog::level::off)
-                    {
-                        // skip leading "[INF] " etc
-                        g_loggerStdErr->log(level, str + 6);
-                        g_loggerStdErr->flush();
-                    }
-
-                    pos = end;
+                    msg.append(pos);
+                    break;
                 }
+
+                *end++ = 0;
+                if (*end == '\n')
+                    *end++ = 0;
+
+                msg.append(pos);
+
+                auto level = LevelFromMsg(msg.c_str());
+                if (level != 0)
+                {
+                    // skip leading "[INF] " etc
+                    g_loggerStdErr->log(level, msg.c_str() + 6);
+                    g_loggerStdErr->flush();
+                }
+                msg.clear();
+                pos = end;
             }
         }
     });

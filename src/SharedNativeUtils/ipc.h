@@ -63,6 +63,8 @@ HRESULT Send(const std::string_view msg, const Target& target) noexcept;
 // Usually be used with broker
 HRESULT Send(HANDLE out, const std::string_view msg, const Target& target) noexcept;
 
+HRESULT SendDiagMsg(const std::string_view msg) noexcept;
+
 // Usually be used with host
 HRESULT StartRead(
     std::thread& reader, std::function<void(const std::string_view msg, const Target& target)> onRead) noexcept;

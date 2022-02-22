@@ -244,6 +244,12 @@ HRESULT UniversalModuleHost::OnMessageFromModule(
     return S_OK;
 }
 
+HRESULT UniversalModuleHost::OnDiagFromModule(NativeModule* mod, const std::string_view msg)
+{
+    RETURN_IF_FAILED(ipc::SendDiagMsg(msg));
+    return S_OK;
+}
+
 HRESULT UniversalModuleHost::LoadModule(const std::wstring& name) noexcept
 try
 {
@@ -391,5 +397,6 @@ HRESULT CALLBACK NativeModule::OnMsg(void* mod, PCSTR msg, const Guid* service, 
 HRESULT CALLBACK NativeModule::OnDiag(void* mod, PCSTR msg) noexcept
 {
     auto m = static_cast<NativeModule*>(mod);
+    RETURN_IF_FAILED(m->host_->OnDiagFromModule(m, msg));
     return S_OK;
 }

@@ -47,6 +47,23 @@ try
 }
 CATCH_RETURN();
 
+HRESULT SendDiagMsg(const std::string_view msg) noexcept
+try
+{
+    static wil::srwlock lock;
+    // Needs sequential access to the pipe to not interleave messages from multiple threads.
+    auto guard = lock.lock_exclusive();
+
+    DWORD size    = 1 + (DWORD)msg.size(); // zero term
+    DWORD written = 0;
+    RETURN_IF_WIN32_BOOL_FALSE(::WriteFile(::GetStdHandle(STD_ERROR_HANDLE), msg.data(), size, &written, nullptr));
+
+    RETURN_HR_IF_MSG(E_FAIL, written != size, "ipc::SendDiagMsg failed to send all bytes");
+
+    return S_OK;
+}
+CATCH_RETURN();
+
 HRESULT StartRead(
     std::thread& reader, std::function<void(const std::string_view msg, const Target& target)> onMessage) noexcept
 {

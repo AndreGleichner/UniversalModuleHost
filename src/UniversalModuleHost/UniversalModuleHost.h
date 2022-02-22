@@ -58,6 +58,7 @@ private:
     HRESULT OnMessageFromBroker(const std::string_view msg, const ipc::Target& target);
 
     HRESULT OnMessageFromModule(NativeModule* mod, const std::string_view msg, const ipc::Target& target);
+    HRESULT OnDiagFromModule(NativeModule* mod, const std::string_view msg);
 
     HRESULT LoadModule(const std::wstring& name) noexcept;
     HRESULT UnloadModule(const std::wstring& name) noexcept;
