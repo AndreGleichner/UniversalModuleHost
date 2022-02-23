@@ -275,15 +275,16 @@ try
             if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE) &&
                 !brokerInstance_->IsShuttingDown())
             {
+#ifdef DEBUG
                 // In case we've a console attached and just closed it, we'll get terminated soon
                 // by the default console control handler. Wait some time to be sure we're
                 // not in the process of shutting down.
-                // This only help when running e.g. 1 child process as it takes some time for the child
+                // This only helps when running e.g. 1 child process as it takes some time for the child
                 // to process the Ctrl-C. As long as not every child has completed processing the broker wont be
                 // terminated.
 
                 ::Sleep(1000);
-
+#endif
                 // run in another thread so that keepAlive_ can be joined
                 auto launcher = std::thread([this] {
                     Process::SetThreadName(std::format(L"UMB-KeepAliveRelaunch-{}", processInfo_.dwProcessId).c_str());
