@@ -23,7 +23,7 @@ static const Guid Broker {L"{92D627A3-6C62-4C5B-8477-484A34ED3B82}"};
 static const Guid HostInit {L"{AA810FBD-B33C-4895-8E82-8814EE849E02}"};
 static const Guid ManagedHost {L"{7924FE60-C967-449C-BA5D-2EBAA7D16024}"};
 
-static const Guid WebBrowser {L"{BEA684E7-697F-4201-844F-98224FA16D2F}"};
+static const Guid ShellExec {L"{BEA684E7-697F-4201-844F-98224FA16D2F}"};
 static const Guid ConfStore {L"{8583CDC9-DB92-45BE-90CE-4D3AA4CD14F5}"};
 }
 
@@ -73,7 +73,7 @@ HRESULT StartRead(
 HRESULT StartRead(HANDLE in, std::thread& reader,
     std::function<void(const std::string_view msg, const Target& target)> onRead, DWORD pid) noexcept;
 
-// Message sender passed to ConnectModule() in a module DLL so that it may send messages to its host.
+// Message sender passed to InitModule() in a module DLL so that it may send messages to its host.
 typedef HRESULT(CALLBACK* SendMsg)(void* mod, PCSTR msg, const Guid* service, DWORD session);
 // Diagnostic output a spdlog logger within a module will use
 typedef HRESULT(CALLBACK* SendDiag)(void* mod, PCSTR msg);

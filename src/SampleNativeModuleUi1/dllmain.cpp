@@ -6,8 +6,15 @@
 
 #include "ipc.h"
 
-extern "C" __declspec(dllexport) HRESULT InitModule()
+void*         Mod      = nullptr;
+ipc::SendMsg  SendMsg  = nullptr;
+ipc::SendDiag SendDiag = nullptr;
+
+extern "C" __declspec(dllexport) HRESULT InitModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag)
 {
+    Mod      = mod;
+    SendMsg  = sendMsg;
+    SendDiag = sendDiag;
     return S_OK;
 }
 
@@ -16,21 +23,9 @@ extern "C" __declspec(dllexport) HRESULT TermModule()
     return S_OK;
 }
 
-void*         Mod      = nullptr;
-ipc::SendMsg  SendMsg  = nullptr;
-ipc::SendDiag SendDiag = nullptr;
-
-extern "C" __declspec(dllexport) HRESULT ConnectModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag)
-{
-    Mod      = mod;
-    SendMsg  = sendMsg;
-    SendDiag = sendDiag;
-    return S_OK;
-}
-
 extern "C" __declspec(dllexport) HRESULT OnMessage(PCSTR msg, const ipc::Target* target)
 {
-    if (target->Equals(ipc::Target(ipc::KnownService::WebBrowser)))
+    if (target->Equals(ipc::Target(ipc::KnownService::ShellExec)))
     {
         ::ShellExecuteA(nullptr, "open", msg, nullptr, nullptr, SW_SHOWNORMAL);
     }

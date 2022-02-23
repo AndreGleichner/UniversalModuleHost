@@ -7,9 +7,8 @@
 // forward declarations for module entry points
 namespace Entry
 {
-HRESULT InitModule();
+HRESULT InitModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag);
 HRESULT TermModule();
-HRESULT ConnectModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag);
 HRESULT OnMessage(PCSTR msg, const ipc::Target* target);
 }
 
@@ -38,10 +37,9 @@ private:
     const std::filesystem::path path_;
     wil::unique_hmodule         hmodule_;
 
-    decltype(&Entry::InitModule)    InitModule_    = nullptr;
-    decltype(&Entry::TermModule)    TermModule_    = nullptr;
-    decltype(&Entry::ConnectModule) ConnectModule_ = nullptr;
-    decltype(&Entry::OnMessage)     OnMessage_     = nullptr;
+    decltype(&Entry::InitModule) InitModule_ = nullptr;
+    decltype(&Entry::TermModule) TermModule_ = nullptr;
+    decltype(&Entry::OnMessage)  OnMessage_  = nullptr;
 };
 
 class UniversalModuleHost final

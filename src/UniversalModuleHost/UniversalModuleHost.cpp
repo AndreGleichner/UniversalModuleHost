@@ -370,11 +370,9 @@ HRESULT NativeModule::Load()
 
     LoadEntry(InitModule);
     LoadEntry(TermModule);
-    LoadEntry(ConnectModule);
     LoadEntry(OnMessage);
 
-    RETURN_IF_FAILED(InitModule_());
-    ConnectModule_(this, OnMsg, OnDiag);
+    RETURN_IF_FAILED(InitModule_(this, OnMsg, OnDiag));
 
 #undef LoadEntry
     return S_OK;

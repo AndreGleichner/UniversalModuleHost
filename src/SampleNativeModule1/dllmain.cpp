@@ -7,29 +7,12 @@
 #include "ipc.h"
 using namespace std::chrono_literals;
 
+void*                         Mod      = nullptr;
+ipc::SendMsg                  SendMsg  = nullptr;
+ipc::SendDiag                 SendDiag = nullptr;
 std::unique_ptr<std::jthread> PingThread;
 
-extern "C" __declspec(dllexport) HRESULT InitModule()
-{
-    return S_OK;
-}
-
-extern "C" __declspec(dllexport) HRESULT TermModule()
-{
-    if (PingThread)
-    {
-        PingThread->request_stop();
-        PingThread->join();
-    }
-
-    return S_OK;
-}
-
-void*         Mod      = nullptr;
-ipc::SendMsg  SendMsg  = nullptr;
-ipc::SendDiag SendDiag = nullptr;
-
-extern "C" __declspec(dllexport) HRESULT ConnectModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag)
+extern "C" __declspec(dllexport) HRESULT InitModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag)
 {
     Mod      = mod;
     SendMsg  = sendMsg;
@@ -55,6 +38,17 @@ extern "C" __declspec(dllexport) HRESULT ConnectModule(void* mod, ipc::SendMsg s
             std::this_thread::sleep_for(5s);
         }
     });
+    return S_OK;
+}
+
+extern "C" __declspec(dllexport) HRESULT TermModule()
+{
+    if (PingThread)
+    {
+        PingThread->request_stop();
+        PingThread->join();
+    }
+
     return S_OK;
 }
 
