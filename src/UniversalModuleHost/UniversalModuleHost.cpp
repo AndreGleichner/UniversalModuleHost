@@ -272,7 +272,7 @@ try
     auto kind = FileImage::GetKind(path.c_str());
     if (kind == FileImage::Kind::Unknown)
     {
-        // managed asseblies are typically AnyCPU, so no need to have both 32 and 64bit versions.
+        // managed assemblies are typically AnyCPU, so no need to have both 32 and 64bit versions.
         path = Process::ImagePath().replace_filename(L"modules") / name / (name + L".dll");
         kind = FileImage::GetKind(path.c_str());
         if (kind == FileImage::Kind::Unknown)

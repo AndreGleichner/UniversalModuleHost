@@ -88,8 +88,8 @@ bool ManagedHost::RunAsync()
     if (!InitFunctionPointerFactory())
         return false;
 
-    invokeManageMessageFromHostToModule_ = (OnMessageFromHostFuncSig)CreateFunction(_X("MessageFromHostToModule"));
-    if (!invokeManageMessageFromHostToModule_)
+    invokeManagedMessageFromHostToModule_ = (OnMessageFromHostFuncSig)CreateFunction(_X("MessageFromHostToModule"));
+    if (!invokeManagedMessageFromHostToModule_)
     {
         SPDLOG_ERROR(L"Failed to load MessageFromHostToModule from managed assembly '{}'", assemblyPath_.c_str());
         return false;
@@ -284,12 +284,12 @@ HRESULT ManagedHost::OnMessageFromModule(const std::string_view msg, const ipc::
 // send message to all modules
 HRESULT ManagedHost::Send(const std::string_view msg, const ipc::Target& target) noexcept
 {
-    RETURN_HR_IF_NULL(E_FAIL, invokeManageMessageFromHostToModule_);
+    RETURN_HR_IF_NULL(E_FAIL, invokeManagedMessageFromHostToModule_);
 
     std::wstring m = ToUtf16(msg);
     std::wstring s = target.Service.ToString();
 
-    int res = invokeManageMessageFromHostToModule_(m.c_str(), s.c_str(), target.Session);
+    int res = invokeManagedMessageFromHostToModule_(m.c_str(), s.c_str(), target.Session);
 
     return S_OK;
 }

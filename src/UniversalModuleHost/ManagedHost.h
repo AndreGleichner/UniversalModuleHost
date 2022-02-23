@@ -86,5 +86,5 @@ private:
     using OnMessageFromHostFuncSig =
         std::add_pointer_t<int CORECLR_DELEGATE_CALLTYPE(const char_t* msg, const char_t* service, uint32_t session)>;
 
-    OnMessageFromHostFuncSig invokeManageMessageFromHostToModule_ = nullptr;
+    OnMessageFromHostFuncSig invokeManagedMessageFromHostToModule_ = nullptr;
 };
