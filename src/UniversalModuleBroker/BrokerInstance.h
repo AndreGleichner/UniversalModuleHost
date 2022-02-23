@@ -24,7 +24,7 @@ public:
 
 private:
     // dispatch to all but the sending child process
-    void OnMessage(const ChildProcess* fromProcess, const std::string_view msg, const ipc::Target& target);
+    HRESULT OnMessage(ChildProcess* fromProcess, const std::string_view msg, const ipc::Target& target);
 
     bool ShouldBreakAwayFromJob(const ChildProcess* childProcess) const;
     void AssignProcessToJobObject(const ChildProcess* childProcess);

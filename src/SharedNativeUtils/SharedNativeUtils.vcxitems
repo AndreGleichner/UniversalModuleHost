@@ -20,6 +20,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)HResult.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ipc.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)magic_enum_extensions.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ModuleMeta.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Permission.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)SpdlogCustomFormatter.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)string_extensions.h" />

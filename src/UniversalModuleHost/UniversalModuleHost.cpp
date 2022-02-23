@@ -4,7 +4,7 @@
 using namespace std::chrono_literals;
 
 #include <nlohmann/json.hpp>
-
+using json = nlohmann::json;
 #include "SpdlogCustomFormatter.h"
 
 #include "UniversalModuleHost.h"
@@ -166,6 +166,7 @@ int UniversalModuleHost::Run()
 }
 
 HRESULT UniversalModuleHost::OnMessageFromBroker(const std::string_view msg, const ipc::Target& target)
+try
 {
     if (spdlog::should_log(spdlog::level::trace))
     {
@@ -182,7 +183,7 @@ HRESULT UniversalModuleHost::OnMessageFromBroker(const std::string_view msg, con
 
     if (target.Service == ipc::KnownService::HostInit)
     {
-        auto       j    = nlohmann::json::parse(msg);
+        auto       j    = json::parse(msg);
         const auto init = j.get<ipc::HostInitMsg>();
 
         FAIL_FAST_IF_MSG(!target_.Equals(ipc::Target()), "Alread processed an init message before");
@@ -196,7 +197,7 @@ HRESULT UniversalModuleHost::OnMessageFromBroker(const std::string_view msg, con
 
         if (target.Service == target_.Service)
         {
-            auto       j       = nlohmann::json::parse(msg);
+            auto       j       = json::parse(msg);
             const auto hostMsg = j.get<ipc::HostCmdMsg>();
 
             switch (hostMsg.Cmd)
@@ -209,7 +210,7 @@ HRESULT UniversalModuleHost::OnMessageFromBroker(const std::string_view msg, con
 
                 case ipc::HostCmdMsg::Cmd::CtrlModule:
                 {
-                    auto       ja   = nlohmann::json::parse(hostMsg.Args);
+                    auto       ja   = json::parse(hostMsg.Args);
                     const auto args = ja.get<ipc::HostCtrlModuleArgs>();
 
                     if (args.Cmd == ipc::HostCtrlModuleArgs::Cmd::Load)
@@ -241,6 +242,7 @@ HRESULT UniversalModuleHost::OnMessageFromBroker(const std::string_view msg, con
 
     return S_OK;
 }
+CATCH_RETURN()
 
 HRESULT UniversalModuleHost::OnMessageFromModule(
     NativeModule* mod, const std::string_view msg, const ipc::Target& target)

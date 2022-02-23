@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <wil/resource.h>
 #include <nlohmann/json.hpp>
+using json = nlohmann::json;
 #include "ipc.h"
 
 class BrokerInstance;
@@ -33,22 +34,23 @@ public:
 private:
     void StartForwardStderr() noexcept;
 
-    BrokerInstance*                 brokerInstance_;
-    ipc::Target                     target_;
-    wil::unique_process_information processInfo_;
-    wil::unique_handle              inRead_;
-    wil::unique_handle              inWrite_;
-    wil::unique_handle              outRead_;
-    wil::unique_handle              outWrite_;
-    wil::unique_handle              errRead_;
-    wil::unique_handle              errWrite_;
-    std::thread                     stderrForwarder_;
-    std::thread                     reader_;
-    std::thread                     keepAlive_;
-    bool                            allUsers_;
-    bool                            wow64_;
-    bool                            higherIntegrityLevel_;
-    bool                            ui_;
-    const std::string               groupName_;
-    const std::vector<std::wstring> modules_;
+    BrokerInstance*                  brokerInstance_;
+    ipc::Target                      target_;
+    wil::unique_process_information  processInfo_;
+    wil::unique_handle               inRead_;
+    wil::unique_handle               inWrite_;
+    wil::unique_handle               outRead_;
+    wil::unique_handle               outWrite_;
+    wil::unique_handle               errRead_;
+    wil::unique_handle               errWrite_;
+    std::thread                      stderrForwarder_;
+    std::thread                      reader_;
+    std::thread                      keepAlive_;
+    bool                             allUsers_;
+    bool                             wow64_;
+    bool                             higherIntegrityLevel_;
+    bool                             ui_;
+    const std::string                groupName_;
+    const std::vector<std::wstring>  modules_;
+    std::unordered_set<std::wstring> services_;
 };

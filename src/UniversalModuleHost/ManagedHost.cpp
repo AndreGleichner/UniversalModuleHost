@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <nlohmann/json.hpp>
-
+using json = nlohmann::json;
 #include "ManagedHost.h"
 #include "error_codes.h"
 #include "UniversalModuleHost.h"
@@ -139,8 +139,8 @@ bool ManagedHost::RunAsync()
 
 HRESULT ManagedHost::LoadModule(const std::wstring& path)
 {
-    nlohmann::json args = ipc::HostCtrlModuleArgs {ipc::HostCtrlModuleArgs::Cmd::Load, ToUtf8(path)};
-    nlohmann::json msg  = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::CtrlModule, args.dump()};
+    json args = ipc::HostCtrlModuleArgs {ipc::HostCtrlModuleArgs::Cmd::Load, ToUtf8(path)};
+    json msg  = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::CtrlModule, args.dump()};
 
     RETURN_IF_FAILED(Send(msg.dump(), ipc::Target(ipc::KnownService::ManagedHost)));
 

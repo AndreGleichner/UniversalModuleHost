@@ -18,6 +18,8 @@ namespace KnownService
 static const Guid None {GUID_NULL};
 
 static const Guid Broker {L"{92D627A3-6C62-4C5B-8477-484A34ED3B82}"};
+// ipc::ModuleMeta
+static const Guid ModuleMetaConsumer {L"{6E6A094C-839F-4EAF-BD22-08CB9E1A318F}"};
 
 // ipc::HostInitMsg
 static const Guid HostInit {L"{AA810FBD-B33C-4895-8E82-8814EE849E02}"};

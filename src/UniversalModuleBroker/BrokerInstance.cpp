@@ -7,6 +7,7 @@ using namespace Strings;
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 #include <wil/result.h>
+#include "ModuleMeta.h"
 
 BrokerInstance::BrokerInstance()
 {
@@ -110,21 +111,32 @@ try
 }
 CATCH_RETURN();
 
-void BrokerInstance::OnMessage(const ChildProcess* fromProcess, const std::string_view msg, const ipc::Target& target)
+HRESULT BrokerInstance::OnMessage(ChildProcess* fromProcess, const std::string_view msg, const ipc::Target& target)
+try
 {
     if (target.Service == ipc::KnownService::Broker)
     {
         // TODO: add valuable actions the broker may perform.
-        return;
     }
-
-    for (auto& process : childProcesses_)
+    else if (target.Service == ipc::KnownService::ModuleMetaConsumer)
     {
-        // TODO: optimization in case the host know how to route in-proc service messages
-        // if (process.get() != fromProcess)
-        process->SendMsg(msg, target);
+        const auto mm = json::parse(msg).get<ipc::ModuleMeta>();
+        for (const auto& s : mm.Services)
+        {
+            fromProcess->services_.emplace(ToUtf16(s));
+        }
     }
+    else
+    {
+        for (auto& process : childProcesses_)
+        {
+            // if (process->services_.contains(target.Service.ToString()))
+            process->SendMsg(msg, target);
+        }
+    }
+    return S_OK;
 }
+CATCH_RETURN()
 
 // If we're running as service and the to be launched process will run in another session
 // we have to use another job object since processes grouped in a job shall all run in the same session.

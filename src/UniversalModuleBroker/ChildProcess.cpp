@@ -298,7 +298,7 @@ try
 
     // Tell the host his Service GUID. This is used to talk to the host as such to e.g. load modules.
     // Modules hosted within the host process have their own one or multiple service GUIDs.
-    nlohmann::json msg = ipc::HostInitMsg {target_.Service, groupName_};
+    json msg = ipc::HostInitMsg {target_.Service, groupName_};
     RETURN_IF_FAILED(SendMsg(msg.dump(), ipc::Target(ipc::KnownService::HostInit)));
 
     return S_OK;
@@ -308,7 +308,7 @@ CATCH_RETURN();
 HRESULT ChildProcess::Terminate() noexcept
 try
 {
-    nlohmann::json msg = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::Terminate, ""};
+    json msg = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::Terminate, ""};
 
     RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target_));
     return S_OK;
@@ -323,8 +323,8 @@ try
         if (brokerInstance_->IsShuttingDown())
             return S_OK;
 
-        nlohmann::json args = ipc::HostCtrlModuleArgs {ipc::HostCtrlModuleArgs::Cmd::Load, ToUtf8(mod)};
-        nlohmann::json msg  = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::CtrlModule, args.dump()};
+        json args = ipc::HostCtrlModuleArgs {ipc::HostCtrlModuleArgs::Cmd::Load, ToUtf8(mod)};
+        json msg  = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::CtrlModule, args.dump()};
 
         RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target_));
     }

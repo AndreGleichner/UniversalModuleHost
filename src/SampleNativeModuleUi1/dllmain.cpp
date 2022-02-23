@@ -15,6 +15,11 @@ extern "C" __declspec(dllexport) HRESULT InitModule(void* mod, ipc::SendMsg send
     Mod      = mod;
     SendMsg  = sendMsg;
     SendDiag = sendDiag;
+
+    // json msg = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::Terminate, ""};
+
+    // RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target_));
+
     return S_OK;
 }
 
