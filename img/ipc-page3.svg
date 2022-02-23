@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="302px" preserveAspectRatio="none" style="width:2609px;height:302px;background:#FFFFFF;" version="1.1" viewBox="0 0 2609 302" width="2609px" zoomAndPan="magnify"><defs/><g><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="630.5" y="47.0146"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1386.5" y="47.0146"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1624.5" y="47.0146"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="2141.5" y="47.0146"/><rect fill="#FFFFFF" height="221.1646" style="stroke:#000000;stroke-width:1.0;" width="1884.5" x="561" y="56.0146"/><rect fill="#FFFFFF" height="130.7666" style="stroke:none;stroke-width:1.0;" width="1884.5" x="561" y="146.4126"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="108" x2="108" y1="37.0146" y2="295.1792"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="635" x2="635" y1="37.0146" y2="295.1792"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1391.5" x2="1391.5" y1="37.0146" y2="295.1792"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1629" x2="1629" y1="37.0146" y2="295.1792"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="2146.5" x2="2146.5" y1="37.0146" y2="295.1792"/><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="127" x="45" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="113" x="52" y="26.0752">BrokerProcess</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="109" x="581" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="95" x="588" y="26.0752">HostProcess</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="118" x="1332.5" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="104" x="1339.5" y="26.0752">NativeModule</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="175" x="1542" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="161" x="1549" y="26.0752">ManagedModuleHost</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="140" x="2076.5" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="126" x="2083.5" y="26.0752">ManagedModule</text><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="630.5" y="47.0146"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1386.5" y="47.0146"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1624.5" y="47.0146"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="2141.5" y="47.0146"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="5" x2="2602.5" y1="48.0146" y2="48.0146"/><path d="M561,56.0146 L625,56.0146 L625,63.0146 L615,73.0146 L561,73.0146 L561,56.0146 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><rect fill="none" height="221.1646" style="stroke:#000000;stroke-width:1.0;" width="1884.5" x="561" y="56.0146"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="19" x="576" y="70.0845">alt</text><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="254" x="640" y="69.0737">[Send diagnostics from native module]</text><line style="stroke:#000000;stroke-width:1.0;" x1="1396.5" x2="1438.5" y1="95.6133" y2="95.6133"/><line style="stroke:#000000;stroke-width:1.0;" x1="1438.5" x2="1438.5" y1="95.6133" y2="108.6133"/><line style="stroke:#000000;stroke-width:1.0;" x1="1397.5" x2="1438.5" y1="108.6133" y2="108.6133"/><polygon fill="#000000" points="1407.5,104.6133,1397.5,108.6133,1407.5,112.6133,1403.5,108.6133" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="1403.5" y="90.8838">33</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="192" x="1425.5" y="90.8838">spdlog::info("hello world")</text><polygon fill="#000000" points="651.5,134.4126,641.5,138.4126,651.5,142.4126,647.5,138.4126" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="645.5" x2="1385.5" y1="138.4126" y2="138.4126"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="657.5" y="133.6831">34</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="213" x="679.5" y="133.6831">via stderr: "[INF] hello world"</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="561" x2="2445.5" y1="147.4126" y2="147.4126"/><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="273" x="566" y="158.4717">[Send diagnostics from managed module]</text><line style="stroke:#000000;stroke-width:1.0;" x1="2151.5" x2="2193.5" y1="183.5806" y2="183.5806"/><line style="stroke:#000000;stroke-width:1.0;" x1="2193.5" x2="2193.5" y1="183.5806" y2="196.5806"/><line style="stroke:#000000;stroke-width:1.0;" x1="2152.5" x2="2193.5" y1="196.5806" y2="196.5806"/><polygon fill="#000000" points="2162.5,192.5806,2152.5,196.5806,2162.5,200.5806,2158.5,196.5806" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="2158.5" y="178.8511">35</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="253" x="2180.5" y="178.8511">_logger.Information("hello world")</text><polygon fill="#000000" points="651.5,222.3799,641.5,226.3799,651.5,230.3799,647.5,226.3799" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="645.5" x2="2140.5" y1="226.3799" y2="226.3799"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="657.5" y="221.6504">36</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="366" x="679.5" y="221.6504">UniversalModuleHost.exe/OnLog(2, "hello world")</text><line style="stroke:#000000;stroke-width:1.0;" x1="640.5" x2="682.5" y1="256.1792" y2="256.1792"/><line style="stroke:#000000;stroke-width:1.0;" x1="682.5" x2="682.5" y1="256.1792" y2="269.1792"/><line style="stroke:#000000;stroke-width:1.0;" x1="641.5" x2="682.5" y1="269.1792" y2="269.1792"/><polygon fill="#000000" points="651.5,265.1792,641.5,269.1792,651.5,273.1792,647.5,269.1792" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="647.5" y="251.4497">37</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="408" x="669.5" y="251.4497">SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="5" x2="2602.5" y1="284.1792" y2="284.1792"/><!--MD5=[78fe12c2f94c9aef74f103e129da7fa6]
+@startuml IPC
+!theme plain
+hide footbox
+
+autonumber
+participant BrokerProcess as B
+participant HostProcess as H
+participant NativeModule as NM
+participant ManagedModuleHost as MMH
+participant ManagedModule as MM
+
+B->B: BrokerInstance::Init() => process broker.json
+loop Launch processes
+    B->B: ChildProcess::Launch()
+    B->H ++: CreateProcess/AsUser()
+    B->B: ipc::StartRead(),StartForwardStderr()
+    B->B: start child proc monitoring
+    B->H: ChildProcess::SendMsg(ipc::KnownService::HostInit)
+    H->H: Remember host target GUID
+    H->H: UniversalModuleHost::OnMessageFromBroker()
+    B->B: ChildProcess::LoadModules()
+end
+    
+newpage
+
+alt Load native module
+    B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
+    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: UniversalModuleHost::LoadModule()
+    H->H: check PE header for module type
+    H->H: UniversalModuleHost::LoadNativeModule(path/to/dll)
+    H->H: NativeModule::Load()
+    H->NM ++: LoadLibrary native dll
+    H->NM: InitModule()
+    H->NM: ConnectModule(OnMsg, OnDiag)
+else Load managed DLL module
+    B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
+    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: UniversalModuleHost::LoadModule()
+    H->H: check PE header for module type
+    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: Load .Net CLR if not yet done
+    H->MMH ++: load ManagedHost.dll in custom .Net host
+    H->H: ManagedHost::LoadModule(path/to/dll)
+    H->H: Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, ipc::KnownService::ManagedHost)
+    H->MMH: invoke native->managed Ipc.MessageFromHostToModule()
+    MMH->MMH: ManagedHost.Program.OnMessageFromHost()
+    MMH->MMH: ModuleHost.LoadModule(path/to/dll)
+    MMH->MM ++: Load dll in own AssemblyLoadContext
+    MMH->MM: IModule.Initialize()
+end
+
+newpage
+
+alt Send diagnostics from native module
+    NM->NM: spdlog::info("hello world")
+    NM->H: via stderr: "[INF] hello world"
+else Send diagnostics from managed module
+    MM->MM: _logger.Information("hello world")
+    MM->H: UniversalModuleHost.exe/OnLog(2, "hello world")
+    H->H: SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")
+end
+
+newpage
+
+alt Send message from native module
+    NM->H: SendMsg(Mod, "some event", serviceGuid, session)
+    H->H: NativeModule::OnMsg(Mod, "some event", serviceGuid, session)
+    H->H: UniversalModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
+    H->H: ipc::Send("some event", target)
+    H->B: via stdout: serialized msg/target
+    B->B: ReadFile(stdin) => deserialize msg/target
+    B->B: BrokerInstance::OnMessage("some event", target)
+    loop for all host processes
+        B->B: ChildProcess::Send("some event", target)
+        B->B: ipc::Send("some event", target)
+        B->H: via stdout: serialized msg/target
+        H->H: ReadFile(stdin) => deserialize msg/target
+        H->H: UniversalModuleHost::OnMessageFromBroker()
+        loop for all native modules
+            H->H: NativeModule::Send()
+            H->NM: Native.dll/OnMessage("some event", target)
+        end
+        opt if any managed modules
+            H->H: ManagedHost::Send()
+            H->MMH: ManagedHost.dll/Ipc.MessageFromHostToModule()
+            MMH->MM: App.OnMessageFromHost("some event", serviceGuid, session)
+        end
+    end
+else Send message from managed module
+    MM->MM: Ipc.SendMessage("some event", serviceGuid, session)
+    MM->H: UniversalModuleHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
+    H->H: ManagedHost::OnMessageFromModule("some event", Target(serviceGuid, session))
+    H->H: UniversalModuleHost::OnMessageFromModule(null, "some event", target)
+    H->H: ipc::Send("some event", target)
+    Note right of H: dispatch further same as with native module as msg source
+end
+@enduml
+
+@startuml IPC
+
+
+
+
+
+
+
+<style>
+  root {
+    BackgroundColor white
+    FontColor black
+    FontName Verdana
+    HyperLinkColor blue
+    LineColor black
+    LineThickness 1
+    Margin 5
+  }
+  caption {
+    LineThickness 0
+  }
+  footer {
+    LineThickness 0
+  }
+  header {
+    LineThickness 0
+  }
+  node {
+    MaximumWidth 300
+  }
+  title {
+    FontSize 22
+    LineThickness 0
+  }
+</style>
+
+skinparam ArrowLollipopColor black
+skinparam BackgroundColor white
+skinparam DefaultFontName Verdana
+skinparam DefaultMonospacedFontName Courier
+skinparam LifelineStrategy nosolid
+skinparam ParticipantPadding 10
+skinparam SequenceLifeLineBorderColor black
+skinparam Shadowing false
+skinparam UseBetaStyle true
+
+skinparam Activity {
+  BackgroundColor white
+  BarColor black
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam Boundary {
+  FontColor black
+}
+skinparam Box {
+  Padding 5
+}
+skinparam CircledCharacter {
+  FontColor black
+  FontName Courier
+  Radius 9
+}
+skinparam Class {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassAttribute {
+  FontColor black
+  FontName Verdana
+}
+skinparam ClassStereotype {
+  FontColor black
+  FontName Verdana
+}
+skinparam Footer {
+  FontColor black
+  FontName Verdana
+}
+skinparam Header {
+  FontColor black
+  FontName Verdana
+}
+skinparam Hyperlink {
+  Color blue
+}
+skinparam IconPackage {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPrivate {
+  Color black
+  BackgroundColor white
+}
+skinparam IconProtected {
+  Color black
+  BackgroundColor white
+}
+skinparam IconPublic {
+  Color black
+  BackgroundColor white
+}
+skinparam Note {
+  FontColor black
+  FontName Verdana
+}
+skinparam Object {
+  BorderColor black
+}
+skinparam Package {
+  BorderColor black
+  FontColor black
+  FontName Verdana
+}
+skinparam State {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeA {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeC {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeE {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeI {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam StereotypeN {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam UseCaseStereoType {
+  FontColor black
+  FontName Verdana
+}
+hide footbox
+
+autonumber
+participant BrokerProcess as B
+participant HostProcess as H
+participant NativeModule as NM
+participant ManagedModuleHost as MMH
+participant ManagedModule as MM
+
+B->B: BrokerInstance::Init() => process broker.json
+loop Launch processes
+    B->B: ChildProcess::Launch()
+    B->H ++: CreateProcess/AsUser()
+    B->B: ipc::StartRead(),StartForwardStderr()
+    B->B: start child proc monitoring
+    B->H: ChildProcess::SendMsg(ipc::KnownService::HostInit)
+    H->H: Remember host target GUID
+    H->H: UniversalModuleHost::OnMessageFromBroker()
+    B->B: ChildProcess::LoadModules()
+end
+    
+newpage
+
+alt Load native module
+    B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
+    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: UniversalModuleHost::LoadModule()
+    H->H: check PE header for module type
+    H->H: UniversalModuleHost::LoadNativeModule(path/to/dll)
+    H->H: NativeModule::Load()
+    H->NM ++: LoadLibrary native dll
+    H->NM: InitModule()
+    H->NM: ConnectModule(OnMsg, OnDiag)
+else Load managed DLL module
+    B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
+    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: UniversalModuleHost::LoadModule()
+    H->H: check PE header for module type
+    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: Load .Net CLR if not yet done
+    H->MMH ++: load ManagedHost.dll in custom .Net host
+    H->H: ManagedHost::LoadModule(path/to/dll)
+    H->H: Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, ipc::KnownService::ManagedHost)
+    H->MMH: invoke native->managed Ipc.MessageFromHostToModule()
+    MMH->MMH: ManagedHost.Program.OnMessageFromHost()
+    MMH->MMH: ModuleHost.LoadModule(path/to/dll)
+    MMH->MM ++: Load dll in own AssemblyLoadContext
+    MMH->MM: IModule.Initialize()
+end
+
+newpage
+
+alt Send diagnostics from native module
+    NM->NM: spdlog::info("hello world")
+    NM->H: via stderr: "[INF] hello world"
+else Send diagnostics from managed module
+    MM->MM: _logger.Information("hello world")
+    MM->H: UniversalModuleHost.exe/OnLog(2, "hello world")
+    H->H: SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")
+end
+
+newpage
+
+alt Send message from native module
+    NM->H: SendMsg(Mod, "some event", serviceGuid, session)
+    H->H: NativeModule::OnMsg(Mod, "some event", serviceGuid, session)
+    H->H: UniversalModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
+    H->H: ipc::Send("some event", target)
+    H->B: via stdout: serialized msg/target
+    B->B: ReadFile(stdin) => deserialize msg/target
+    B->B: BrokerInstance::OnMessage("some event", target)
+    loop for all host processes
+        B->B: ChildProcess::Send("some event", target)
+        B->B: ipc::Send("some event", target)
+        B->H: via stdout: serialized msg/target
+        H->H: ReadFile(stdin) => deserialize msg/target
+        H->H: UniversalModuleHost::OnMessageFromBroker()
+        loop for all native modules
+            H->H: NativeModule::Send()
+            H->NM: Native.dll/OnMessage("some event", target)
+        end
+        opt if any managed modules
+            H->H: ManagedHost::Send()
+            H->MMH: ManagedHost.dll/Ipc.MessageFromHostToModule()
+            MMH->MM: App.OnMessageFromHost("some event", serviceGuid, session)
+        end
+    end
+else Send message from managed module
+    MM->MM: Ipc.SendMessage("some event", serviceGuid, session)
+    MM->H: UniversalModuleHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
+    H->H: ManagedHost::OnMessageFromModule("some event", Target(serviceGuid, session))
+    H->H: UniversalModuleHost::OnMessageFromModule(null, "some event", target)
+    H->H: ipc::Send("some event", target)
+    Note right of H: dispatch further same as with native module as msg source
+end
+@enduml
+
+PlantUML version 1.2022.0(Tue Jan 11 17:16:42 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: Cp1252
+Language: en
+Country: US
+--></g></svg>

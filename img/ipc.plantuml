@@ -1,0 +1,98 @@
+@startuml IPC
+!theme plain
+hide footbox
+
+autonumber
+participant BrokerProcess as B
+participant HostProcess as H
+participant NativeModule as NM
+participant ManagedModuleHost as MMH
+participant ManagedModule as MM
+
+B->B: BrokerInstance::Init() => process broker.json
+loop Launch processes
+    B->B: ChildProcess::Launch()
+    B->H ++: CreateProcess/AsUser()
+    B->B: ipc::StartRead(),StartForwardStderr()
+    B->B: start child proc monitoring
+    B->H: ChildProcess::SendMsg(ipc::KnownService::HostInit)
+    H->H: Remember host target GUID
+    H->H: UniversalModuleHost::OnMessageFromBroker()
+    B->B: ChildProcess::LoadModules()
+end
+    
+newpage
+
+alt Load native module
+    B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
+    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: UniversalModuleHost::LoadModule()
+    H->H: check PE header for module type
+    H->H: UniversalModuleHost::LoadNativeModule(path/to/dll)
+    H->H: NativeModule::Load()
+    H->NM ++: LoadLibrary native dll
+    H->NM: InitModule()
+    H->NM: ConnectModule(OnMsg, OnDiag)
+else Load managed DLL module
+    B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
+    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: UniversalModuleHost::LoadModule()
+    H->H: check PE header for module type
+    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: Load .Net CLR if not yet done
+    H->MMH ++: load ManagedHost.dll in custom .Net host
+    H->H: ManagedHost::LoadModule(path/to/dll)
+    H->H: Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, ipc::KnownService::ManagedHost)
+    H->MMH: invoke native->managed Ipc.MessageFromHostToModule()
+    MMH->MMH: ManagedHost.Program.OnMessageFromHost()
+    MMH->MMH: ModuleHost.LoadModule(path/to/dll)
+    MMH->MM ++: Load dll in own AssemblyLoadContext
+    MMH->MM: IModule.Initialize()
+end
+
+newpage
+
+alt Send diagnostics from native module
+    NM->NM: spdlog::info("hello world")
+    NM->H: via stderr: "[INF] hello world"
+else Send diagnostics from managed module
+    MM->MM: _logger.Information("hello world")
+    MM->H: UniversalModuleHost.exe/OnLog(2, "hello world")
+    H->H: SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")
+end
+
+newpage
+
+alt Send message from native module
+    NM->H: SendMsg(Mod, "some event", serviceGuid, session)
+    H->H: NativeModule::OnMsg(Mod, "some event", serviceGuid, session)
+    H->H: UniversalModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
+    H->H: ipc::Send("some event", target)
+    H->B: via stdout: serialized msg/target
+    B->B: ReadFile(stdin) => deserialize msg/target
+    B->B: BrokerInstance::OnMessage("some event", target)
+    loop for all host processes
+        B->B: ChildProcess::Send("some event", target)
+        B->B: ipc::Send("some event", target)
+        B->H: via stdout: serialized msg/target
+        H->H: ReadFile(stdin) => deserialize msg/target
+        H->H: UniversalModuleHost::OnMessageFromBroker()
+        loop for all native modules
+            H->H: NativeModule::Send()
+            H->NM: Native.dll/OnMessage("some event", target)
+        end
+        opt if any managed modules
+            H->H: ManagedHost::Send()
+            H->MMH: ManagedHost.dll/Ipc.MessageFromHostToModule()
+            MMH->MM: App.OnMessageFromHost("some event", serviceGuid, session)
+        end
+    end
+else Send message from managed module
+    MM->MM: Ipc.SendMessage("some event", serviceGuid, session)
+    MM->H: UniversalModuleHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
+    H->H: ManagedHost::OnMessageFromModule("some event", Target(serviceGuid, session))
+    H->H: UniversalModuleHost::OnMessageFromModule(null, "some event", target)
+    H->H: ipc::Send("some event", target)
+    Note right of H: dispatch further same as with native module as msg source
+end
+@enduml

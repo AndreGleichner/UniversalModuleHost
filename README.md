@@ -37,6 +37,18 @@ Messages are always send to the broker which dispatches them to every module (in
 Module DLLs are responsible to handle certain service-GUID.
 The broker itself as well as the host processes themselves also have service-GUIDs to e.g. perform init, module (un-)load.
 
+### Init
+![Init](./img/ipc-page1.svg)
+
+### Load module
+![Load module](./img/ipc-page2.svg)
+
+### Send diagnostic output
+![Send diagnostic output](./img/ipc-page3.svg)
+
+### Send messages
+![Send messages](./img/ipc-page4.svg)
+
 
 ## Security
 
