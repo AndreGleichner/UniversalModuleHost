@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,6 +21,11 @@ namespace IpcMonitor
         protected override void OnStartup(StartupEventArgs e)
         {
             Ipc.Init(OnMessageFromHost, OnTerminate);
+
+            var mm = new ModuleMeta { Pid = Process.GetCurrentProcess().Id, Name = "IpcMonitor", Services = { Guid.Empty.ToString() } };
+            string msg = JsonSerializer.Serialize(mm);
+
+            Ipc.SendMessage(msg, Ipc.ModuleMetaConsumer);
         }
 
         private static int OnMessageFromHost(string msg, string service, uint session)

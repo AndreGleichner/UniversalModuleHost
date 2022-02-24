@@ -14,7 +14,7 @@ HRESULT Send(const std::string_view msg, const Target& target) noexcept
 HRESULT Send(HANDLE out, const std::string_view msg, const Target& target) noexcept
 try
 {
-    RETURN_HR_IF_MSG(E_FAIL, target.Service == KnownService::None, "Can't send IPC msg to None");
+    RETURN_HR_IF_MSG(E_FAIL, target.Service == KnownService::All, "Can't send IPC msg to 'All'");
 
     static wil::srwlock lock;
 

@@ -130,8 +130,11 @@ try
     {
         for (auto& process : childProcesses_)
         {
-            // if (process->services_.contains(target.Service.ToString()))
-            process->SendMsg(msg, target);
+            if (process->services_.contains(ipc::KnownService::All.ToString()) ||
+                process->services_.contains(target.Service.ToString()))
+            {
+                process->SendMsg(msg, target);
+            }
         }
     }
     return S_OK;

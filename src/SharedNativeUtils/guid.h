@@ -19,6 +19,8 @@ struct Guid final : GUID
     {
         if (createNew)
             (void)::CoCreateGuid(this);
+        else
+            *(GUID*)this = GUID_NULL;
     }
 
     Guid(const GUID& guid)

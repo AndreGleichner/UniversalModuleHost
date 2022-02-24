@@ -15,7 +15,8 @@ const DWORD Any {(DWORD)-1};
 
 namespace KnownService
 {
-static const Guid None {GUID_NULL};
+// A module may indicate that it wants to receive messages for all services
+static const Guid All {GUID_NULL};
 
 static const Guid Broker {L"{92D627A3-6C62-4C5B-8477-484A34ED3B82}"};
 // ipc::ModuleMeta
@@ -31,7 +32,7 @@ static const Guid ConfStore {L"{8583CDC9-DB92-45BE-90CE-4D3AA4CD14F5}"};
 
 struct Target final
 {
-    Guid  Service = KnownService::None;
+    Guid  Service;
     DWORD Session = KnownSession::Any;
 
     Target() = default;

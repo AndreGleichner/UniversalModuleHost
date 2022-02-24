@@ -11,6 +11,7 @@ namespace SharedManagedUtils
     class Ipc
     {
         public const string ManagedHost = "{7924FE60-C967-449C-BA5D-2EBAA7D16024}";
+        public const string ModuleMetaConsumer = "{6E6A094C-839F-4EAF-BD22-08CB9E1A318F}";
 
         public delegate int OnMessageFromHost(string msg, string service, uint session);
         public delegate void OnTerminate();

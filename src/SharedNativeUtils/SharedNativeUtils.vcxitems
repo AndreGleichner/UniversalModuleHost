@@ -31,7 +31,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)FileImage.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ipc.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Permission.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)string_extensions.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)UmhProcess.cpp" />
   </ItemGroup>
 </Project>

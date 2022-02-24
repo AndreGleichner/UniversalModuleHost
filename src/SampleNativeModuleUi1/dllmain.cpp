@@ -5,6 +5,14 @@
 #include <shellapi.h>
 
 #include "ipc.h"
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
+#include "ModuleMeta.h"
+#include "string_extensions.h"
+using namespace Strings;
+
+#include <wil/win32_helpers.h>
 
 void*         Mod      = nullptr;
 ipc::SendMsg  SendMsg  = nullptr;
@@ -16,9 +24,14 @@ extern "C" __declspec(dllexport) HRESULT InitModule(void* mod, ipc::SendMsg send
     SendMsg  = sendMsg;
     SendDiag = sendDiag;
 
-    // json msg = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::Terminate, ""};
+    // Tell the world which services we provide
+    auto                  dll = wil::GetModuleFileNameW((HMODULE)wil::GetModuleInstanceHandle());
+    std::filesystem::path path(dll.get());
 
-    // RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target_));
+    json msg = ipc::ModuleMeta {
+        ::GetCurrentProcessId(), ToUtf8(path.stem().wstring()), {ToUtf8(ipc::KnownService::ShellExec.ToString())}};
+
+    RETURN_IF_FAILED(SendMsg(Mod, msg.dump().c_str(), &ipc::KnownService::ModuleMetaConsumer, (DWORD)-1));
 
     return S_OK;
 }

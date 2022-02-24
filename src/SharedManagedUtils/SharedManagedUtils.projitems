@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)HostMsg.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ipc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ModuleMeta.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SerilogAsMicrosoftLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SerilogToNativeSink.cs" />
   </ItemGroup>
