@@ -123,15 +123,16 @@ try
         const auto mm = json::parse(msg).get<ipc::ModuleMeta>();
         for (const auto& s : mm.Services)
         {
-            fromProcess->services_.emplace(ToUtf16(s));
+            fromProcess->services_.emplace(Guid(s));
         }
     }
     else
     {
+        // Dispatch to any process which may have a respective handler.
         for (auto& process : childProcesses_)
         {
-            if (process->services_.contains(ipc::KnownService::All.ToString()) ||
-                process->services_.contains(target.Service.ToString()))
+            // KnownService::All means a module has declared it wants to handle messages to any service.
+            if (process->services_.contains(ipc::KnownService::All) || process->services_.contains(target.Service))
             {
                 process->SendMsg(msg, target);
             }

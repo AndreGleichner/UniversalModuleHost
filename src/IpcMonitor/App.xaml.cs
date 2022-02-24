@@ -35,7 +35,9 @@ namespace IpcMonitor
 
             Application.Current.Dispatcher.BeginInvoke(() =>
                 {
-                    ((MainWindow)Application.Current.MainWindow).Messages.Items.Add(mi);
+                    var messages = ((MainWindow)Application.Current.MainWindow).Messages;
+                    messages.Items.Add(mi);
+                    //messages.ScrollIntoView(messages.Items[messages.Items.Count - 1]);
                 });
 
             return 0;

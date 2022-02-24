@@ -1,10 +1,13 @@
 #pragma once
 
+#include <Windows.h>
 #include <string>
 #include <string_view>
 #include <guiddef.h>
 #include <objbase.h>
 #include <wil/resource.h>
+#include "string_extensions.h"
+using namespace Strings;
 
 struct Guid final : GUID
 {
@@ -28,25 +31,59 @@ struct Guid final : GUID
         *(GUID*)this = guid;
     }
 
+    Guid(std::wstring_view guid)
+    {
+        FAIL_FAST_IF_FAILED_MSG(Parse(guid), "Failed to parse guid '%ls'", guid.data());
+    }
+
+    Guid(std::string_view guid)
+    {
+        FAIL_FAST_IF_FAILED_MSG(Parse(guid), "Failed to parse guid '%s'", guid.data());
+    }
+
     Guid(PCWSTR guid)
     {
         FAIL_FAST_IF_FAILED_MSG(Parse(guid), "Failed to parse guid '%ls'", guid);
     }
 
-    // formatted as "{e27bf98a-dfae-41f1-8e92-1319fd2c6424}"
+    Guid(PCSTR guid)
+    {
+        FAIL_FAST_IF_FAILED_MSG(Parse(guid), "Failed to parse guid '%s'", guid);
+    }
+
+    // formatted as "{831532DC-7EFB-4A8C-841B-7BBE21558F8F}"
     std::wstring ToString() const
     {
-        wil::unique_cotaskmem_string str;
-        THROW_IF_FAILED(::StringFromCLSID(*this, &str));
-        return str.get();
+        std::wstring str(38, L'\0');
+        THROW_HR_IF(E_FAIL, 0 == ::StringFromGUID2(*this, str.data(), (int)str.size() + 1));
+        return str;
+    }
+    std::string ToStringUtf8() const
+    {
+        return ToUtf8(ToString());
     }
 
     HRESULT Parse(const std::wstring_view guid)
     {
         CLSID clsid;
-        RETURN_IF_FAILED(::CLSIDFromString(guid.data(), &clsid));
+        if (guid.size() == 38)
+        {
+            RETURN_IF_FAILED(::CLSIDFromString(guid.data(), &clsid));
+        }
+        else if (guid.size() == 36)
+        {
+            std::wstring g(L"{");
+            g += guid;
+            g += L"}";
+
+            RETURN_IF_FAILED(::CLSIDFromString(g.data(), &clsid));
+        }
         *this = *(Guid*)&clsid;
         return S_OK;
+    }
+    HRESULT Parse(const std::string_view guid)
+    {
+        return Parse(ToUtf16(guid));
     }
 
     bool Equals(const Guid& rhs) const
@@ -57,4 +94,16 @@ struct Guid final : GUID
     {
         return Equals(rhs);
     }
+
+    struct HashFunction
+    {
+        size_t operator()(const Guid& guid) const
+        {
+            size_t d1 = std::hash<uint32_t>()(guid.Data1);
+            size_t d2 = std::hash<uint16_t>()(guid.Data2) << 1;
+            size_t d3 = std::hash<uint16_t>()(guid.Data3) << 2;
+            size_t d4 = std::hash<uint64_t>()(*(uint64_t*)&guid.Data4[0]) << 3;
+            return d1 ^ d2 ^ d3 ^ d4;
+        }
+    };
 };
