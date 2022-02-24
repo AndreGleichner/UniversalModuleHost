@@ -7,7 +7,6 @@
 #include <objbase.h>
 #include <wil/resource.h>
 #include "string_extensions.h"
-using namespace Strings;
 
 struct Guid final : GUID
 {
@@ -52,15 +51,15 @@ struct Guid final : GUID
     }
 
     // formatted as "{831532DC-7EFB-4A8C-841B-7BBE21558F8F}"
-    std::wstring ToString() const
+    std::wstring ToUtf16() const
     {
         std::wstring str(38, L'\0');
         THROW_HR_IF(E_FAIL, 0 == ::StringFromGUID2(*this, str.data(), (int)str.size() + 1));
         return str;
     }
-    std::string ToStringUtf8() const
+    std::string ToUtf8() const
     {
-        return ToUtf8(ToString());
+        return Strings::ToUtf8(ToUtf16());
     }
 
     HRESULT Parse(const std::wstring_view guid)
@@ -83,7 +82,7 @@ struct Guid final : GUID
     }
     HRESULT Parse(const std::string_view guid)
     {
-        return Parse(ToUtf16(guid));
+        return Parse(Strings::ToUtf16(guid));
     }
 
     bool Equals(const Guid& rhs) const

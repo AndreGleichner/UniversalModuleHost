@@ -17,7 +17,7 @@ struct HostInitMsg
 
 inline void to_json(json& j, const HostInitMsg& msg)
 {
-    j = json {{"Service", ToUtf8(msg.Service.ToString())}, {"GroupName", msg.GroupName}};
+    j = json {{"Service", msg.Service.ToUtf8()}, {"GroupName", msg.GroupName}};
 }
 
 inline void from_json(const json& j, HostInitMsg& msg)

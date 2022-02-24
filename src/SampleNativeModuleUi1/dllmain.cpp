@@ -29,7 +29,7 @@ extern "C" __declspec(dllexport) HRESULT InitModule(void* mod, ipc::SendMsg send
     std::filesystem::path path(dll.get());
 
     json msg = ipc::ModuleMeta {
-        ::GetCurrentProcessId(), ToUtf8(path.stem().wstring()), {ToUtf8(ipc::KnownService::ShellExec.ToString())}};
+        ::GetCurrentProcessId(), ToUtf8(path.stem().wstring()), {ipc::KnownService::ShellExec.ToUtf8()}};
 
     RETURN_IF_FAILED(SendMsg(Mod, msg.dump().c_str(), &ipc::KnownService::ModuleMetaConsumer, (DWORD)-1));
 

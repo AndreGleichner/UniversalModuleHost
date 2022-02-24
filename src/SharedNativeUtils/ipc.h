@@ -47,7 +47,7 @@ struct Target final
 
     std::wstring ToString() const
     {
-        return std::format(L"{} @ {}", Service.ToString(), (int)Session);
+        return std::format(L"{} @ {}", Service.ToUtf16(), (int)Session);
     }
 
     bool Equals(const Target& rhs) const

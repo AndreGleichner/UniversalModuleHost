@@ -287,7 +287,7 @@ HRESULT ManagedHost::Send(const std::string_view msg, const ipc::Target& target)
     RETURN_HR_IF_NULL(E_FAIL, invokeManagedMessageFromHostToModule_);
 
     std::wstring m = ToUtf16(msg);
-    std::wstring s = target.Service.ToString();
+    std::wstring s = target.Service.ToUtf16();
 
     int res = invokeManagedMessageFromHostToModule_(m.c_str(), s.c_str(), target.Session);
 
