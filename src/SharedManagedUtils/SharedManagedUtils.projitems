@@ -9,6 +9,7 @@
     <Import_RootNamespace>SharedManagedUtils</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ConfStore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HostMsg.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ipc.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModuleMeta.cs" />

@@ -4,7 +4,8 @@
       "GroupName": "A",
       "Session": "Broker",
       "Modules": [
-        "SampleNativeModule1"
+        "SampleNativeModule1",
+        "ConfStore"
       ]
     },
     {

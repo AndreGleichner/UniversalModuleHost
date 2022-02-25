@@ -28,10 +28,10 @@ namespace IpcMonitor
             Ipc.SendMessage(msg, Ipc.ModuleMetaConsumer);
         }
 
-        private static int OnMessageFromHost(string msg, string service, uint session)
+        private static int OnMessageFromHost(string msg, string service, int session)
         {
             //Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{service}' {session}");
-            var mi = new MessageItem(Timestamp: DateTime.Now.ToString("HH:mm:ss"), Message: msg.Replace("\r\n", ""), Service: service, Session: ((int)session).ToString());
+            var mi = new MessageItem(Timestamp: DateTime.Now.ToString("HH:mm:ss"), Message: msg.Replace("\r\n", ""), Service: service, Session: session.ToString());
 
             Application.Current.Dispatcher.BeginInvoke(() =>
                 {

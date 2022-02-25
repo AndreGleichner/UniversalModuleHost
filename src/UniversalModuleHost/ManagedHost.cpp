@@ -289,7 +289,7 @@ HRESULT ManagedHost::Send(const std::string_view msg, const ipc::Target& target)
     std::wstring m = ToUtf16(msg);
     std::wstring s = target.Service.ToUtf16();
 
-    int res = invokeManagedMessageFromHostToModule_(m.c_str(), s.c_str(), target.Session);
+    int res = invokeManagedMessageFromHostToModule_(m.c_str(), s.c_str(), (int32_t)target.Session);
 
     return S_OK;
 }

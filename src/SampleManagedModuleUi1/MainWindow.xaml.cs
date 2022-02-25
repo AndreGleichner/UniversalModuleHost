@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,12 +27,12 @@ namespace SampleManagedModuleUi1
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click_Browse(object sender, RoutedEventArgs e)
         {
-            Ipc.SendMessage("https://www.heise.de/", "{BEA684E7-697F-4201-844F-98224FA16D2F}");
+            Ipc.SendMessage("https://www.heise.de/", Ipc.ShellExec);
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void Button_Click_SendMsg(object sender, RoutedEventArgs e)
         {
             var rnd = new Random();
             string msg = $@"{{
@@ -39,6 +40,30 @@ namespace SampleManagedModuleUi1
 ""Prop2"": ""Hello World""
 }}";
             Ipc.SendMessage(msg, "{60DE68BB-50FD-4CB8-A808-1CEBEE3B034E}", 1);
+        }
+
+        private void Button_Click_StoreConf(object sender, RoutedEventArgs e)
+        {
+            string patch = @"{
+  ""Mod1"": {
+    ""ConfVal"": 12
+  },
+  ""Mod2"": {
+    ""ConfVal"": 22
+  }
+}";
+            var cs = new ConfStore { Cmd = ConfStore.ECmd.MergePatch, Args = patch };
+            string msg = JsonSerializer.Serialize(cs);
+
+            Ipc.SendMessage(msg, Ipc.ConfStore);
+        }
+
+        private void Button_Click_QueryConf(object sender, RoutedEventArgs e)
+        {
+            var cs = new ConfStore { Cmd = ConfStore.ECmd.Query, Args = "/Mod1" };
+            string msg = JsonSerializer.Serialize(cs);
+
+            Ipc.SendMessage(msg, Ipc.ConfStore);
         }
     }
 }

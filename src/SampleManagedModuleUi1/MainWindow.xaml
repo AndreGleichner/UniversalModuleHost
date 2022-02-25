@@ -5,13 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SampleManagedModuleUi1"
         mc:Ignorable="d"
-        Title="MainWindow" Width="322"  Height="186">
+        Title="MainWindow" Width="322"  Height="344">
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
     </Grid.ColumnDefinitions>
     <Label Content="Hello World" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Height="30" Width="80"/>
-    <Button Content="Browse" HorizontalAlignment="Center" Height="50" Margin="0,55,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click" />
-    <Button Content="Send Message" HorizontalAlignment="Center" Height="50" Margin="0,55,0,0" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_1" />
+    <Button Content="Browse" HorizontalAlignment="Center" Height="50" Margin="0,55,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_Browse" />
+    <Button Content="Send Message" HorizontalAlignment="Center" Height="50" Margin="0,118,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_SendMsg" />
+    <Button Content="Store Conf" HorizontalAlignment="Center" Height="50" Margin="0,183,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_StoreConf" />
+    <Button Content="Query Conf" HorizontalAlignment="Center" Height="50" Margin="0,248,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_QueryConf" />
   </Grid>
 </Window>

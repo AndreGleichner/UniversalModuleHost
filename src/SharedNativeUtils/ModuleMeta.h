@@ -4,10 +4,6 @@
 #include <unordered_set>
 
 #include <nlohmann/json.hpp>
-#include "guid.h"
-#include "string_extensions.h"
-
-using namespace Strings;
 
 namespace ipc
 {

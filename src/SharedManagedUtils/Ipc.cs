@@ -12,8 +12,11 @@ namespace SharedManagedUtils
     {
         public const string ManagedHost = "{7924FE60-C967-449C-BA5D-2EBAA7D16024}";
         public const string ModuleMetaConsumer = "{6E6A094C-839F-4EAF-BD22-08CB9E1A318F}";
+        public const string ShellExec = "{BEA684E7-697F-4201-844F-98224FA16D2F}";
+        public const string ConfStore = "{8583CDC9-DB92-45BE-90CE-4D3AA4CD14F5}";
+        public const string ConfConsumer = "{8ED3A4D7-7C78-4B88-A547-A4D87A9DDC35}";
 
-        public delegate int OnMessageFromHost(string msg, string service, uint session);
+        public delegate int OnMessageFromHost(string msg, string service, int session);
         public delegate void OnTerminate();
 
         private static readonly ManualResetEvent initialized_ = new(false);
@@ -36,41 +39,57 @@ namespace SharedManagedUtils
 
         public static int SendMessage(string msg, string service, int session = -1)
         {
-            if (IntPtr.Size == 4)
-                return MessageFromModuleToHost32(msg, service, session);
-            else
-                return MessageFromModuleToHost64(msg, service, session);
+            try
+            {
+                if (IntPtr.Size == 4)
+                    return MessageFromModuleToHost32(msg, service, session);
+                else
+                    return MessageFromModuleToHost64(msg, service, session);
+            }
+            catch
+            {
+                Debugger.Break();
+                return 1;
+            }
         }
 
         [UnmanagedCallersOnly]
-        public static int MessageFromHostToModule(IntPtr msg, IntPtr service, uint session)
+        public static int MessageFromHostToModule(IntPtr msg, IntPtr service, int session)
         {
-            initialized_.WaitOne();
-
-            //while (!Debugger.IsAttached)
-            //{
-            //    Thread.Sleep(1000);
-            //}
-            //Debugger.Break();
-
-            string m = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? Marshal.PtrToStringUni(msg)
-                : Marshal.PtrToStringUTF8(msg);
-
-            string s = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? Marshal.PtrToStringUni(service)
-                : Marshal.PtrToStringUTF8(service);
-
-            if (s == ManagedHost)
+            try
             {
-                var hostCmdMsg = JsonSerializer.Deserialize<HostCmdMsg>(m);
-                if (hostCmdMsg.Cmd == HostCmdMsg.ECmd.Terminate)
+                initialized_.WaitOne();
+
+                //while (!Debugger.IsAttached)
+                //{
+                //    Thread.Sleep(1000);
+                //}
+                //Debugger.Break();
+
+                string m = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? Marshal.PtrToStringUni(msg)
+                    : Marshal.PtrToStringUTF8(msg);
+
+                string s = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? Marshal.PtrToStringUni(service)
+                    : Marshal.PtrToStringUTF8(service);
+
+                if (s == ManagedHost)
                 {
-                    _onTerminate();
-                    return 0;
+                    var hostCmdMsg = JsonSerializer.Deserialize<HostCmdMsg>(m);
+                    if (hostCmdMsg.Cmd == HostCmdMsg.ECmd.Terminate)
+                    {
+                        _onTerminate();
+                        return 0;
+                    }
                 }
+                return _onMessageFromHost(m, s, session);
             }
-            return _onMessageFromHost(m, s, session);
+            catch
+            {
+                Debugger.Break();
+                return 1;
+            }
         }
     }
 }

@@ -46,25 +46,37 @@ namespace ManagedHost
             return 0;
         }
 
-        private static int OnMessageFromHost(string msg, string service, uint session)
+        private static int OnMessageFromHost(string msg, string service, int session)
         {
-            Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{service}' {session}");
-
-            if (service == Ipc.ManagedHost)
+            try
             {
-                var hostCmdMsg = JsonSerializer.Deserialize<HostCmdMsg>(msg);
-                if (hostCmdMsg.Cmd == HostCmdMsg.ECmd.CtrlModule)
+                Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{service}' {session}");
+
+                if (service == Ipc.ManagedHost)
                 {
-                    var args = JsonSerializer.Deserialize<HostCtrlModuleArgs>(hostCmdMsg.Args);
-                    if (args.Cmd == HostCtrlModuleArgs.ECmd.Load)
+                    var hostCmdMsg = JsonSerializer.Deserialize<HostCmdMsg>(msg);
+                    if (hostCmdMsg.Cmd == HostCmdMsg.ECmd.CtrlModule)
                     {
-                        _moduleHost.LoadModule(args.Module);
-                    }
-                    else if (args.Cmd == HostCtrlModuleArgs.ECmd.Unload)
-                    {
-                        _moduleHost.UnloadModule(args.Module);
+                        var args = JsonSerializer.Deserialize<HostCtrlModuleArgs>(hostCmdMsg.Args);
+                        if (args.Cmd == HostCtrlModuleArgs.ECmd.Load)
+                        {
+                            _moduleHost.LoadModule(args.Module);
+                        }
+                        else if (args.Cmd == HostCtrlModuleArgs.ECmd.Unload)
+                        {
+                            _moduleHost.UnloadModule(args.Module);
+                        }
                     }
                 }
+                else
+                {
+                    _moduleHost.SendMsgToModule(msg, Guid.Parse(service), session);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Exception in Program.OnMessageFromHost {ex}");
+                return 1;
             }
             return 0;
         }

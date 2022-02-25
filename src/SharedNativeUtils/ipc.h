@@ -28,6 +28,7 @@ static const Guid ManagedHost {L"{7924FE60-C967-449C-BA5D-2EBAA7D16024}"};
 
 static const Guid ShellExec {L"{BEA684E7-697F-4201-844F-98224FA16D2F}"};
 static const Guid ConfStore {L"{8583CDC9-DB92-45BE-90CE-4D3AA4CD14F5}"};
+static const Guid ConfConsumer {L"{8ED3A4D7-7C78-4B88-A547-A4D87A9DDC35}"};
 }
 
 struct Target final

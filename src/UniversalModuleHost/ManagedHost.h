@@ -84,7 +84,7 @@ private:
     UniversalModuleHost* universalModuleHost_ = nullptr;
 
     using OnMessageFromHostFuncSig =
-        std::add_pointer_t<int CORECLR_DELEGATE_CALLTYPE(const char_t* msg, const char_t* service, uint32_t session)>;
+        std::add_pointer_t<int CORECLR_DELEGATE_CALLTYPE(const char_t* msg, const char_t* service, int32_t session)>;
 
     OnMessageFromHostFuncSig invokeManagedMessageFromHostToModule_ = nullptr;
 };

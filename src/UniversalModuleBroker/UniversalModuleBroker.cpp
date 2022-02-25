@@ -4,6 +4,7 @@
 #include "UniversalModuleBrokerService.h"
 #include "BrokerInstance.h"
 #include "Permission.h"
+#include "env.h"
 
 #pragma region                  Logging
 std::shared_ptr<spdlog::logger> g_loggerStdErr;
@@ -14,7 +15,7 @@ void SetDefaultLogger()
 {
     // https://github.com/gabime/spdlog/wiki/3.-Custom-formatting
 
-    const auto file = L"c:\\temp\\native-logfile.txt";
+    auto file = env::PrivateDataDir(L"diag") / L"diag.log";
 
     {
         auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();

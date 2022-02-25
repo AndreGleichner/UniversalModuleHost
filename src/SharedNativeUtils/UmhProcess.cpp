@@ -1,8 +1,10 @@
 #include "pch.h"
 #include <process.h>
 #include "UmhProcess.h"
+#include <wil/stl.h>
 #include <wil/resource.h>
 #include <wil/win32_helpers.h>
+#include "string_extensions.h"
 
 namespace Process
 {
@@ -176,7 +178,7 @@ void SetThreadName(PCWSTR name)
         }
         else
         {
-            SetThreadNameViaException(CW2A(name));
+            SetThreadNameViaException(Strings::ToUtf8(name).c_str());
         }
     }
 }
