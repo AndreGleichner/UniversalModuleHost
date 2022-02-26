@@ -22,6 +22,7 @@ namespace IpcMonitor
         {
             Ipc.Init(OnMessageFromHost, OnTerminate);
 
+            // Wanna see any kind of service message
             var mm = new ModuleMeta { Pid = Process.GetCurrentProcess().Id, Name = "IpcMonitor", Services = { Guid.Empty.ToString() } };
             string msg = JsonSerializer.Serialize(mm);
 

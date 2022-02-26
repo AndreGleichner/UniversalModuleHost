@@ -10,8 +10,8 @@ struct ConfStore
 {
     enum class Cmd
     {
-        Query,     // => Args = JSON Pointer (https://datatracker.ietf.org/doc/html/rfc6901)
-        MergePatch // => Args = JSON MergePatch (https://datatracker.ietf.org/doc/html/rfc7386)
+        Query, // => Args = Module name
+        Update // => Args = JSON MergePatch (https://datatracker.ietf.org/doc/html/rfc7386)
     };
     Cmd         Cmd;
     std::string Args;

@@ -25,11 +25,7 @@ extern "C" __declspec(dllexport) HRESULT InitModule(void* mod, ipc::SendMsg send
     SendDiag = sendDiag;
 
     // Tell the world which services we provide
-    auto                  dll = wil::GetModuleFileNameW((HMODULE)wil::GetModuleInstanceHandle());
-    std::filesystem::path path(dll.get());
-
-    json msg = ipc::ModuleMeta {
-        ::GetCurrentProcessId(), ToUtf8(path.stem().wstring()), {ipc::KnownService::ShellExec.ToUtf8()}};
+    json msg = ipc::ModuleMeta({ipc::KnownService::ShellExec});
 
     RETURN_IF_FAILED(SendMsg(Mod, msg.dump().c_str(), &ipc::KnownService::ModuleMetaConsumer, (DWORD)-1));
 
@@ -45,7 +41,7 @@ extern "C" __declspec(dllexport) HRESULT OnMessage(PCSTR msg, const ipc::Target*
 {
     if (target->Equals(ipc::Target(ipc::KnownService::ShellExec)))
     {
-        ::ShellExecuteA(nullptr, "open", msg, nullptr, nullptr, SW_SHOWNORMAL);
+        ::ShellExecuteW(nullptr, L"open", ToUtf16(msg).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
     }
     return S_OK;
 }

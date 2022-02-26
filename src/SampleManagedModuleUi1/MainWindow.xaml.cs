@@ -52,7 +52,7 @@ namespace SampleManagedModuleUi1
     ""ConfVal"": 22
   }
 }";
-            var cs = new ConfStore { Cmd = ConfStore.ECmd.MergePatch, Args = patch };
+            var cs = new ConfStore { Cmd = ConfStore.ECmd.Update, Args = patch };
             string msg = JsonSerializer.Serialize(cs);
 
             Ipc.SendMessage(msg, Ipc.ConfStore);
@@ -60,7 +60,7 @@ namespace SampleManagedModuleUi1
 
         private void Button_Click_QueryConf(object sender, RoutedEventArgs e)
         {
-            var cs = new ConfStore { Cmd = ConfStore.ECmd.Query, Args = "/Mod1" };
+            var cs = new ConfStore { Cmd = ConfStore.ECmd.Query, Args = "Mod1" };
             string msg = JsonSerializer.Serialize(cs);
 
             Ipc.SendMessage(msg, Ipc.ConfStore);

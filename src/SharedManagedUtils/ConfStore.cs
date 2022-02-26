@@ -8,8 +8,8 @@ namespace SharedManagedUtils
     {
         public enum ECmd
         {
-            Query,     // => Args = JSON Pointer (https://datatracker.ietf.org/doc/html/rfc6901)
-            MergePatch // => Args = JSON MergePatch (https://datatracker.ietf.org/doc/html/rfc7386)
+            Query, // => Args = Module name
+            Update // => Args = JSON MergePatch (https://datatracker.ietf.org/doc/html/rfc7386)
         };
         public ECmd Cmd { get; set; }
         public string Args { get; set; }

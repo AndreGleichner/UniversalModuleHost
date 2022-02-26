@@ -131,7 +131,8 @@ try
         // Dispatch to any process which may have a respective handler.
         for (auto& process : childProcesses_)
         {
-            // KnownService::All means a module has declared it wants to handle messages to any service.
+            // KnownService::All means a module has declared it wants to handle messages to any service, e.g. for
+            // debugging.
             if (process->services_.contains(ipc::KnownService::All) || process->services_.contains(target.Service))
             {
                 process->SendMsg(msg, target);
