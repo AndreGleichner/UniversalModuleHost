@@ -41,6 +41,10 @@ namespace SharedManagedUtils
         {
             try
             {
+                var image = Process.GetCurrentProcess().MainModule.ModuleName;
+                if (!image.Equals("UniversalModuleHost32.exe", StringComparison.OrdinalIgnoreCase) && !image.Equals("UniversalModuleHost64.exe", StringComparison.OrdinalIgnoreCase))
+                    return 0;
+
                 if (IntPtr.Size == 4)
                     return MessageFromModuleToHost32(msg, service, session);
                 else
