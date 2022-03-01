@@ -17,40 +17,46 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalModuleHost", "src\UniversalModuleHost\UniversalModuleHost.vcxproj", "{7185569D-3107-4776-8FB9-8A45E2B2B8B0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagedHost", "src\ManagedHost\ManagedHost.csproj", "{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagedHost", "src\Modules\ManagedHost\ManagedHost.csproj", "{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagedModuleContract", "src\ManagedModuleContract\ManagedModuleContract.csproj", "{1C5E4F55-6C0B-41A7-9A52-51C0F8EA6CC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagedModuleContract", "pub\ManagedModuleContract\ManagedModuleContract.csproj", "{1C5E4F55-6C0B-41A7-9A52-51C0F8EA6CC6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleManagedModule1", "src\SampleManagedModule1\SampleManagedModule1.csproj", "{E02A923A-FA71-4C27-9715-E2D6EF610714}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleManagedModule1", "src\Modules\Samples\SampleManagedModule1\SampleManagedModule1.csproj", "{E02A923A-FA71-4C27-9715-E2D6EF610714}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleManagedModule2", "src\SampleManagedModule2\SampleManagedModule2.csproj", "{4158A6B4-F0AD-479F-BBD2-EFA1E8D69813}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleManagedModule2", "src\Modules\Samples\SampleManagedModule2\SampleManagedModule2.csproj", "{4158A6B4-F0AD-479F-BBD2-EFA1E8D69813}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalModuleBroker", "src\UniversalModuleBroker\UniversalModuleBroker.vcxproj", "{59D3D010-5CA7-4A5A-BA49-534A046DB566}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedNativeUtils", "src\SharedNativeUtils\SharedNativeUtils.vcxitems", "{1E83DDDB-014F-4BFA-ACC4-333758ECD732}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedNativeUtils", "pub\SharedNativeUtils\SharedNativeUtils.vcxitems", "{1E83DDDB-014F-4BFA-ACC4-333758ECD732}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleManagedModuleUi1", "src\SampleManagedModuleUi1\SampleManagedModuleUi1.csproj", "{B7799BA6-0564-42A2-ABE3-95E4BAE521C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleManagedModuleUi1", "src\Modules\Samples\SampleManagedModuleUi1\SampleManagedModuleUi1.csproj", "{B7799BA6-0564-42A2-ABE3-95E4BAE521C4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleNativeModule1", "src\SampleNativeModule1\SampleNativeModule1.vcxproj", "{3F4025E8-CA16-43B6-A088-3B69A2A029CB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleNativeModule1", "src\Modules\Samples\SampleNativeModule1\SampleNativeModule1.vcxproj", "{3F4025E8-CA16-43B6-A088-3B69A2A029CB}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SharedManagedUtils", "src\SharedManagedUtils\SharedManagedUtils.shproj", "{AAF7C4AC-6CAF-4D40-9FD7-84875B55AD88}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SharedManagedUtils", "pub\SharedManagedUtils\SharedManagedUtils.shproj", "{AAF7C4AC-6CAF-4D40-9FD7-84875B55AD88}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleNativeModuleUi1", "src\SampleNativeModuleUi1\SampleNativeModuleUi1.vcxproj", "{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleNativeModuleUi1", "src\Modules\Samples\SampleNativeModuleUi1\SampleNativeModuleUi1.vcxproj", "{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IpcMonitor", "src\IpcMonitor\IpcMonitor.csproj", "{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IpcMonitor", "src\Modules\IpcMonitor\IpcMonitor.csproj", "{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConfStore", "src\ConfStore\ConfStore.vcxproj", "{5F1537A0-5921-4796-B77F-776B8A01A1D3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{AD8D0699-4BE0-4DD9-B539-8945410E310F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{EC10B2F4-AE58-431E-A010-B1B2ABDCFE09}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConfStore", "src\Modules\ConfStore\ConfStore.vcxproj", "{5F1537A0-5921-4796-B77F-776B8A01A1D3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pub", "pub", "{384262C2-A613-4AAA-876D-B3BE7E9242DB}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		src\SharedManagedUtils\SharedManagedUtils.projitems*{1b5cbfc7-cec4-4350-a0e9-654c0e5e2d00}*SharedItemsImports = 5
-		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{1e83dddb-014f-4bfa-acc4-333758ecd732}*SharedItemsImports = 9
-		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{59d3d010-5ca7-4a5a-ba49-534a046db566}*SharedItemsImports = 4
-		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{5f1537a0-5921-4796-b77f-776b8a01a1d3}*SharedItemsImports = 4
-		src\SharedNativeUtils\SharedNativeUtils.vcxitems*{7185569d-3107-4776-8fb9-8a45e2b2b8b0}*SharedItemsImports = 4
-		src\SharedManagedUtils\SharedManagedUtils.projitems*{9af8a4f8-5a53-43f1-9df1-a3fa64ca31e3}*SharedItemsImports = 5
-		src\SharedManagedUtils\SharedManagedUtils.projitems*{aaf7c4ac-6caf-4d40-9fd7-84875b55ad88}*SharedItemsImports = 13
-		src\SharedManagedUtils\SharedManagedUtils.projitems*{b7799ba6-0564-42a2-abe3-95e4bae521c4}*SharedItemsImports = 5
+		pub\SharedManagedUtils\SharedManagedUtils.projitems*{1b5cbfc7-cec4-4350-a0e9-654c0e5e2d00}*SharedItemsImports = 5
+		pub\SharedNativeUtils\SharedNativeUtils.vcxitems*{1e83dddb-014f-4bfa-acc4-333758ecd732}*SharedItemsImports = 9
+		pub\SharedNativeUtils\SharedNativeUtils.vcxitems*{59d3d010-5ca7-4a5a-ba49-534a046db566}*SharedItemsImports = 4
+		pub\SharedNativeUtils\SharedNativeUtils.vcxitems*{5f1537a0-5921-4796-b77f-776b8a01a1d3}*SharedItemsImports = 4
+		pub\SharedNativeUtils\SharedNativeUtils.vcxitems*{7185569d-3107-4776-8fb9-8a45e2b2b8b0}*SharedItemsImports = 4
+		pub\SharedManagedUtils\SharedManagedUtils.projitems*{9af8a4f8-5a53-43f1-9df1-a3fa64ca31e3}*SharedItemsImports = 5
+		pub\SharedManagedUtils\SharedManagedUtils.projitems*{aaf7c4ac-6caf-4d40-9fd7-84875b55ad88}*SharedItemsImports = 13
+		pub\SharedManagedUtils\SharedManagedUtils.projitems*{b7799ba6-0564-42a2-abe3-95e4bae521c4}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -193,6 +199,20 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00} = {AD8D0699-4BE0-4DD9-B539-8945410E310F}
+		{1C5E4F55-6C0B-41A7-9A52-51C0F8EA6CC6} = {384262C2-A613-4AAA-876D-B3BE7E9242DB}
+		{E02A923A-FA71-4C27-9715-E2D6EF610714} = {EC10B2F4-AE58-431E-A010-B1B2ABDCFE09}
+		{4158A6B4-F0AD-479F-BBD2-EFA1E8D69813} = {EC10B2F4-AE58-431E-A010-B1B2ABDCFE09}
+		{1E83DDDB-014F-4BFA-ACC4-333758ECD732} = {384262C2-A613-4AAA-876D-B3BE7E9242DB}
+		{B7799BA6-0564-42A2-ABE3-95E4BAE521C4} = {EC10B2F4-AE58-431E-A010-B1B2ABDCFE09}
+		{3F4025E8-CA16-43B6-A088-3B69A2A029CB} = {EC10B2F4-AE58-431E-A010-B1B2ABDCFE09}
+		{AAF7C4AC-6CAF-4D40-9FD7-84875B55AD88} = {384262C2-A613-4AAA-876D-B3BE7E9242DB}
+		{7053E14D-BFB4-49E6-BA48-CEC209ACAD9F} = {EC10B2F4-AE58-431E-A010-B1B2ABDCFE09}
+		{9AF8A4F8-5A53-43F1-9DF1-A3FA64CA31E3} = {AD8D0699-4BE0-4DD9-B539-8945410E310F}
+		{EC10B2F4-AE58-431E-A010-B1B2ABDCFE09} = {AD8D0699-4BE0-4DD9-B539-8945410E310F}
+		{5F1537A0-5921-4796-B77F-776B8A01A1D3} = {AD8D0699-4BE0-4DD9-B539-8945410E310F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1AC61FA1-3724-4B47-A009-786AC7D8D4EB}

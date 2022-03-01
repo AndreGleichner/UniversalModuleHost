@@ -56,7 +56,7 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
-    <Import Project="..\SharedNativeUtils\SharedNativeUtils.vcxitems" Label="Shared" />
+    <Import Project="..\..\pub\SharedNativeUtils\SharedNativeUtils.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -247,7 +247,7 @@
     <None Include="Directory.Build.targets" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ManagedHost\ManagedHost.csproj">
+    <ProjectReference Include="..\Modules\ManagedHost\ManagedHost.csproj">
       <Project>{1b5cbfc7-cec4-4350-a0e9-654c0e5e2d00}</Project>
     </ProjectReference>
   </ItemGroup>

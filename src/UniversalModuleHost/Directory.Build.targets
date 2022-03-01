@@ -4,8 +4,6 @@
   <Target Name="CopyVendorFiles" AfterTargets="Build" Condition="'$(UmhIsDesignTimeBuild)'!='true'">
     <Message Importance="High" Text="Copy vendor files to bin" />
 
-    <Message Text="PublishManagedHost: TargetDir=$(TargetDir)" Importance="High"/>
-
     <ItemGroup>
       <_SourceFiles Include="$(UmhRepoRootDir)vendor\nethost\$(PlatformTarget)\nethost.dll" />
     </ItemGroup>

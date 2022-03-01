@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ManagedModuleContract\ManagedModuleContract.csproj" />
+    <ProjectReference Include="..\..\..\..\pub\ManagedModuleContract\ManagedModuleContract.csproj" />
   </ItemGroup>
 
 </Project>
