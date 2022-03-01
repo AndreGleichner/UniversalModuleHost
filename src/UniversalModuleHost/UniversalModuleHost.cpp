@@ -244,21 +244,6 @@ try
 }
 CATCH_RETURN()
 
-HRESULT UniversalModuleHost::OnMessageFromModule(
-    NativeModule* mod, const std::string_view msg, const ipc::Target& target)
-{
-    // TODO: maybe have a service registry/discovery to optimize sending messages to services in same process directly
-    // instead over broker.
-    RETURN_IF_FAILED(ipc::Send(msg, target));
-    return S_OK;
-}
-
-HRESULT UniversalModuleHost::OnDiagFromModule(NativeModule* mod, const std::string_view msg)
-{
-    RETURN_IF_FAILED(ipc::SendDiagMsg(msg));
-    return S_OK;
-}
-
 HRESULT UniversalModuleHost::LoadModule(const std::wstring& name) noexcept
 try
 {
@@ -327,7 +312,7 @@ CATCH_RETURN();
 HRESULT UniversalModuleHost::LoadNativeModule(const std::filesystem::path& path) noexcept
 try
 {
-    auto mod = std::make_unique<NativeModule>(this, path);
+    auto mod = std::make_unique<NativeModule>(path);
     RETURN_IF_FAILED(mod->Load());
 
     nativeModules_.push_back(std::move(mod));
@@ -397,13 +382,13 @@ HRESULT NativeModule::Send(const std::string_view msg, const ipc::Target& target
 HRESULT CALLBACK NativeModule::OnMsg(void* mod, PCSTR msg, const Guid* service, DWORD session) noexcept
 {
     auto m = static_cast<NativeModule*>(mod);
-    RETURN_IF_FAILED(m->host_->OnMessageFromModule(m, msg, ipc::Target(*service, session)));
+    RETURN_IF_FAILED(ipc::Send(msg, ipc::Target(*service, session)));
     return S_OK;
 }
 
 HRESULT CALLBACK NativeModule::OnDiag(void* mod, PCSTR msg) noexcept
 {
     auto m = static_cast<NativeModule*>(mod);
-    RETURN_IF_FAILED(m->host_->OnDiagFromModule(m, msg));
+    RETURN_IF_FAILED(ipc::SendDiagMsg(msg));
     return S_OK;
 }

@@ -33,8 +33,6 @@ public:
     HRESULT UnloadModule(const std::wstring& name);
     // send message to all modules
     HRESULT Send(const std::string_view msg, const ipc::Target& target) noexcept;
-    // Message from any module
-    HRESULT OnMessageFromModule(const std::string_view msg, const ipc::Target& target);
 
 private:
     bool LoadFxr();

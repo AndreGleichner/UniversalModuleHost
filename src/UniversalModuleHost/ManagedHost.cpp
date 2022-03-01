@@ -272,13 +272,7 @@ extern "C" __declspec(dllexport) HRESULT MessageFromModuleToHost(PCWSTR msg, PCW
 {
     Guid guid;
     RETURN_IF_FAILED(guid.Parse(service));
-    return TheManagedHost->OnMessageFromModule(ToUtf8(msg), ipc::Target(guid, (DWORD)session));
-}
-
-// Message from any module
-HRESULT ManagedHost::OnMessageFromModule(const std::string_view msg, const ipc::Target& target)
-{
-    return universalModuleHost_->OnMessageFromModule(nullptr, msg, target);
+    return ipc::Send(ToUtf8(msg), ipc::Target(guid, (DWORD)session));
 }
 
 // send message to all modules
