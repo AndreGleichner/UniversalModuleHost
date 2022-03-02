@@ -1,6 +1,8 @@
 #include "pch.h"
 #include <fstream>
-#include "BrokerInstance.h"
+#include "Orchestrator.h"
+#include "ChildProcessConfig.h"
+#include "ChildProcessInstance.h"
 #include "UmhProcess.h"
 #include "string_extensions.h"
 using namespace Strings;
@@ -9,13 +11,13 @@ using json = nlohmann::json;
 #include <wil/result.h>
 #include "ModuleMeta.h"
 
-BrokerInstance::BrokerInstance()
+Orchestrator::Orchestrator()
 {
     FAIL_FAST_IF_WIN32_BOOL_FALSE(::ProcessIdToSessionId(::GetCurrentProcessId(), &session_));
 }
 
 // Process broker.json and launch host child processes as configured.
-HRESULT BrokerInstance::Init() noexcept
+HRESULT Orchestrator::Init() noexcept
 try
 {
     // while (!::IsDebuggerPresent())
@@ -27,16 +29,27 @@ try
 
     AssignProcessToJobObject(::GetCurrentProcess(), session_);
 
-    auto confFile   = Process::ImagePath().replace_filename(L"broker.json");
-    auto modulesDir = Process::ImagePath().replace_filename(L"modules");
+    auto confFile = Process::ImagePath().replace_filename(L"broker.json");
 
     std::ifstream confStream(confFile.c_str());
     json          conf;
     confStream >> conf;
 
-    for (auto& p : conf["ChildProcesses"])
+    RETURN_IF_FAILED(UpdateChildProcessConfig(conf));
+    RETURN_IF_FAILED(LaunchChildProcesses());
+
+    return S_OK;
+}
+CATCH_RETURN();
+
+HRESULT Orchestrator::UpdateChildProcessConfig(const json& conf) noexcept
+try
+{
+    childProcessesConfigs_.clear();
+
+    for (auto& p : conf["Broker"]["ChildProcesses"])
     {
-        bool        allUsers             = p["Session"] == "AllUsers";
+        bool        allUsers             = p["Session"] == -1;
         bool        wow64                = (sizeof(void*) == 8) && p.contains("Wow64") && p["Wow64"];
         bool        higherIntegrityLevel = p.contains("IntegrityLevel") && p["IntegrityLevel"] == "Higher";
         bool        ui                   = p.contains("Ui") && p["Ui"];
@@ -47,8 +60,21 @@ try
         {
             modules.push_back(ToUtf16(m));
         }
+        auto cp = std::make_shared<ChildProcessConfig>(allUsers, wow64, higherIntegrityLevel, ui, groupName, modules);
+        childProcessesConfigs_.push_back(cp);
+    }
+    return S_OK;
+}
+CATCH_RETURN();
 
-        if (allUsers && Process::IsWindowsService())
+HRESULT Orchestrator::LaunchChildProcesses() noexcept
+try
+{
+    // TODO check which procs are already running
+
+    for (auto process : childProcessesConfigs_)
+    {
+        if (process->AllUsers && Process::IsWindowsService())
         {
             // Walk all currently active sessions to create a child process in every.
 
@@ -67,15 +93,13 @@ try
                 if (si->SessionId == 0)
                     continue;
 
-                auto cp = std::make_unique<ChildProcess>(
-                    this, allUsers, wow64, higherIntegrityLevel, ui, groupName, modules, si->SessionId);
+                auto cp = std::make_unique<ChildProcessInstance>(this, process, si->SessionId);
                 childProcesses_.push_back(std::move(cp));
             }
         }
         else
         {
-            auto cp =
-                std::make_unique<ChildProcess>(this, allUsers, wow64, higherIntegrityLevel, ui, groupName, modules);
+            auto cp = std::make_unique<ChildProcessInstance>(this, process);
             childProcesses_.push_back(std::move(cp));
         }
     }
@@ -88,12 +112,11 @@ try
     {
         process->LoadModules();
     }
-
     return S_OK;
 }
 CATCH_RETURN();
 
-HRESULT BrokerInstance::Release() noexcept
+HRESULT Orchestrator::Release() noexcept
 try
 {
     for (auto& process : childProcesses_)
@@ -104,14 +127,17 @@ try
 }
 CATCH_RETURN();
 
-HRESULT BrokerInstance::OnSessionChange(DWORD dwEventType, DWORD dwSessionId) noexcept
+HRESULT Orchestrator::OnSessionChange(DWORD dwEventType, DWORD dwSessionId) noexcept
 try
 {
+    RETURN_IF_FAILED(LaunchChildProcesses());
+
     return S_OK;
 }
 CATCH_RETURN();
 
-HRESULT BrokerInstance::OnMessage(ChildProcess* fromProcess, const std::string_view msg, const ipc::Target& target)
+HRESULT Orchestrator::OnMessage(
+    ChildProcessInstance* fromProcess, const std::string_view msg, const ipc::Target& target) noexcept
 try
 {
     if (target.Service == ipc::KnownService::Broker)
@@ -143,20 +169,7 @@ try
 }
 CATCH_RETURN()
 
-// If we're running as service and the to be launched process will run in another session
-// we have to use another job object since processes grouped in a job shall all run in the same session.
-bool BrokerInstance::ShouldBreakAwayFromJob(const ChildProcess* childProcess) const
-{
-    if (!Process::IsWindowsService())
-        return false;
-
-    DWORD session = ipc::KnownSession::Any;
-    if (!::ProcessIdToSessionId(::GetCurrentProcessId(), &session))
-        return false;
-    return session != childProcess->target_.Session;
-}
-
-void BrokerInstance::AssignProcessToJobObject(const ChildProcess* childProcess)
+void Orchestrator::AssignProcessToJobObject(const ChildProcessInstance* childProcess)
 {
     if (!childProcess->processInfo_.hProcess)
         return;
@@ -171,7 +184,7 @@ void BrokerInstance::AssignProcessToJobObject(const ChildProcess* childProcess)
     AssignProcessToJobObject(childProcess->processInfo_.hProcess, session);
 }
 
-void BrokerInstance::AssignProcessToJobObject(HANDLE process, DWORD session)
+void Orchestrator::AssignProcessToJobObject(HANDLE process, DWORD session)
 {
     // Already have a job object for this session?
     if (!jobObjects_.contains(session))

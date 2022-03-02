@@ -1,9 +1,10 @@
 #include "pch.h"
-#include "ChildProcess.h"
+#include "ChildProcessInstance.h"
 #include "ipc.h"
 #include "UmhProcess.h"
 #include "HostMsg.h"
-#include "BrokerInstance.h"
+#include "Orchestrator.h"
+#include "ChildProcessConfig.h"
 
 namespace
 {
@@ -17,10 +18,10 @@ void DumpPipeInfos(HANDLE pipe)
 }
 }
 
-HRESULT ChildProcess::Launch(bool keepAlive /*= true*/) noexcept
+HRESULT ChildProcessInstance::Launch(bool keepAlive /*= true*/) noexcept
 try
 {
-    if (brokerInstance_->IsShuttingDown())
+    if (orchestrator_->IsShuttingDown())
         return S_OK;
 
     // Cleanup, in case Launch() was run before
@@ -35,7 +36,7 @@ try
     if (keepAlive_.joinable())
         keepAlive_.join();
 
-    PCWSTR name = wow64_ ? L"UniversalModuleHost32.exe" : L"UniversalModuleHost64.exe";
+    PCWSTR name = childProcessConfig_->Wow64 ? L"UniversalModuleHost32.exe" : L"UniversalModuleHost64.exe";
 
     std::wstring cmdline = Process::ImagePath().replace_filename(name).c_str();
 
@@ -63,7 +64,7 @@ try
     // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-updateprocthreadattribute
     // https://devblogs.microsoft.com/oldnewthing/20111216-00/?p=8873
 
-    const DWORD attrCount         = ui_ ? 2 : 3;
+    const DWORD attrCount         = childProcessConfig_->Ui ? 2 : 3;
     SIZE_T      attributeListSize = 0;
     ::InitializeProcThreadAttributeList(nullptr, attrCount, 0, &attributeListSize);
     LPPROC_THREAD_ATTRIBUTE_LIST attrList =
@@ -75,7 +76,7 @@ try
         ::HeapFree(GetProcessHeap(), 0, attrList);
     });
 
-    if (!ui_)
+    if (!childProcessConfig_->Ui)
     {
         // UI processes can't run protected
         //
@@ -135,7 +136,7 @@ try
             spdlog::trace("RX-B: {} for {}", m, Strings::ToUtf8(target.ToString()));
         }
                         
-        brokerInstance_->OnMessage(this, msg, target);
+        orchestrator_->OnMessage(this, msg, target);
     };
     // clang-format on
 
@@ -148,8 +149,8 @@ try
     startInfo.lpAttributeList = attrList;
 
     DWORD creationFlags = NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
-                          CREATE_NO_WINDOW | (ui_ ? 0 : CREATE_PROTECTED_PROCESS);
-    if (brokerInstance_->ShouldBreakAwayFromJob(this))
+                          CREATE_NO_WINDOW | (childProcessConfig_->Ui ? 0 : CREATE_PROTECTED_PROCESS);
+    if (ShouldBreakAwayFromJob())
     {
         creationFlags |= CREATE_BREAKAWAY_FROM_JOB | CREATE_SUSPENDED;
     }
@@ -185,7 +186,7 @@ try
             wil::unique_handle dupToken;
             ::DuplicateTokenEx(token.get(), MAXIMUM_ALLOWED, NULL, SecurityIdentification, TokenPrimary, &dupToken);
 
-            if (higherIntegrityLevel_)
+            if (childProcessConfig_->HigherIntegrityLevel)
             {
                 // Slightly increase the current integrity level to e.g. "Medium-Plus".
                 // Hint: the default Administrator account runs at "High" integrity level.
@@ -252,7 +253,7 @@ try
 
     if (WI_IsFlagSet(creationFlags, CREATE_BREAKAWAY_FROM_JOB))
     {
-        brokerInstance_->AssignProcessToJobObject(this);
+        orchestrator_->AssignProcessToJobObject(this);
     }
 
     if (WI_IsFlagSet(creationFlags, CREATE_SUSPENDED))
@@ -273,7 +274,7 @@ try
         keepAlive_ = std::thread([this] {
             Process::SetThreadName(std::format(L"UMB-KeepAlive-{}", processInfo_.dwProcessId).c_str());
             if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE) &&
-                !brokerInstance_->IsShuttingDown())
+                !orchestrator_->IsShuttingDown())
             {
 #ifdef DEBUG
                 // In case we've a console attached and just closed it, we'll get terminated soon
@@ -298,14 +299,14 @@ try
 
     // Tell the host his Service GUID. This is used to talk to the host as such to e.g. load modules.
     // Modules hosted within the host process have their own one or multiple service GUIDs.
-    json msg = ipc::HostInitMsg {target_.Service, groupName_};
+    json msg = ipc::HostInitMsg {target_.Service, childProcessConfig_->GroupName};
     RETURN_IF_FAILED(SendMsg(msg.dump(), ipc::Target(ipc::KnownService::HostInit)));
 
     return S_OK;
 }
 CATCH_RETURN();
 
-HRESULT ChildProcess::Terminate() noexcept
+HRESULT ChildProcessInstance::Terminate() noexcept
 try
 {
     json msg = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::Terminate, ""};
@@ -315,12 +316,12 @@ try
 }
 CATCH_RETURN();
 
-HRESULT ChildProcess::LoadModules() noexcept
+HRESULT ChildProcessInstance::LoadModules() noexcept
 try
 {
-    for (auto& mod : modules_)
+    for (auto& mod : childProcessConfig_->Modules)
     {
-        if (brokerInstance_->IsShuttingDown())
+        if (orchestrator_->IsShuttingDown())
             return S_OK;
 
         json args = ipc::HostCtrlModuleArgs {ipc::HostCtrlModuleArgs::Cmd::Load, ToUtf8(mod)};
@@ -332,7 +333,7 @@ try
 }
 CATCH_RETURN();
 
-HRESULT ChildProcess::UnloadModules() noexcept
+HRESULT ChildProcessInstance::UnloadModules() noexcept
 try
 {
     return S_OK;
@@ -368,7 +369,7 @@ spdlog::level::level_enum LevelFromMsg(PCSTR msg)
 }
 }
 
-void ChildProcess::StartForwardStderr() noexcept
+void ChildProcessInstance::StartForwardStderr() noexcept
 {
     // Host process is writing UTF8.
     // This may be multiple messages separated by \r\n
@@ -416,7 +417,7 @@ void ChildProcess::StartForwardStderr() noexcept
     });
 }
 
-HRESULT ChildProcess::SendMsg(const std::string_view msg, const ipc::Target& target)
+HRESULT ChildProcessInstance::SendMsg(const std::string_view msg, const ipc::Target& target)
 {
     if (target.Session != ipc::KnownSession::Any)
     {
@@ -428,4 +429,17 @@ HRESULT ChildProcess::SendMsg(const std::string_view msg, const ipc::Target& tar
     RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg, target));
 
     return S_OK;
+}
+
+// If we're running as service and the to be launched process will run in another session
+// we have to use another job object since processes grouped in a job shall all run in the same session.
+bool ChildProcessInstance::ShouldBreakAwayFromJob() const
+{
+    if (!Process::IsWindowsService())
+        return false;
+
+    DWORD session = ipc::KnownSession::Any;
+    if (!::ProcessIdToSessionId(::GetCurrentProcessId(), &session))
+        return false;
+    return session != target_.Session;
 }

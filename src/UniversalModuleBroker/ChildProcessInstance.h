@@ -1,26 +1,22 @@
 #pragma once
 #include <Windows.h>
+#include <unordered_set>
 #include <wil/resource.h>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 #include "ipc.h"
 
-class BrokerInstance;
-class ChildProcess final
+class Orchestrator;
+struct ChildProcessConfig;
+
+class ChildProcessInstance final
 {
-    friend BrokerInstance;
+    friend Orchestrator;
 
 public:
-    ChildProcess(BrokerInstance* brokerInstance, bool allUsers, bool wow64, bool higherIntegrityLevel, bool ui,
-        const std::string& groupName, const std::vector<std::wstring>& modules, DWORD session = ipc::KnownSession::Any)
-        : brokerInstance_(brokerInstance)
-        , target_(Guid(true), session)
-        , allUsers_(allUsers)
-        , wow64_(wow64)
-        , higherIntegrityLevel_(higherIntegrityLevel)
-        , ui_(ui)
-        , groupName_(groupName)
-        , modules_(modules)
+    ChildProcessInstance(Orchestrator* orchestrator, std::shared_ptr<ChildProcessConfig> childProcessConfig,
+        DWORD session = ipc::KnownSession::Any)
+        : orchestrator_(orchestrator), childProcessConfig_(childProcessConfig), target_(Guid(true), session)
     {
     }
 
@@ -34,7 +30,10 @@ public:
 private:
     void StartForwardStderr() noexcept;
 
-    BrokerInstance*                              brokerInstance_;
+    bool ShouldBreakAwayFromJob() const;
+
+    Orchestrator*                                orchestrator_;
+    std::shared_ptr<ChildProcessConfig>          childProcessConfig_;
     ipc::Target                                  target_;
     wil::unique_process_information              processInfo_;
     wil::unique_handle                           inRead_;
@@ -46,11 +45,5 @@ private:
     std::thread                                  stderrForwarder_;
     std::thread                                  reader_;
     std::thread                                  keepAlive_;
-    bool                                         allUsers_;
-    bool                                         wow64_;
-    bool                                         higherIntegrityLevel_;
-    bool                                         ui_;
-    const std::string                            groupName_;
-    const std::vector<std::wstring>              modules_;
     std::unordered_set<Guid, Guid::HashFunction> services_;
 };

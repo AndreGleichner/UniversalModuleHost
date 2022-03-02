@@ -1,63 +1,65 @@
 {
-  "ChildProcesses": [
-    {
-      "GroupName": "A",
-      "Session": "Broker",
-      "Modules": [
-        "SampleNativeModule1",
-        "ConfStore"
-      ]
-    },
-    {
-      "GroupName": "B",
-      "Session": "Broker",
-      "Modules": [
-        "SampleManagedModule1"
-      ]
-    },
-    {
-      "GroupName": "C",
-      "Session": "Broker",
-      "Wow64": false,
-      "Modules": [
-        "SampleManagedModule2"
-      ]
-    },
-    {
-      "GroupName": "D",
-      "Session": "AllUsers",
-      "IntegrityLevel": "Higher",
-      "Ui": true,
-      "Modules": [
-        "SampleManagedModuleUi1"
-      ]
-    },
-    {
-      "GroupName": "E",
-      "Session": "AllUsers",
-      "IntegrityLevel": "Default",
-      "Ui": true,
-      "Modules": [
-        "SampleManagedModuleUi1"
-      ]
-    },
-    {
-      "GroupName": "F",
-      "Session": "AllUsers",
-      "IntegrityLevel": "Default",
-      "Ui": true,
-      "Modules": [
-        "SampleNativeModuleUi1"
-      ]
-    },
-    {
-      "GroupName": "G",
-      "Session": "AllUsers",
-      "IntegrityLevel": "Default",
-      "Ui": true,
-      "Modules": [
-        "IpcMonitor"
-      ]
-    }
-  ]
+  "Broker": {
+    "ChildProcesses": [
+      {
+        "GroupName": "A",
+        "Session": 0,
+        "Modules": [
+          "SampleNativeModule1",
+          "ConfStore"
+        ]
+      },
+      {
+        "GroupName": "B",
+        "Session": 0,
+        "Modules": [
+          "SampleManagedModule1"
+        ]
+      },
+      {
+        "GroupName": "C",
+        "Session": 0,
+        "Wow64": false,
+        "Modules": [
+          "SampleManagedModule2"
+        ]
+      },
+      {
+        "GroupName": "D",
+        "Session": -1,
+        "IntegrityLevel": "Higher",
+        "Ui": true,
+        "Modules": [
+          "SampleManagedModuleUi1"
+        ]
+      },
+      {
+        "GroupName": "E",
+        "Session": -1,
+        "IntegrityLevel": "Default",
+        "Ui": true,
+        "Modules": [
+          "SampleManagedModuleUi1"
+        ]
+      },
+      {
+        "GroupName": "F",
+        "Session": -1,
+        "IntegrityLevel": "Default",
+        "Ui": true,
+        "Modules": [
+          "SampleNativeModuleUi1"
+        ]
+      },
+      {
+        "GroupName": "G",
+        "Session": -1,
+        "IntegrityLevel": "Default",
+        "Ui": true,
+        "Modules": [
+          "IpcMonitor"
+        ]
+      }
+    ]
+  }
 }

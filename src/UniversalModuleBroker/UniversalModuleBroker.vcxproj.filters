@@ -27,10 +27,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="ChildProcess.cpp">
+    <ClCompile Include="ChildProcessInstance.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="BrokerInstance.cpp">
+    <ClCompile Include="Orchestrator.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,14 +44,17 @@
     <ClInclude Include="pch.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="ChildProcess.h">
-      <Filter>inc</Filter>
-    </ClInclude>
-    <ClInclude Include="BrokerInstance.h">
-      <Filter>inc</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>res</Filter>
+    </ClInclude>
+    <ClInclude Include="ChildProcessConfig.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ChildProcessInstance.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Orchestrator.h">
+      <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

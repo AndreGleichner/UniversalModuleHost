@@ -1,29 +1,29 @@
 #include "pch.h"
 
 #include "UniversalModuleBrokerService.h"
-#include "BrokerInstance.h"
+#include "Orchestrator.h"
 
-extern BrokerInstance g_broker;
+extern Orchestrator g_orchestrator;
 
 HRESULT UniversalModuleBrokerService::OnStart(DWORD dwArgc, LPTSTR* lpszArgv)
 {
     UNREFERENCED_PARAMETER(dwArgc);
     UNREFERENCED_PARAMETER(lpszArgv);
 
-    FAIL_FAST_IF_FAILED(g_broker.Init());
+    FAIL_FAST_IF_FAILED(g_orchestrator.Init());
 
     return S_OK;
 }
 
 void UniversalModuleBrokerService::OnStop()
 {
-    g_broker.ShuttingDown();
-    g_broker.Release();
+    g_orchestrator.ShuttingDown();
+    g_orchestrator.Release();
 }
 
 void UniversalModuleBrokerService::OnSessionChange(DWORD dwEventType, DWORD dwSessionId)
 {
     SPDLOG_INFO(L"{} {}", dwEventType, dwSessionId);
 
-    g_broker.OnSessionChange(dwEventType, dwSessionId);
+    g_orchestrator.OnSessionChange(dwEventType, dwSessionId);
 }

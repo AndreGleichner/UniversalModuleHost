@@ -2,7 +2,7 @@
 
 #include "SpdlogCustomFormatter.h"
 #include "UniversalModuleBrokerService.h"
-#include "BrokerInstance.h"
+#include "Orchestrator.h"
 #include "Permission.h"
 #include "env.h"
 
@@ -91,14 +91,14 @@ void SetDefaultLogger()
 }
 #pragma endregion
 
-BrokerInstance g_broker;
+Orchestrator g_orchestrator;
 
 // This typically gets called very late.
 BOOL WINAPI ConsoleCtrlHandler(_In_ DWORD dwCtrlType)
 {
     try
     {
-        g_broker.ShuttingDown();
+        g_orchestrator.ShuttingDown();
         SPDLOG_INFO(L"ConsoleCtrlHandler: {}", dwCtrlType);
         spdlog::default_logger_raw()->flush();
     }
@@ -168,7 +168,7 @@ int APIENTRY wWinMain(
             // Re-run to utilize the newly created console.
             SetDefaultLogger();
 
-            FAIL_FAST_IF_FAILED(g_broker.Init());
+            FAIL_FAST_IF_FAILED(g_orchestrator.Init());
 
             SPDLOG_INFO("UniversalModuleBroker started in console mode");
 
@@ -177,7 +177,7 @@ int APIENTRY wWinMain(
             ::GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
 
             // Maybe not call Release and depend on Ctrl-C propagation to child processes
-            // g_broker.Release();
+            // g_orchestrator.Release();
         }
 #else
         exitCode = 1;
