@@ -6,6 +6,7 @@
 #include <guiddef.h>
 #include <objbase.h>
 #include <wil/resource.h>
+#include <absl/hash/hash.h>
 #include "string_extensions.h"
 
 struct Guid final : GUID
@@ -94,15 +95,10 @@ struct Guid final : GUID
         return Equals(rhs);
     }
 
-    struct HashFunction
+    // To e.g. make this work: std::unordered_set<Guid, absl::Hash<Guid>> services;
+    template <typename H>
+    friend H AbslHashValue(H h, const Guid& guid)
     {
-        size_t operator()(const Guid& guid) const
-        {
-            size_t d1 = std::hash<uint32_t>()(guid.Data1);
-            size_t d2 = std::hash<uint16_t>()(guid.Data2) << 1;
-            size_t d3 = std::hash<uint16_t>()(guid.Data3) << 2;
-            size_t d4 = std::hash<uint64_t>()(*(uint64_t*)&guid.Data4[0]) << 3;
-            return d1 ^ d2 ^ d3 ^ d4;
-        }
-    };
+        return H::combine(std::move(h), guid.Data1, guid.Data2, guid.Data3, *(uint64_t*)&guid.Data4[0]);
+    }
 };

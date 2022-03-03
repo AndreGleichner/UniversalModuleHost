@@ -20,7 +20,7 @@ struct ModuleMeta
 
     ModuleMeta() = default;
 
-    ModuleMeta(std::unordered_set<Guid, Guid::HashFunction> services)
+    ModuleMeta(std::unordered_set<Guid, absl::Hash<Guid>> services)
     {
         Pid = ::GetCurrentProcessId();
 

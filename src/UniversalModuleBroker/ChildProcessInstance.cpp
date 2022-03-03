@@ -18,23 +18,36 @@ void DumpPipeInfos(HANDLE pipe)
 }
 }
 
-HRESULT ChildProcessInstance::Launch(bool keepAlive /*= true*/) noexcept
+HRESULT ChildProcessInstance::Launch(LaunchReason launchReason) noexcept
 try
 {
     if (orchestrator_->IsShuttingDown())
         return S_OK;
 
     // Cleanup, in case Launch() was run before
-    outRead_.reset();
-    errRead_.reset();
-    inWrite_.reset();
-    processInfo_.reset();
-    if (stderrForwarder_.joinable())
-        stderrForwarder_.join();
-    if (reader_.joinable())
-        reader_.join();
-    if (keepAlive_.joinable())
-        keepAlive_.join();
+    if (launchReason == LaunchReason::Restart)
+    {
+        outRead_.reset();
+        errRead_.reset();
+        inWrite_.reset();
+        processInfo_.reset();
+        if (stderrForwarder_.joinable())
+            stderrForwarder_.join();
+        if (reader_.joinable())
+            reader_.join();
+        if (keepAlive_.joinable())
+            keepAlive_.join();
+    }
+    else if (launchReason == LaunchReason::ApplyConfig)
+    {
+        // Allready running
+        if (processInfo_.dwProcessId)
+            return S_OK;
+    }
+    else
+    {
+        RETURN_HR(E_INVALIDARG);
+    }
 
     PCWSTR name = childProcessConfig_->Wow64 ? L"UniversalModuleHost32.exe" : L"UniversalModuleHost64.exe";
 
@@ -269,33 +282,29 @@ try
     StartForwardStderr();
 
     // If the host process terminates unexpectedly we try to re-launch it.
-    if (keepAlive)
-    {
-        keepAlive_ = std::thread([this] {
-            Process::SetThreadName(std::format(L"UMB-KeepAlive-{}", processInfo_.dwProcessId).c_str());
-            if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE) &&
-                !orchestrator_->IsShuttingDown())
-            {
+    keepAlive_ = std::thread([this] {
+        Process::SetThreadName(std::format(L"UMB-KeepAlive-{}", processInfo_.dwProcessId).c_str());
+        if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE) && !orchestrator_->IsShuttingDown())
+        {
 #ifdef DEBUG
-                // In case we've a console attached and just closed it, we'll get terminated soon
-                // by the default console control handler. Wait some time to be sure we're
-                // not in the process of shutting down.
-                // This only helps when running e.g. 1 child process as it takes some time for the child
-                // to process the Ctrl-C. As long as not every child has completed processing the broker wont be
-                // terminated.
+            // In case we've a console attached and just closed it, we'll get terminated soon
+            // by the default console control handler. Wait some time to be sure we're
+            // not in the process of shutting down.
+            // This only helps when running e.g. 1 child process as it takes some time for the child
+            // to process the Ctrl-C. As long as not every child has completed processing the broker wont be
+            // terminated.
 
-                ::Sleep(1000);
+            ::Sleep(1000);
 #endif
-                // run in another thread so that keepAlive_ can be joined
-                auto launcher = std::thread([this] {
-                    Process::SetThreadName(std::format(L"UMB-KeepAliveRelaunch-{}", processInfo_.dwProcessId).c_str());
-                    Launch();
-                    LoadModules();
-                });
-                launcher.detach();
-            }
-        });
-    }
+            // run in another thread so that keepAlive_ can be joined
+            auto launcher = std::thread([this] {
+                Process::SetThreadName(std::format(L"UMB-KeepAliveRelaunch-{}", processInfo_.dwProcessId).c_str());
+                Launch(LaunchReason::Restart);
+                LoadModules();
+            });
+            launcher.detach();
+        }
+    });
 
     // Tell the host his Service GUID. This is used to talk to the host as such to e.g. load modules.
     // Modules hosted within the host process have their own one or multiple service GUIDs.
@@ -442,4 +451,29 @@ bool ChildProcessInstance::ShouldBreakAwayFromJob() const
     if (!::ProcessIdToSessionId(::GetCurrentProcessId(), &session))
         return false;
     return session != target_.Session;
+}
+
+bool ChildProcessInstance::operator==(const ChildProcessInstance& rhs) const
+{
+    if (childProcessConfig_->AllUsers != rhs.childProcessConfig_->AllUsers ||
+        childProcessConfig_->Wow64 != rhs.childProcessConfig_->Wow64 ||
+        childProcessConfig_->HigherIntegrityLevel != rhs.childProcessConfig_->HigherIntegrityLevel ||
+        childProcessConfig_->Ui != rhs.childProcessConfig_->Ui ||
+        childProcessConfig_->GroupName != rhs.childProcessConfig_->GroupName ||
+        childProcessConfig_->AllUsers != rhs.childProcessConfig_->AllUsers)
+        return false;
+
+    if (target_.Session != rhs.target_.Session)
+        return false;
+
+    if (childProcessConfig_->Modules.size() != rhs.childProcessConfig_->Modules.size())
+        return false;
+
+    for (size_t n = 0; n < childProcessConfig_->Modules.size(); ++n)
+    {
+        // Even reordered modules is treated as diff
+        if (childProcessConfig_->Modules[n] != rhs.childProcessConfig_->Modules[n])
+            return false;
+    }
+    return true;
 }

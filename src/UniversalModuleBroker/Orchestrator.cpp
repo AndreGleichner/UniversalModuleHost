@@ -1,14 +1,17 @@
 #include "pch.h"
 #include <fstream>
+
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+#include <wil/result.h>
+
 #include "Orchestrator.h"
 #include "ChildProcessConfig.h"
 #include "ChildProcessInstance.h"
 #include "UmhProcess.h"
 #include "string_extensions.h"
 using namespace Strings;
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-#include <wil/result.h>
+
 #include "ModuleMeta.h"
 
 Orchestrator::Orchestrator()
@@ -70,7 +73,9 @@ CATCH_RETURN();
 HRESULT Orchestrator::LaunchChildProcesses() noexcept
 try
 {
-    // TODO check which procs are already running
+    // Collect the desired collection of child processes.
+    // There shall be no duplicate configs.
+    std::vector<std::unique_ptr<ChildProcessInstance>> desiredChildProcesses;
 
     for (auto process : childProcessesConfigs_)
     {
@@ -94,19 +99,55 @@ try
                     continue;
 
                 auto cp = std::make_unique<ChildProcessInstance>(this, process, si->SessionId);
-                childProcesses_.push_back(std::move(cp));
+                desiredChildProcesses.push_back(std::move(cp));
             }
         }
         else
         {
             auto cp = std::make_unique<ChildProcessInstance>(this, process);
-            childProcesses_.push_back(std::move(cp));
+            desiredChildProcesses.push_back(std::move(cp));
         }
+    }
+
+    // Check whether running processes match desired set of processes.
+    // Terminate any non-desired.
+    for (auto pi = childProcesses_.cbegin(); pi != childProcesses_.cend();)
+    {
+        auto p = pi->get();
+
+        bool stillDesired = false;
+        for (auto dpi = desiredChildProcesses.cbegin(); dpi != desiredChildProcesses.cend();)
+        {
+            auto dp = dpi->get();
+            if (*p == *dp)
+            {
+                stillDesired = true;
+                (void)desiredChildProcesses.erase(dpi);
+                break;
+            }
+        }
+
+        if (stillDesired)
+        {
+            ++pi;
+        }
+        else
+        {
+            // No longer desired, so terminate and remove.
+            pi->get()->Terminate();
+            pi = childProcesses_.erase(pi);
+        }
+    }
+
+
+    for (auto& newProcess : desiredChildProcesses)
+    {
+        childProcesses_.emplace_back(std::move(newProcess));
     }
 
     for (auto& process : childProcesses_)
     {
-        process->Launch();
+        process->Launch(ChildProcessInstance::LaunchReason::ApplyConfig);
     }
     for (auto& process : childProcesses_)
     {

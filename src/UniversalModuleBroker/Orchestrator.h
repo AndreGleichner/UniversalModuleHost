@@ -44,7 +44,6 @@ private:
     HRESULT OnMessage(
         ChildProcessInstance* fromProcess, const std::string_view msg, const ipc::Target& target) noexcept;
 
-
     DWORD session_ = ipc::KnownSession::Any;
 
     bool shuttingDown_ = false;

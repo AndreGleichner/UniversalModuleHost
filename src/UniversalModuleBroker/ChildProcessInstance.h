@@ -20,7 +20,13 @@ public:
     {
     }
 
-    HRESULT Launch(bool keepAlive = true) noexcept;
+    enum class LaunchReason
+    {
+        ApplyConfig,
+        Restart
+    };
+
+    HRESULT Launch(LaunchReason launchReason) noexcept;
     HRESULT Terminate() noexcept;
     HRESULT LoadModules() noexcept;
     HRESULT UnloadModules() noexcept;
@@ -32,18 +38,20 @@ private:
 
     bool ShouldBreakAwayFromJob() const;
 
-    Orchestrator*                                orchestrator_;
-    std::shared_ptr<ChildProcessConfig>          childProcessConfig_;
-    ipc::Target                                  target_;
-    wil::unique_process_information              processInfo_;
-    wil::unique_handle                           inRead_;
-    wil::unique_handle                           inWrite_;
-    wil::unique_handle                           outRead_;
-    wil::unique_handle                           outWrite_;
-    wil::unique_handle                           errRead_;
-    wil::unique_handle                           errWrite_;
-    std::thread                                  stderrForwarder_;
-    std::thread                                  reader_;
-    std::thread                                  keepAlive_;
-    std::unordered_set<Guid, Guid::HashFunction> services_;
+    bool operator==(const ChildProcessInstance& rhs) const;
+
+    Orchestrator*                              orchestrator_;
+    std::shared_ptr<ChildProcessConfig>        childProcessConfig_;
+    ipc::Target                                target_;
+    wil::unique_process_information            processInfo_;
+    wil::unique_handle                         inRead_;
+    wil::unique_handle                         inWrite_;
+    wil::unique_handle                         outRead_;
+    wil::unique_handle                         outWrite_;
+    wil::unique_handle                         errRead_;
+    wil::unique_handle                         errWrite_;
+    std::thread                                stderrForwarder_;
+    std::thread                                reader_;
+    std::thread                                keepAlive_;
+    std::unordered_set<Guid, absl::Hash<Guid>> services_;
 };

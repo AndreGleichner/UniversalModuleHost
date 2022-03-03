@@ -10,6 +10,7 @@
       "features": [ "wchar" ]
     },
     "wil",
-    "nlohmann-json"
+    "nlohmann-json",
+    "abseil"
   ]
 }
