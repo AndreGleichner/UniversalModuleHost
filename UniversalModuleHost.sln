@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		version.json = version.json
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalModuleBroker", "src\UniversalModuleBroker\UniversalModuleBroker.vcxproj", "{59D3D010-5CA7-4A5A-BA49-534A046DB566}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalModuleHost", "src\UniversalModuleHost\UniversalModuleHost.vcxproj", "{7185569D-3107-4776-8FB9-8A45E2B2B8B0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagedHost", "src\Modules\ManagedHost\ManagedHost.csproj", "{1B5CBFC7-CEC4-4350-A0E9-654C0E5E2D00}"
@@ -24,8 +26,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleManagedModule1", "src\Modules\Samples\SampleManagedModule1\SampleManagedModule1.csproj", "{E02A923A-FA71-4C27-9715-E2D6EF610714}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleManagedModule2", "src\Modules\Samples\SampleManagedModule2\SampleManagedModule2.csproj", "{4158A6B4-F0AD-479F-BBD2-EFA1E8D69813}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalModuleBroker", "src\UniversalModuleBroker\UniversalModuleBroker.vcxproj", "{59D3D010-5CA7-4A5A-BA49-534A046DB566}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedNativeUtils", "pub\SharedNativeUtils\SharedNativeUtils.vcxitems", "{1E83DDDB-014F-4BFA-ACC4-333758ECD732}"
 EndProject
