@@ -64,10 +64,31 @@ bool IsWindowsService()
     return g_isWindowsService;
 }
 
-DWORD ParentProcessId()
+bool IsProtectedService()
 {
     static INIT_ONCE g_init {};
-    static DWORD     g_parentId = (DWORD)-1;
+    static bool      g_isProtectedService = false;
+
+    wil::init_once(g_init, [] {
+        if (IsWindowsService())
+        {
+            // TODO figure out if we're running as AM-PPL
+            // https://docs.microsoft.com/en-us/windows/win32/procthread/isolated-user-mode--ium--processes
+            g_isProtectedService = false;
+        }
+        else
+        {
+            g_isProtectedService = false;
+        }
+    });
+
+    return g_isProtectedService;
+}
+
+ParentProcessInfo ParentProcess()
+{
+    static INIT_ONCE         g_init {};
+    static ParentProcessInfo g_parent {(DWORD)-1, (DWORD)-1};
 
     wil::init_once(g_init, [] {
         DWORD myPid = ::GetCurrentProcessId();
@@ -75,15 +96,28 @@ DWORD ParentProcessId()
         Enumerate([&](PPROCESSENTRY32W pe32) {
             if (pe32->th32ProcessID == myPid)
             {
-                g_parentId = pe32->th32ParentProcessID;
+                g_parent.Pid       = pe32->th32ProcessID;
+                g_parent.ParentPid = pe32->th32ParentProcessID;
+
+                return EnumerateCallbackResult::Cancel;
+            }
+            return EnumerateCallbackResult::Continue;
+        });
+
+        FAIL_FAST_IF_MSG(g_parent.ParentPid == (DWORD)-1, "ParentProcess() failed to find ParentPid");
+
+        Enumerate([&](PPROCESSENTRY32W pe32) {
+            if (pe32->th32ProcessID == g_parent.ParentPid)
+            {
+                g_parent.ExePath = pe32->szExeFile;
 
                 return EnumerateCallbackResult::Cancel;
             }
             return EnumerateCallbackResult::Continue;
         });
     });
-    FAIL_FAST_IF_MSG(g_parentId == (DWORD)-1, "ParentProcessId() failed");
-    return g_parentId;
+    FAIL_FAST_IF_MSG(g_parent.ExePath.empty(), "ParentProcess() failed to find ExePath");
+    return g_parent;
 }
 
 std::filesystem::path ImagePath()

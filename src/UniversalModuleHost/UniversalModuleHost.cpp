@@ -104,8 +104,8 @@ int APIENTRY wWinMain(
 {
 #ifndef DEBUG
     // Ensure we've been launched by the broker.
-    auto parentPath = Process::ImagePath(Process::ParentProcessId());
-    FAIL_FAST_IF(parentPath.stem() != L"UniversalModuleBroker64" || parentPath.stem() != L"UniversalModuleBroker32");
+    auto pp = Process::ParentProcess();
+    FAIL_FAST_IF(pp.ExePath != L"UniversalModuleBroker64.exe" && pp.ExePath != L"UniversalModuleBroker32.exe");
 
     // ensure our image dir is only admin writeable
     FAIL_FAST_IF(!Permission::IsDirectoryOnlyWriteableByElevatedUser(Process::ImagePath().parent_path()));

@@ -148,8 +148,10 @@ int APIENTRY wWinMain(
     }
     else
     {
+        bool wasAnAction = ServiceBase::CmdlineAction(lpCmdLine, UniversalModuleBrokerService::UMHTraits, exitCode);
+
 #ifdef DEBUG
-        if (!ServiceBase::CmdlineAction(lpCmdLine, UniversalModuleBrokerService::UMHTraits, exitCode))
+        if (!wasAnAction)
         {
             FAIL_FAST_IF_MSG(wcslen(lpCmdLine) != 0, "Unknown commandline");
             FAIL_FAST_IF_WIN32_BOOL_FALSE(::AllocConsole());
@@ -180,7 +182,8 @@ int APIENTRY wWinMain(
             // g_orchestrator.Release();
         }
 #else
-        exitCode = 1;
+        if (!wasAnAction)
+            exitCode = 1;
 #endif
     }
 

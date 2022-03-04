@@ -48,7 +48,7 @@
         "IntegrityLevel": "Default",
         "Ui": true,
         "Modules": [
-          "SampleNativeModuleUi1"
+          "ShellExec"
         ]
       },
       {
