@@ -2,6 +2,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_set>
+#include <filesystem>
 
 #include <absl/hash/hash.h>
 #include <wil/result.h>
@@ -23,6 +24,8 @@ public:
     HRESULT Initialize(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag) noexcept;
     HRESULT Terminate() noexcept;
     HRESULT HandleMessage(std::string_view msg, const ipc::Target& target) noexcept;
+
+    static std::filesystem::path PathFor(std::wstring_view moduleName, bool bitnessSpecific);
 
 protected:
     virtual HRESULT OnInitialize() noexcept

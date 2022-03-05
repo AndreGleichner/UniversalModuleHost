@@ -16,6 +16,7 @@ using json = nlohmann::json;
 #include "FileImage.h"
 #include "magic_enum_extensions.h"
 #include "Permission.h"
+#include "ModuleBase.h"
 
 #pragma comment(lib, "delayimp")
 
@@ -253,14 +254,13 @@ try
     // }
     //::DebugBreak();
 
-    const std::wstring bitness = sizeof(void*) == 4 ? L"32.dll" : L"64.dll";
-    auto               path    = Process::ImagePath().replace_filename(L"modules") / name / (name + bitness);
+    auto path = ModuleBase::PathFor(name, true);
 
     auto kind = FileImage::GetKind(path.c_str());
     if (kind == FileImage::Kind::Unknown)
     {
         // managed assemblies are typically AnyCPU, so no need to have both 32 and 64bit versions.
-        path = Process::ImagePath().replace_filename(L"modules") / name / (name + L".dll");
+        path = ModuleBase::PathFor(name, false);
         kind = FileImage::GetKind(path.c_str());
         if (kind == FileImage::Kind::Unknown)
             return E_FAIL;

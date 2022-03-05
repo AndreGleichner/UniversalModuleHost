@@ -9,6 +9,7 @@ using json = nlohmann::json;
 
 #include "ModuleBase.h"
 #include "ModuleMeta.h"
+#include "UmhProcess.h"
 
 namespace
 {
@@ -84,3 +85,9 @@ try
     return S_OK;
 }
 CATCH_RETURN()
+
+std::filesystem::path ModuleBase::PathFor(std::wstring_view moduleName, bool bitnessSpecific)
+{
+    const std::wstring bitness = bitnessSpecific ? (sizeof(void*) == 4 ? L"32.dll" : L"64.dll") : L".dll";
+    return Process::ImagePath().replace_filename(L"modules") / moduleName.data() / (std::wstring(moduleName) + bitness);
+}
