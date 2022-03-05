@@ -1,17 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -36,7 +27,7 @@ namespace IpcMonitor
             JToken token = null;
             try
             {
-                token = JValue.Parse(mi.Message);
+                token = JToken.Parse(mi.Message);
             }
             catch
             {
@@ -44,7 +35,14 @@ namespace IpcMonitor
 
             if (token != null)
             {
-                string msg = token.ToString(Formatting.Indented);
+                //string msg = token.ToString();
+                using var sw = new StringWriter(CultureInfo.InvariantCulture);
+                var jw = new JsonTextWriter(sw);
+                jw.Formatting = Formatting.Indented;
+                jw.Indentation = 4;
+                token.WriteTo(jw);
+                string msg = sw.ToString();
+
                 var doc = new FlowDocument(new Paragraph(new Run(msg)));
                 MessageDetails.Document = doc;
             }

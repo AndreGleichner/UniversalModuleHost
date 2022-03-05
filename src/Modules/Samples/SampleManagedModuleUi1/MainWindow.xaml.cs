@@ -29,30 +29,17 @@ namespace SampleManagedModuleUi1
 
         private void Button_Click_Browse(object sender, RoutedEventArgs e)
         {
-            Ipc.SendMessage("https://www.heise.de/", Ipc.ShellExec);
+            Ipc.SendMessage(tbBrowse.Text, Ipc.ShellExec);
         }
 
         private void Button_Click_SendMsg(object sender, RoutedEventArgs e)
         {
-            var rnd = new Random();
-            string msg = $@"{{
-""Prop1"": {rnd.Next(1, 100)},
-""Prop2"": ""Hello World""
-}}";
-            Ipc.SendMessage(msg, "{60DE68BB-50FD-4CB8-A808-1CEBEE3B034E}", 1);
+            Ipc.SendMessage(tbSendMsg.Text, "{60DE68BB-50FD-4CB8-A808-1CEBEE3B034E}", 1);
         }
 
         private void Button_Click_StoreConf(object sender, RoutedEventArgs e)
         {
-            string patch = @"{
-  ""Mod1"": {
-    ""ConfVal"": 12
-  },
-  ""Mod2"": {
-    ""ConfVal"": 22
-  }
-}";
-            var cs = new ConfStore { Cmd = ConfStore.ECmd.Update, Args = patch };
+            var cs = new ConfStore { Cmd = ConfStore.ECmd.Update, Args = tbStoreConf.Text };
             string msg = JsonSerializer.Serialize(cs);
 
             Ipc.SendMessage(msg, Ipc.ConfStore);
@@ -60,7 +47,7 @@ namespace SampleManagedModuleUi1
 
         private void Button_Click_QueryConf(object sender, RoutedEventArgs e)
         {
-            var cs = new ConfStore { Cmd = ConfStore.ECmd.Query, Args = "Mod1" };
+            var cs = new ConfStore { Cmd = ConfStore.ECmd.Query, Args = tbQueryConf.Text };
             string msg = JsonSerializer.Serialize(cs);
 
             Ipc.SendMessage(msg, Ipc.ConfStore);

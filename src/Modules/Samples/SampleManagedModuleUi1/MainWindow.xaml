@@ -5,15 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SampleManagedModuleUi1"
         mc:Ignorable="d"
-        Title="MainWindow" Width="322"  Height="344">
+        Title="MainWindow" Width="544"  Height="361">
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
     </Grid.ColumnDefinitions>
-    <Label Content="Hello World" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Height="30" Width="80"/>
-    <Button Content="Browse" HorizontalAlignment="Center" Height="50" Margin="0,55,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_Browse" />
-    <Button Content="Send Message" HorizontalAlignment="Center" Height="50" Margin="0,118,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_SendMsg" />
-    <Button Content="Store Conf" HorizontalAlignment="Center" Height="50" Margin="0,183,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_StoreConf" />
-    <Button Content="Query Conf" HorizontalAlignment="Center" Height="50" Margin="0,248,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_QueryConf" />
+    <Button Content="Browse" HorizontalAlignment="Right" Height="28" Margin="0,20,10,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_Browse" />
+    <Button Content="Send Message" HorizontalAlignment="Right" Height="28" Margin="0,102,10,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_SendMsg" />
+    <Button Content="Store Conf" HorizontalAlignment="Right" Height="28" Margin="0,254,10,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_StoreConf" />
+    <Button Content="Query Conf" HorizontalAlignment="Right" Height="28" Margin="0,287,10,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="162" Click="Button_Click_QueryConf" />
+    <TextBox Name="tbBrowse" HorizontalAlignment="Left" Margin="17,20,0,0" TextWrapping="Wrap" Text="http://www.heise.de" VerticalAlignment="Top" Width="331"/>
+    <TextBox Name="tbSendMsg" xml:space="preserve" HorizontalAlignment="Left" Margin="17,43,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="331" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Height="87"><![CDATA[{
+  "Answer": 42,
+  "Slogan": "Hello World"
+}]]></TextBox>
+    <TextBox Name="tbStoreConf" xml:space="preserve" HorizontalAlignment="Left" Margin="17,135,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="331" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Height="147"><![CDATA[{
+  "Broker": {
+    "Prio": "High"
+  }
+}]]></TextBox>
+    <TextBox Name="tbQueryConf" HorizontalAlignment="Left" Margin="17,287,0,0" TextWrapping="Wrap" Text="Broker" VerticalAlignment="Top" Width="331"/>
   </Grid>
 </Window>
