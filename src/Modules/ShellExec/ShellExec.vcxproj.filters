@@ -21,6 +21,12 @@
     <ClInclude Include="pch.h">
       <Filter>inc</Filter>
     </ClInclude>
+    <ClInclude Include="ShellExecModule.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -29,8 +35,16 @@
     <ClCompile Include="pch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="ShellExecModule.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Directory.Build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc">
+      <Filter>res</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

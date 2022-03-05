@@ -51,8 +51,10 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		pub\SharedManagedUtils\SharedManagedUtils.projitems*{1b5cbfc7-cec4-4350-a0e9-654c0e5e2d00}*SharedItemsImports = 5
 		pub\SharedNativeUtils\SharedNativeUtils.vcxitems*{1e83dddb-014f-4bfa-acc4-333758ecd732}*SharedItemsImports = 9
+		pub\SharedNativeUtils\SharedNativeUtils.vcxitems*{3f4025e8-ca16-43b6-a088-3b69a2a029cb}*SharedItemsImports = 4
 		pub\SharedNativeUtils\SharedNativeUtils.vcxitems*{59d3d010-5ca7-4a5a-ba49-534a046db566}*SharedItemsImports = 4
 		pub\SharedNativeUtils\SharedNativeUtils.vcxitems*{5f1537a0-5921-4796-b77f-776b8a01a1d3}*SharedItemsImports = 4
+		pub\SharedNativeUtils\SharedNativeUtils.vcxitems*{7053e14d-bfb4-49e6-ba48-cec209acad9f}*SharedItemsImports = 4
 		pub\SharedNativeUtils\SharedNativeUtils.vcxitems*{7185569d-3107-4776-8fb9-8a45e2b2b8b0}*SharedItemsImports = 4
 		pub\SharedManagedUtils\SharedManagedUtils.projitems*{9af8a4f8-5a53-43f1-9df1-a3fa64ca31e3}*SharedItemsImports = 5
 		pub\SharedManagedUtils\SharedManagedUtils.projitems*{aaf7c4ac-6caf-4d40-9fd7-84875b55ad88}*SharedItemsImports = 13

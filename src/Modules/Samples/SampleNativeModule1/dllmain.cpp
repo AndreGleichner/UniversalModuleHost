@@ -1,59 +1,24 @@
 #include "pch.h"
-#include <Windows.h>
-#include <string>
-#include <string_view>
-#include <chrono>
 
-#include "ipc.h"
-using namespace std::chrono_literals;
+#include "SampleNativeModule.h"
 
-void*                         Mod      = nullptr;
-ipc::SendMsg                  SendMsg  = nullptr;
-ipc::SendDiag                 SendDiag = nullptr;
-std::unique_ptr<std::jthread> PingThread;
+SampleNativeModule g_module;
 
 extern "C" __declspec(dllexport) HRESULT InitModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag)
 {
-    Mod      = mod;
-    SendMsg  = sendMsg;
-    SendDiag = sendDiag;
-
-    /* while (!::IsDebuggerPresent())
-     {
-         ::Sleep(1000);
-     }
-
-     ::DebugBreak();*/
-
-    PingThread = std::make_unique<std::jthread>([](std::stop_token stoken) {
-        Guid svc(L"{DA20876D-E81D-4AE7-912D-92E229EB871E}");
-        int  n = 0;
-        while (!stoken.stop_requested())
-        {
-            /*char msg[] = "[INF] A123456789\r\n[INF] B123456789\r\n";
-            SendDiag(Mod, msg);*/
-
-            SendMsg(Mod, std::format("{} Hello World!", n++).c_str(), &svc, 1);
-
-            std::this_thread::sleep_for(5s);
-        }
-    });
+    RETURN_IF_FAILED(g_module.Initialize(mod, sendMsg, sendDiag));
     return S_OK;
 }
 
 extern "C" __declspec(dllexport) HRESULT TermModule()
 {
-    if (PingThread)
-    {
-        PingThread->request_stop();
-        PingThread->join();
-    }
-
+    RETURN_IF_FAILED(g_module.Terminate());
     return S_OK;
 }
 
 extern "C" __declspec(dllexport) HRESULT OnMessage(PCSTR msg, const ipc::Target* target)
 {
+    RETURN_IF_FAILED(g_module.HandleMessage(msg, *target));
     return S_OK;
 }
 

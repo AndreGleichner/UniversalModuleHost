@@ -22,6 +22,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)HResult.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ipc.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)magic_enum_extensions.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ModuleBase.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ModuleMeta.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Permission.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)SpdlogCustomFormatter.h" />
@@ -33,6 +34,7 @@
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)FileImage.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ipc.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ModuleBase.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Permission.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)UmhProcess.cpp" />
   </ItemGroup>

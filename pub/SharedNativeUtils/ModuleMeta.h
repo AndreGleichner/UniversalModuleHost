@@ -4,6 +4,7 @@
 #include <unordered_set>
 
 #include <wil/win32_helpers.h>
+#include <absl/hash/hash.h>
 
 #include <nlohmann/json.hpp>
 #include "guid.h"
