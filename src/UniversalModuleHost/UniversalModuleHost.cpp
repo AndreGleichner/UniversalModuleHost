@@ -154,11 +154,20 @@ int APIENTRY wWinMain(
 
 int UniversalModuleHost::Run()
 {
-    std::thread reader;
-    FAIL_FAST_IF_FAILED(ipc::StartRead(
-        reader, [&](const std::string_view msg, const ipc::Target& target) { OnMessageFromBroker(msg, target); }));
+    std::jthread reader;
+    FAIL_FAST_IF_FAILED(ipc::StartRead(reader, [&](const std::string_view msg, const ipc::Target& target) {
+        return OnMessageFromBroker(msg, target) == S_FALSE;
+    }));
 
     terminate_.wait();
+
+    //while (!::IsDebuggerPresent())
+    //{
+    //    ::Sleep(1000);
+    //}
+    //::DebugBreak();
+
+    reader.request_stop();
 
     if (reader.joinable())
         reader.join();
@@ -205,8 +214,18 @@ try
             {
                 case ipc::HostCmdMsg::Cmd::Terminate:
                 {
+                    for (auto& mod : nativeModules_)
+                    {
+                        LOG_IF_FAILED(mod->Send(msg, target));
+                    }
+
+                    if (managedHost_)
+                    {
+                        managedHost_->Send(msg, target);
+                    }
+
                     terminate_.SetEvent();
-                    break;
+                    return S_FALSE;
                 }
 
                 case ipc::HostCmdMsg::Cmd::CtrlModule:

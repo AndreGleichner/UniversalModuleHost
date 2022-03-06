@@ -109,14 +109,15 @@ try
         }
     }
 
+    std::vector<std::unique_ptr<ChildProcessInstance>> processesToTerminate;
     // Check whether running processes match desired set of processes.
     // Terminate any non-desired.
-    for (auto pi = childProcesses_.cbegin(); pi != childProcesses_.cend();)
+    for (auto pi = childProcesses_.begin(); pi != childProcesses_.end();)
     {
         auto p = pi->get();
 
         bool stillDesired = false;
-        for (auto dpi = desiredChildProcesses.cbegin(); dpi != desiredChildProcesses.cend();)
+        for (auto dpi = desiredChildProcesses.cbegin(); dpi != desiredChildProcesses.cend(); ++dpi)
         {
             auto dp = dpi->get();
             if (*p == *dp)
@@ -133,12 +134,20 @@ try
         }
         else
         {
-            // No longer desired, so terminate and remove.
-            pi->get()->Terminate();
+            // No longer desired, so terminate (deferred in a thread below) and remove.
+            processesToTerminate.emplace_back(std::move(*pi));
             pi = childProcesses_.erase(pi);
         }
     }
 
+    {
+        std::jthread terminator([&] {
+            for (auto& process : processesToTerminate)
+            {
+                process.get()->Terminate();
+            }
+        });
+    }
 
     for (auto& newProcess : desiredChildProcesses)
     {
@@ -181,6 +190,9 @@ HRESULT Orchestrator::OnMessage(
     ChildProcessInstance* fromProcess, const std::string_view msg, const ipc::Target& target) noexcept
 try
 {
+    if (IsShuttingDown())
+        return S_FALSE;
+
     if (target.Service == ipc::KnownService::Broker)
     {
         // TODO: add valuable actions the broker may perform.
@@ -195,6 +207,16 @@ try
     }
     else
     {
+        if (target.Service == ipc::KnownService::ConfConsumer)
+        {
+            const json conf = json::parse(msg);
+            if (conf.contains("Broker"))
+            {
+                RETURN_IF_FAILED(UpdateChildProcessConfig(conf));
+                RETURN_IF_FAILED(LaunchChildProcesses());
+            }
+        }
+
         // Dispatch to any process which may have a respective handler.
         for (auto& process : childProcesses_)
         {

@@ -71,11 +71,11 @@ HRESULT SendDiagMsg(const std::string_view msg) noexcept;
 
 // Usually be used with host
 HRESULT StartRead(
-    std::thread& reader, std::function<void(const std::string_view msg, const Target& target)> onRead) noexcept;
+    std::jthread& reader, std::function<bool(const std::string_view msg, const Target& target)> onRead) noexcept;
 
 // Usually be used with broker
-HRESULT StartRead(HANDLE in, std::thread& reader,
-    std::function<void(const std::string_view msg, const Target& target)> onRead, DWORD pid) noexcept;
+HRESULT StartRead(HANDLE in, std::jthread& reader,
+    std::function<bool(const std::string_view msg, const Target& target)> onRead, DWORD pid) noexcept;
 
 // Message sender passed to InitModule() in a module DLL so that it may send messages to its host.
 typedef HRESULT(CALLBACK* SendMsg)(void* mod, PCSTR msg, const Guid* service, DWORD session);

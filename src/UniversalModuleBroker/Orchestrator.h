@@ -31,7 +31,7 @@ public:
         shuttingDown_ = true;
     }
 
-    bool IsShuttingDown()
+    bool IsShuttingDown() const
     {
         return shuttingDown_;
     }

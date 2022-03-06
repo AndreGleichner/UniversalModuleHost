@@ -16,7 +16,7 @@ try
             /*char msg[] = "[INF] A123456789\r\n[INF] B123456789\r\n";
             SendDiag(Mod, msg);*/
 
-            SendMsg(std::format("{} Hello World!", n++).c_str(), ipc::Target(svc, 1));
+            SendMsg(std::format("{} Hello World!", n++).c_str(), ipc::Target(svc));
 
             std::this_thread::sleep_for(5s);
         }

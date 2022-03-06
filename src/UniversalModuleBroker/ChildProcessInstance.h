@@ -50,8 +50,8 @@ private:
     wil::unique_handle                         outWrite_;
     wil::unique_handle                         errRead_;
     wil::unique_handle                         errWrite_;
-    std::thread                                stderrForwarder_;
-    std::thread                                reader_;
-    std::thread                                keepAlive_;
+    std::jthread                               stderrForwarder_;
+    std::jthread                               reader_;
+    std::jthread                               keepAlive_;
     std::unordered_set<Guid, absl::Hash<Guid>> services_;
 };

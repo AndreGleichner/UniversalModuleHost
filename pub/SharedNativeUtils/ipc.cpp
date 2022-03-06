@@ -65,30 +65,32 @@ try
 CATCH_RETURN();
 
 HRESULT StartRead(
-    std::thread& reader, std::function<void(const std::string_view msg, const Target& target)> onMessage) noexcept
+    std::jthread& reader, std::function<bool(const std::string_view msg, const Target& target)> onMessage) noexcept
 {
     return StartRead(::GetStdHandle(STD_INPUT_HANDLE), reader, onMessage, ::GetCurrentProcessId());
 }
 
-HRESULT StartRead(HANDLE in, std::thread& reader,
-    std::function<void(const std::string_view msg, const Target& target)> onMessage, DWORD pid) noexcept
+HRESULT StartRead(HANDLE in, std::jthread& reader,
+    std::function<bool(const std::string_view msg, const Target& target)> onMessage, DWORD pid) noexcept
 try
 {
-    reader = std::thread([=] {
+    reader = std::jthread([=](std::stop_token stoken) {
         Process::SetThreadName(std::format(L"UMH-IpcReader-{}", pid).c_str());
         DWORD size = 0, read = 0;
-        while (::ReadFile(in, &size, 4, &read, nullptr) && read == 4 && size > sizeof(Target))
+        while (
+            !stoken.stop_requested() && ::ReadFile(in, &size, 4, &read, nullptr) && read == 4 && size > sizeof(Target))
         {
             std::vector<uint8_t> buf;
             buf.resize(size);
 
-            if (::ReadFile(in, buf.data(), size, &read, nullptr) && read == size)
+            if (!stoken.stop_requested() && ::ReadFile(in, buf.data(), size, &read, nullptr) && read == size)
             {
                 Target target {*(Guid*)&buf[0], *(DWORD*)&buf[sizeof(Guid)]};
 
                 std::string_view msg((const char*)&buf[sizeof(Target)], size - sizeof(Target) - 1);
 
-                onMessage(msg, target);
+                if (onMessage(msg, target))
+                    return;
             }
         }
     });

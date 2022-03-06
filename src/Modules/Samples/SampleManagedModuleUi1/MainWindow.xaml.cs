@@ -34,7 +34,7 @@ namespace SampleManagedModuleUi1
 
         private void Button_Click_SendMsg(object sender, RoutedEventArgs e)
         {
-            Ipc.SendMessage(tbSendMsg.Text, "{60DE68BB-50FD-4CB8-A808-1CEBEE3B034E}", 1);
+            Ipc.SendMessage(tbSendMsg.Text, "{60DE68BB-50FD-4CB8-A808-1CEBEE3B034E}");
         }
 
         private void Button_Click_StoreConf(object sender, RoutedEventArgs e)

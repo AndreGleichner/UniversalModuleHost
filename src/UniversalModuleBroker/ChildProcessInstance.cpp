@@ -149,7 +149,7 @@ try
             spdlog::trace("RX-B: {} for {}", m, Strings::ToUtf8(target.ToString()));
         }
                         
-        orchestrator_->OnMessage(this, msg, target);
+        return orchestrator_->OnMessage(this, msg, target) == S_FALSE;
     };
     // clang-format on
 
@@ -283,9 +283,10 @@ try
     StartForwardStderr();
 
     // If the host process terminates unexpectedly we try to re-launch it.
-    keepAlive_ = std::thread([this] {
+    keepAlive_ = std::jthread([this](std::stop_token stoken) {
         Process::SetThreadName(std::format(L"UMB-KeepAlive-{}", processInfo_.dwProcessId).c_str());
-        if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE) && !orchestrator_->IsShuttingDown())
+        if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE) &&
+            !orchestrator_->IsShuttingDown() && !stoken.stop_requested())
         {
 #ifdef DEBUG
             // In case we've a console attached and just closed it, we'll get terminated soon
@@ -319,9 +320,24 @@ CATCH_RETURN();
 HRESULT ChildProcessInstance::Terminate() noexcept
 try
 {
+    // Ensure a stopped proc wont trigger a relaunch.
+    keepAlive_.request_stop();
+    // Let WaitForSingleObject return
+    // processInfo_.reset();
+
+    stderrForwarder_.request_stop();
+    // errRead_.reset();
+
+    reader_.request_stop();
+    reader_.detach();
+    // outRead_.reset();
+
     json msg = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::Terminate, ""};
 
     RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target_));
+    // This ensures the stdin read loop within the child proc exits.
+    inWrite_.reset();
+
     return S_OK;
 }
 CATCH_RETURN();
@@ -386,14 +402,15 @@ void ChildProcessInstance::StartForwardStderr() noexcept
     // => split and process one-by-one.
     // Messages maybe aren't read by a single ReadFile(), e.g. if writing into stderr is faster than reading here.
     // Thus we need to find line endings (\r\n) and accumulate until then.
-    stderrForwarder_ = std::thread([&] {
+    stderrForwarder_ = std::jthread([&](std::stop_token stoken) {
         Process::SetThreadName(std::format(L"UMB-ForwardStderr-{}", processInfo_.dwProcessId).c_str());
         const size_t bufSize = 4096;
 
         std::string msg;
         char        buf[bufSize] = {};
         DWORD       read         = 0;
-        while (::ReadFile(errRead_.get(), buf, bufSize - 1, &read, nullptr) && read < bufSize)
+        while (
+            !stoken.stop_requested() && ::ReadFile(errRead_.get(), buf, bufSize - 1, &read, nullptr) && read < bufSize)
         {
             buf[read] = 0; // so we can do str ops
 
