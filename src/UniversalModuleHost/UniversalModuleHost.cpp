@@ -161,10 +161,10 @@ int UniversalModuleHost::Run()
 
     terminate_.wait();
 
-    //while (!::IsDebuggerPresent())
+    // while (!::IsDebuggerPresent())
     //{
-    //    ::Sleep(1000);
-    //}
+    //     ::Sleep(1000);
+    // }
     //::DebugBreak();
 
     reader.request_stop();
@@ -214,14 +214,9 @@ try
             {
                 case ipc::HostCmdMsg::Cmd::Terminate:
                 {
-                    for (auto& mod : nativeModules_)
-                    {
-                        LOG_IF_FAILED(mod->Send(msg, target));
-                    }
-
                     if (managedHost_)
                     {
-                        managedHost_->Send(msg, target);
+                        managedHost_->Send(msg, ipc::Target(ipc::KnownService::ManagedHost));
                     }
 
                     terminate_.SetEvent();
@@ -356,7 +351,8 @@ CATCH_RETURN();
 HRESULT UniversalModuleHost::LoadManagedExeModule(const std::filesystem::path& path) noexcept
 try
 {
-    RETURN_HR_IF(E_FAIL, managedHost_ != nullptr);
+    if (managedHost_ != nullptr)
+        return S_FALSE;
 
     managedHost_ = std::make_unique<ManagedHost>(this, path.c_str());
     managedHost_->RunAsync();

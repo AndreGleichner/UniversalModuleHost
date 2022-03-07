@@ -28,7 +28,10 @@ namespace SampleManagedModuleUi1
 
         private static void OnTerminate()
         {
-            Application.Current.Shutdown();
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                Application.Current.Shutdown();
+            });
         }
     }
 }

@@ -28,6 +28,15 @@
         "Modules": [
           "ConfStore"
         ]
+      },
+      {
+        "GroupName": "E",
+        "Session": -1,
+        "IntegrityLevel": "Default",
+        "Ui": true,
+        "Modules": [
+          "SampleManagedModuleUi1"
+        ]
       }
     ]
   }

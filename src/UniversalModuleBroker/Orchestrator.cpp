@@ -34,9 +34,11 @@ try
 
     auto confFile = Process::ImagePath().replace_filename(L"broker.json");
 
-    std::ifstream confStream(confFile.c_str());
-    json          conf;
-    confStream >> conf;
+    std::ifstream     confStream(confFile.c_str());
+    std::stringstream c;
+    c << confStream.rdbuf();
+    // ignoring comments
+    json conf = json::parse(c.str(), nullptr, true, true);
 
     RETURN_IF_FAILED(UpdateChildProcessConfig(conf));
     RETURN_IF_FAILED(LaunchChildProcesses());
@@ -140,6 +142,7 @@ try
         }
     }
 
+    if (!processesToTerminate.empty())
     {
         std::jthread terminator([&] {
             for (auto& process : processesToTerminate)

@@ -36,8 +36,11 @@ json ConfStoreModule::DefaultConfigFor(const std::string& moduleName) noexcept
 
         if (std::filesystem::exists(defConfPath))
         {
-            std::ifstream confStream(defConfPath.c_str());
-            confStream >> conf;
+            std::ifstream     confStream(defConfPath.c_str());
+            std::stringstream c;
+            c << confStream.rdbuf();
+            // ignoring comments
+            conf = json::parse(c.str(), nullptr, true, true);
         }
     }
     catch (...)
