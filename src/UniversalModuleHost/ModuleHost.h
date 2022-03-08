@@ -4,13 +4,13 @@
 #include "ManagedHost.h"
 #include "NativeModule.h"
 
-class UniversalModuleHost final
+class ModuleHost final
 {
     friend ManagedHost;
     friend NativeModule;
 
 public:
-    UniversalModuleHost() = default;
+    ModuleHost() = default;
     int Run();
 
 private:

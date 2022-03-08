@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="UniversalModuleHost.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="ManagedHost.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -27,11 +24,14 @@
     <ClCompile Include="NativeModule.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="UniversalModuleHost.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleHost.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="UniversalModuleHost.h">
-      <Filter>inc</Filter>
-    </ClInclude>
     <ClInclude Include="ManagedHost.h">
       <Filter>inc</Filter>
     </ClInclude>
@@ -45,6 +45,9 @@
       <Filter>res</Filter>
     </ClInclude>
     <ClInclude Include="NativeModule.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleHost.h">
       <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>

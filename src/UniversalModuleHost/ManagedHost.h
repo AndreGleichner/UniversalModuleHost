@@ -21,12 +21,12 @@
 typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_get_dotnet_environment_info_fn)(const char_t* dotnet_root, void* reserved,
     hostfxr_get_dotnet_environment_info_result_fn result, void* result_context);
 
-class UniversalModuleHost;
+class ModuleHost;
 
 class ManagedHost final
 {
 public:
-    ManagedHost(UniversalModuleHost* host, const std::wstring& assemblyPath = L"");
+    ManagedHost(ModuleHost* host, const std::wstring& assemblyPath = L"");
     ~ManagedHost();
     bool    RunAsync();
     HRESULT LoadModule(const std::wstring& path);
@@ -79,7 +79,7 @@ private:
 
     std::thread mainThread_;
 
-    UniversalModuleHost* universalModuleHost_ = nullptr;
+    ModuleHost* moduleHost_ = nullptr;
 
     using OnMessageFromHostFuncSig =
         std::add_pointer_t<int CORECLR_DELEGATE_CALLTYPE(const char_t* msg, const char_t* service, int32_t session)>;

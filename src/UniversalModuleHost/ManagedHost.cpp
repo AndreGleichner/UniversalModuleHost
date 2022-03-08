@@ -4,7 +4,7 @@
 using json = nlohmann::json;
 #include "ManagedHost.h"
 #include "error_codes.h"
-#include "UniversalModuleHost.h"
+#include "ModuleHost.h"
 #include "ipc.h"
 #include "HostMsg.h"
 #include "string_extensions.h"
@@ -30,8 +30,8 @@ using string_t = std::basic_string<char_t>;
 
 ManagedHost* TheManagedHost;
 
-ManagedHost::ManagedHost(UniversalModuleHost* host, const std::wstring& assemblyPath /*= L""*/)
-    : assemblyPath_(assemblyPath), universalModuleHost_(host)
+ManagedHost::ManagedHost(ModuleHost* host, const std::wstring& assemblyPath /*= L""*/)
+    : assemblyPath_(assemblyPath), moduleHost_(host)
 {
     FAIL_FAST_IF_MSG(TheManagedHost != 0, "There shall be only one ManagedHost");
     TheManagedHost = this;

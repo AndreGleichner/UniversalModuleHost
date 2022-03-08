@@ -225,6 +225,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ManagedHost.cpp" />
+    <ClCompile Include="ModuleHost.cpp" />
     <ClCompile Include="NativeModule.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -237,9 +238,9 @@
   <ItemGroup>
     <ClInclude Include="error_codes.h" />
     <ClInclude Include="ManagedHost.h" />
+    <ClInclude Include="ModuleHost.h" />
     <ClInclude Include="NativeModule.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="UniversalModuleHost.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

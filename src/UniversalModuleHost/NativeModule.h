@@ -10,10 +10,10 @@ HRESULT TermModule();
 HRESULT OnMessage(PCSTR msg, const ipc::Target* target);
 }
 
-class UniversalModuleHost;
+class ModuleHost;
 class NativeModule final
 {
-    friend UniversalModuleHost;
+    friend ModuleHost;
 
 public:
     NativeModule(const std::filesystem::path& path) : path_(path)
