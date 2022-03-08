@@ -51,7 +51,10 @@ try
 
     PCWSTR name = childProcessConfig_->Wow64 ? L"UniversalModuleHost32.exe" : L"UniversalModuleHost64.exe";
 
-    std::wstring cmdline = Process::ImagePath().replace_filename(name).c_str();
+    // Having GroupName on cmdline is just there so that we can easily see externally which stuff is running within a
+    // child process.
+    std::wstring cmdline = std::format(
+        L"\"{}\" {}", Process::ImagePath().replace_filename(name).c_str(), ToUtf16(childProcessConfig_->GroupName));
 
     // https://docs.microsoft.com/en-us/windows/win32/procthread/creating-a-child-process-with-redirected-input-and-output
 
