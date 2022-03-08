@@ -144,6 +144,7 @@ try
 
 #pragma endregion
 
+    // Handler for messages from child process.
     // clang-format off
     auto onMessage = [&](const std::string_view msg, const ipc::Target& target)
     {
@@ -173,6 +174,8 @@ try
         creationFlags |= CREATE_BREAKAWAY_FROM_JOB | CREATE_SUSPENDED;
     }
 
+    const auto imageDir = Process::ImagePath().parent_path();
+
     if (target_.Session == ipc::KnownSession::Any)
     {
         // This either means we were requested to launch a process in the same session,
@@ -186,7 +189,7 @@ try
             TRUE,                                            // handles are inherited
             creationFlags,                                   // creation flags
             nullptr,                                         // use parent's environment
-            nullptr,                                         // use parent's current directory
+            imageDir.c_str(),                                // use image directory
             (LPSTARTUPINFOW)&startInfo,                      // STARTUPINFO pointer
             &processInfo_));                                 // receives PROCESS_INFORMATION
     }
@@ -254,8 +257,8 @@ try
                 nullptr,                                                      // primary thread security attributes
                 TRUE,                                                         // handles are inherited
                 creationFlags,                                                // creation flags
-                env.get(),                                                    // use parent's environment
-                nullptr,                                                      // use parent's current directory
+                env.get(),                                                    // use users environment
+                imageDir.c_str(),                                             // use image directory
                 (LPSTARTUPINFOW)&startInfo,                                   // STARTUPINFO pointer
                 &processInfo_));
         }
