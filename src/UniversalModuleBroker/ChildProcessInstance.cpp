@@ -77,7 +77,9 @@ try
     // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-updateprocthreadattribute
     // https://devblogs.microsoft.com/oldnewthing/20111216-00/?p=8873
 
-    const DWORD attrCount         = childProcessConfig_->Ui ? 2 : (Process::IsProtectedService() ? 3 : 2);
+    const bool canLauchProtectedChild = !childProcessConfig_->Ui && Process::IsProtectedService();
+
+    const DWORD attrCount         = canLauchProtectedChild ? 3 : 2;
     SIZE_T      attributeListSize = 0;
     ::InitializeProcThreadAttributeList(nullptr, attrCount, 0, &attributeListSize);
     LPPROC_THREAD_ATTRIBUTE_LIST attrList =
@@ -89,7 +91,7 @@ try
         ::HeapFree(GetProcessHeap(), 0, attrList);
     });
 
-    if (!childProcessConfig_->Ui && Process::IsProtectedService())
+    if (canLauchProtectedChild)
     {
         // UI processes can't run protected
         //
@@ -162,8 +164,7 @@ try
     startInfo.lpAttributeList = attrList;
 
     DWORD creationFlags = NORMAL_PRIORITY_CLASS | CREATE_DEFAULT_ERROR_MODE | EXTENDED_STARTUPINFO_PRESENT |
-                          CREATE_NO_WINDOW |
-                          (!childProcessConfig_->Ui && Process::IsProtectedService() ? CREATE_PROTECTED_PROCESS : 0);
+                          CREATE_NO_WINDOW | (canLauchProtectedChild ? CREATE_PROTECTED_PROCESS : 0);
     if (ShouldBreakAwayFromJob())
     {
         creationFlags |= CREATE_BREAKAWAY_FROM_JOB | CREATE_SUSPENDED;

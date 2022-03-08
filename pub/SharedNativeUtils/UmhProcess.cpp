@@ -1,5 +1,7 @@
 #include "pch.h"
+#include <Windows.h>
 #include <process.h>
+
 #include "UmhProcess.h"
 #include <wil/stl.h>
 #include <wil/resource.h>
@@ -72,9 +74,18 @@ bool IsProtectedService()
     wil::init_once(g_init, [] {
         if (IsWindowsService())
         {
-            // TODO figure out if we're running as AM-PPL
             // https://docs.microsoft.com/en-us/windows/win32/procthread/isolated-user-mode--ium--processes
-            g_isProtectedService = false;
+
+            // Alternatives:
+            // https://docs.microsoft.com/en-us/windows/win32/procthread/zwqueryinformationprocess
+            // ZwQueryInformationProcess(ProcessProtectionInformation)
+            // or
+            // https://docs.microsoft.com/en-us/windows/win32/procthread/isolated-user-mode--ium--processes
+            // ZwQueryInformationProcess(ProcessBasicInformation,sizeof(PROCESS_EXTENDED_BASIC_INFORMATION ))
+            PROCESS_PROTECTION_LEVEL_INFORMATION ppl {0};
+            if (::GetProcessInformation(::GetCurrentProcess(), ProcessProtectionLevelInfo, &ppl, sizeof(ppl)) &&
+                ppl.ProtectionLevel != PROTECTION_LEVEL_NONE)
+                g_isProtectedService = true;
         }
         else
         {
