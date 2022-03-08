@@ -24,6 +24,9 @@
     <ClCompile Include="pch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="NativeModule.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UniversalModuleHost.h">
@@ -40,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>res</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeModule.h">
+      <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
