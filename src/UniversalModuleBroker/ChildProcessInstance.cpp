@@ -192,8 +192,6 @@ try
         // We only get here if we're running as a service and were requested to launch
         // a child process in every session.
 
-        // TODO: in case of higherIntegrityLevel_ we should also go here even while debugging
-
         wil::unique_handle token;
         // Ignor any error as the respective session may just have closed
         if (::WTSQueryUserToken(target_.Session, &token))

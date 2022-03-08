@@ -198,7 +198,6 @@ try
 
     if (target.Service == ipc::KnownService::Broker)
     {
-        // TODO: add valuable actions the broker may perform.
     }
     else if (target.Service == ipc::KnownService::ModuleMetaConsumer)
     {
