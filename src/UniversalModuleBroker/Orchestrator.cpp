@@ -13,6 +13,7 @@ using json = nlohmann::json;
 using namespace Strings;
 
 #include "ModuleMeta.h"
+#include "ConfStore.h"
 
 Orchestrator::Orchestrator()
 {
@@ -32,16 +33,38 @@ try
 
     AssignProcessToJobObject(::GetCurrentProcess(), session_);
 
-    auto confFile = Process::ImagePath().replace_filename(L"broker.json");
-
-    std::ifstream     confStream(confFile.c_str());
-    std::stringstream c;
-    c << confStream.rdbuf();
-    // ignoring comments
-    json conf = json::parse(c.str(), nullptr, true, true);
+    // Bootstrap-config by launching the ConfStore module in some process.
+    auto conf = R"(
+{
+  "Broker": {
+    "ChildProcesses": [
+      {
+        "GroupName": "ConfStore",
+        "Session": 0,
+        "Modules": [
+          "ConfStore"
+        ]
+      }
+    ]
+  }
+}
+)"_json;
 
     RETURN_IF_FAILED(UpdateChildProcessConfig(conf));
     RETURN_IF_FAILED(LaunchChildProcesses());
+
+#ifdef DEBUG
+    const DWORD milliSecondsToWait = INFINITE;
+#else
+    const DWORD milliSecondsToWait = 60 * 1000;
+#endif
+    // need to wait for ModuleMeta sent by the ConfStore module.
+    confStoreReady_.wait(milliSecondsToWait);
+
+    // Ask the just launched ConfStore to send around the Broker config
+    // so we can launch the current set of configured processes/modules.
+    json msg = ipc::ConfStore {ipc::ConfStore::Cmd::Query, "Broker"};
+    RETURN_IF_FAILED(SendToAllChildren(msg.dump().c_str(), ipc::Target(ipc::KnownService::ConfStore)));
 
     return S_OK;
 }
@@ -189,6 +212,23 @@ try
 }
 CATCH_RETURN();
 
+HRESULT Orchestrator::SendToAllChildren(const std::string_view msg, const ipc::Target& target) noexcept
+try
+{
+    // Dispatch to any process which may have a respective handler.
+    for (auto& process : childProcesses_)
+    {
+        // KnownService::All means a module has declared it wants to handle messages to any service, e.g. for
+        // debugging.
+        if (process->services_.contains(ipc::KnownService::All) || process->services_.contains(target.Service))
+        {
+            process->SendMsg(msg, target);
+        }
+    }
+    return S_OK;
+}
+CATCH_RETURN();
+
 HRESULT Orchestrator::OnMessage(
     ChildProcessInstance* fromProcess, const std::string_view msg, const ipc::Target& target) noexcept
 try
@@ -202,10 +242,14 @@ try
     else if (target.Service == ipc::KnownService::ModuleMetaConsumer)
     {
         const auto mm = json::parse(msg).get<ipc::ModuleMeta>();
+
         for (const auto& s : mm.Services)
         {
             fromProcess->services_.emplace(Guid(s));
         }
+
+        if (mm.Services.contains(ipc::KnownService::ConfStore.ToUtf8()))
+            confStoreReady_.SetEvent();
     }
     else
     {
@@ -219,16 +263,7 @@ try
             }
         }
 
-        // Dispatch to any process which may have a respective handler.
-        for (auto& process : childProcesses_)
-        {
-            // KnownService::All means a module has declared it wants to handle messages to any service, e.g. for
-            // debugging.
-            if (process->services_.contains(ipc::KnownService::All) || process->services_.contains(target.Service))
-            {
-                process->SendMsg(msg, target);
-            }
-        }
+        RETURN_IF_FAILED(SendToAllChildren(msg, target));
     }
     return S_OK;
 }

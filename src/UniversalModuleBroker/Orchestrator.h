@@ -44,10 +44,13 @@ private:
     HRESULT OnMessage(
         ChildProcessInstance* fromProcess, const std::string_view msg, const ipc::Target& target) noexcept;
 
+    HRESULT SendToAllChildren(const std::string_view msg, const ipc::Target& target) noexcept;
+
     DWORD session_ = ipc::KnownSession::Any;
 
     bool shuttingDown_ = false;
 
+    wil::unique_event_failfast                         confStoreReady_ {wil::EventOptions::ManualReset};
     std::vector<std::shared_ptr<ChildProcessConfig>>   childProcessesConfigs_;
     std::vector<std::unique_ptr<ChildProcessInstance>> childProcesses_;
     std::map<DWORD, wil::unique_handle>                jobObjects_;
