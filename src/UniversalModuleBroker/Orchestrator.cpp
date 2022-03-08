@@ -58,7 +58,8 @@ try
 #else
     const DWORD milliSecondsToWait = 60 * 1000;
 #endif
-    // need to wait for ModuleMeta sent by the ConfStore module.
+    // Need to wait for ModuleMeta sent by the ConfStore module.
+    // Now we know the ConfStore service is ready and the broker was notified about the supported services.
     confStoreReady_.wait(milliSecondsToWait);
 
     // Ask the just launched ConfStore to send around the Broker config
@@ -70,6 +71,7 @@ try
 }
 CATCH_RETURN();
 
+// Process given JSON it should have a "Broker" object.
 HRESULT Orchestrator::UpdateChildProcessConfig(const json& conf) noexcept
 try
 {
@@ -95,6 +97,10 @@ try
 }
 CATCH_RETURN();
 
+// Based on current config check which actual processes are desired.
+// Depending on logged in users this may differ from run to run as there may be procs configured to run in all user
+// sessions.
+// If there are already porcesses running superflous procs are terminated and missing are started.
 HRESULT Orchestrator::LaunchChildProcesses() noexcept
 try
 {
@@ -241,6 +247,7 @@ try
     }
     else if (target.Service == ipc::KnownService::ModuleMetaConsumer)
     {
+        // Some module tells us which services it supports.
         const auto mm = json::parse(msg).get<ipc::ModuleMeta>();
 
         for (const auto& s : mm.Services)
@@ -255,6 +262,8 @@ try
     {
         if (target.Service == ipc::KnownService::ConfConsumer)
         {
+            // Some config changed.
+            // In case of the Broker config we need to recalc desired child processes.
             const json conf = json::parse(msg);
             if (conf.contains("Broker"))
             {
@@ -263,6 +272,7 @@ try
             }
         }
 
+        // Dispatch to the world.
         RETURN_IF_FAILED(SendToAllChildren(msg, target));
     }
     return S_OK;

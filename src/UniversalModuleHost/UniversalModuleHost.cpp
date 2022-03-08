@@ -193,6 +193,7 @@ try
 
     if (target.Service == ipc::KnownService::HostInit)
     {
+        // The Broker sent a unique service guid we need to remember to e.g. handle moduleload/unload.
         auto       j    = json::parse(msg);
         const auto init = j.get<ipc::HostInitMsg>();
 
@@ -220,7 +221,7 @@ try
                     }
 
                     terminate_.SetEvent();
-                    return S_FALSE;
+                    return S_FALSE; // exit stdin read-loop
                 }
 
                 case ipc::HostCmdMsg::Cmd::CtrlModule:
@@ -243,6 +244,7 @@ try
         }
         else
         {
+            // Broadcast to all loaded modules.
             for (auto& mod : nativeModules_)
             {
                 LOG_IF_FAILED(mod->Send(msg, target));
@@ -270,6 +272,8 @@ try
 
     auto path = ModuleBase::PathFor(name, true);
 
+    // Auto-detect how a given module DLL should be loaded.
+
     auto kind = FileImage::GetKind(path.c_str());
     if (kind == FileImage::Kind::Unknown)
     {
@@ -280,7 +284,7 @@ try
             return E_FAIL;
     }
 
-    // Managed assembly may be a PE32 image although can be loaded into a 64bit host.
+    // Managed assembly may be marked as a PE32 image although it can be loaded into a 64bit host.
     if (AnyBitSet(kind, FileImage::Kind::Managed))
     {
         if (AnyBitSet(kind, FileImage::Kind::Exe))
@@ -289,7 +293,7 @@ try
         return LoadManagedDllModule(path);
     }
 
-
+    // Native modules require a matching bitness of the host.
 #if _WIN64
     if (AnyBitSet(kind, FileImage::Kind::Bitness32))
         return E_FAIL;
@@ -316,9 +320,10 @@ try
         RETURN_HR_MSG(hr, "native module unload failed %ls", name.c_str());
     }
 
-    RETURN_HR_IF_NULL_MSG(E_FAIL, managedHost_, "Managed host not initialized");
-    RETURN_IF_FAILED(managedHost_->UnloadModule(name));
-
+    if (managedHost_ != nullptr)
+    {
+        RETURN_IF_FAILED(managedHost_->UnloadModule(name));
+    }
     return S_OK;
 }
 CATCH_RETURN();

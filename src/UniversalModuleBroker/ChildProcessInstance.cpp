@@ -171,6 +171,7 @@ try
                           CREATE_NO_WINDOW | (canLauchProtectedChild ? CREATE_PROTECTED_PROCESS : 0);
     if (ShouldBreakAwayFromJob())
     {
+        // suspended so that it is immediately part of the job
         creationFlags |= CREATE_BREAKAWAY_FROM_JOB | CREATE_SUSPENDED;
     }
 
@@ -272,6 +273,8 @@ try
 
     if (WI_IsFlagSet(creationFlags, CREATE_BREAKAWAY_FROM_JOB))
     {
+        // Created child proc was break awai from the broker job object,
+        // so assign it to a session specific.
         orchestrator_->AssignProcessToJobObject(this);
     }
 
@@ -327,16 +330,15 @@ try
 {
     // Ensure a stopped proc wont trigger a relaunch.
     keepAlive_.request_stop();
-    // Let WaitForSingleObject return
-    // processInfo_.reset();
-
+    // diag reader thread should stop
     stderrForwarder_.request_stop();
-    // errRead_.reset();
-
+    // Message reader thread should stop
     reader_.request_stop();
+    // Should run free, so that in dtor it doesn't throw a deadlock assertion.
+    // These lines here may run from within the reader thread!
     reader_.detach();
-    // outRead_.reset();
 
+    // Tell the child proc to terminate itself.
     json msg = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::Terminate, ""};
 
     RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target_));
@@ -463,7 +465,7 @@ HRESULT ChildProcessInstance::SendMsg(const std::string_view msg, const ipc::Tar
     return S_OK;
 }
 
-// If we're running as service and the to be launched process will run in another session
+// If we're running as service (=session 0) and the to be launched process will run in another session (!=0)
 // we have to use another job object since processes grouped in a job shall all run in the same session.
 bool ChildProcessInstance::ShouldBreakAwayFromJob() const
 {
@@ -476,6 +478,7 @@ bool ChildProcessInstance::ShouldBreakAwayFromJob() const
     return session != target_.Session;
 }
 
+// Compare config only
 bool ChildProcessInstance::operator==(const ChildProcessInstance& rhs) const
 {
     if (childProcessConfig_->AllUsers != rhs.childProcessConfig_->AllUsers ||
