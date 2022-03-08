@@ -7,20 +7,21 @@ participant BrokerProcess as B
 participant HostProcess as H
 participant NativeModule as NM
 participant ManagedModuleHost as MMH
-participant ManagedModule as MM
+participant "ManagedModule\nSomeAppModule" as MM
 
-B->B: BrokerInstance::Init() => process broker.json
+B->B: Orchestrator::Init() => read broker.json\nUpdateChildProcessConfig(),LaunchChildProcesses()
+
 loop Launch processes
-    B->B: ChildProcess::Launch()
+    B->B: ChildProcessInstance::Launch()
     B->H ++: CreateProcess/AsUser()
     B->B: ipc::StartRead(),StartForwardStderr()
     B->B: start child proc monitoring
-    B->H: ChildProcess::SendMsg(ipc::KnownService::HostInit)
-    H->H: Remember host target GUID
+    B->H: ChildProcessInstance::SendMsg(ipc::KnownService::HostInit)
+    H->H: Remember unique host target GUID
     H->H: UniversalModuleHost::OnMessageFromBroker()
-    B->B: ChildProcess::LoadModules()
+    B->B: ChildProcessInstance::LoadModules()
 end
-    
+
 newpage
 
 alt Load native module
@@ -31,8 +32,8 @@ alt Load native module
     H->H: UniversalModuleHost::LoadNativeModule(path/to/dll)
     H->H: NativeModule::Load()
     H->NM ++: LoadLibrary native dll
-    H->NM: InitModule()
-    H->NM: ConnectModule(OnMsg, OnDiag)
+    H->NM: InitModule(OnMsg, OnDiag)
+    NM->B: SendMsg ModuleMeta (our services)
 else Load managed DLL module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
     H->H: UniversalModuleHost::OnMessageFromBroker()
@@ -48,6 +49,17 @@ else Load managed DLL module
     MMH->MMH: ModuleHost.LoadModule(path/to/dll)
     MMH->MM ++: Load dll in own AssemblyLoadContext
     MMH->MM: IModule.Initialize()
+    MM->B: SendMsg ModuleMeta (our services)
+else Load managed EXE module
+    B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
+    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: UniversalModuleHost::LoadModule()
+    H->H: check PE header for module type
+    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: Load .Net CLR if not yet done
+    H->MM ++: load SomeAppModule.dll in custom .Net host
+    H->H: ManagedHost::LoadModule(path/to/dll)
+    MM->B: SendMsg ModuleMeta (our services)
 end
 
 newpage
@@ -70,9 +82,9 @@ alt Send message from native module
     H->H: ipc::Send("some event", target)
     H->B: via stdout: serialized msg/target
     B->B: ReadFile(stdin) => deserialize msg/target
-    B->B: BrokerInstance::OnMessage("some event", target)
+    B->B: Orchestrator::OnMessage("some event", target)
     loop for all host processes
-        B->B: ChildProcess::Send("some event", target)
+        B->B: ChildProcessInstance::Send("some event", target)
         B->B: ipc::Send("some event", target)
         B->H: via stdout: serialized msg/target
         H->H: ReadFile(stdin) => deserialize msg/target

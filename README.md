@@ -3,7 +3,7 @@
 * My playground for some custom .Net hosting experiments.
 * My intend is to have finegrained control over hosting multiple native and managed modules together in a single process.
 * There should be a bidirectional communication possible between native and managed modules, preferrably some pub/sub.
-* That process may run as commandline (for debugging only) app or Windows service.
+* That process may run as commandline app (for debugging only) or Windows service.
 * It should be supported to run many such processes in parallel each with a different set of loaded modules. 
 
 # Overview
@@ -13,28 +13,34 @@
 Currently it works like this:
 * There is a single broker process (UniversalModuleBroker64/32.exe) running as a Windows service. It may be run as AM-PPL when there's a respective ELAM driver.
 * The broker launches one or multiple child processes (UniversalModuleHost64/32.exe) each of which may host multiple native and/or managed modules (DLLs).
-* Child processes may be launched automatically in all currently active sessions. (TODO: better handling of logon/-off)
-* Child processes are laucnhed as protected processes in case the broker itself is running as PPL.
+* Child processes may be launched automatically in all currently active sessions.
+* Child processes are launched as protected processes in case the broker itself is running as PPL.
 * Child processes are put into job objects (one per session) which are configured to kill child processes as soon as the broker dies.
+* Such job object may be used to enforce quotas (CPU, RAM, HD usage).
 * The broker monitors all child processes and relaunches any died child process.
 * There's a broker.json declaring child processes and modules to be loaded as well as certain properties.
+* Process/Module layout can be changed on demand.
 * Modules may be unloaded/reloaded to e.g. update some on demand.
-* Processes communicate via stdin/stdout for message broadcasting and stderr for logging. See [IPC](#ipc) below.
-* Messages are send to the brower which dispatches to everyone.
+* Processes communicate via stdin/stdout for message dispatching to specified services and stderr for logging. See [IPC](#ipc) below.
+* Everyone within the closed group of processs may send messages to the broker which dispatches to everyone who has declared interest in messages to specific services.
 * Managed modules are hosted in a custom host instead of the standard apphost, comhost, muxer, etc. This is mainly to have full control and tweak certain [security](#security) properties.
 * Managed modules are orchestrated by a ManagedHost.dll utilizing AssemblyLoadContext's to somewhat isolate modules and allow dynamic load/unload. This uses the great [McMaster.NETCore.Plugins library](https://github.com/natemcmaster/DotNetCorePlugins).
 * Managed UI modules (e.g. WPF apps) usually have assembly DLLs which are actually marked as EXE in PE header. A UniversalModuleHost may only have a single such UI module which is loaded directly instead of ManagedHost.dll.
 * The broker should run in native bitness, while even on 64bit OS host child processes may be configured to run 32bit.
 * UI child processes may be configured to run with increased integrity level (see [Integrity Level](#integrity-level-ui)).
-
+* There's a central ConfStore module handling a single JSON. Every module may participate by storing it own JSON object. Partial modifications are easy with JSON merge-patch.
+* There's a trivial IpcMonitor module to have a peek into every IPC message in the system. Formatting messages as JSON if feasible.
+* There's a ShellExec module to lauch external content like http sites in default browser. This breaks out of the job object to not also kill on close e.g. Chrome if that wasn't running at the time of message arrival.
+* There's a sample module showcasting how to send arbitrary messagees, how to lauch a web site, how to read module configuration from ConfStore and how to reconfigure the entire process tree on button click.
 
 ## IPC
 Processes communicate via stdin/stdout for message broadcasting and stderr for logging.
 There're 2 reasons for this choice: simplicity and [security](#communication).
 
 Communication is just sending a UTF8 string to a target service-GUID / WTS session.
-Messages are always send to the broker which dispatches them to every module (including sender).
-Module DLLs are responsible to handle certain service-GUID.
+Messages are always send to the broker which dispatches them to "every" module (including sender).
+As an optimization processes only receive certain messages if any of his loaded modules has declared interest in messages to specific services.
+Module DLLs are responsible to handle certain service-GUID as declared during module initialization.
 The broker itself as well as the host processes themselves also have service-GUIDs to e.g. perform init, module (un-)load.
 
 ### Init
@@ -54,7 +60,7 @@ The broker itself as well as the host processes themselves also have service-GUI
 
 ### Communication
 
-Alternatives like named pipes are easily attacked, e.g. by guessing the name and Mallory creating such pipe befor our processes do. This can only be mitigated with the help of a npfs filter driver protecting certain names. Even worse in case of multiple processes attaching to the same named pipe communication can not just be blocked but also changed.
+Alternatives like named pipes are easily attacked, e.g. by guessing the name and Mallory creating such pipe before our processes do. This can only be mitigated with the help of a npfs filter driver protecting certain names. Even worse in case of multiple processes attaching to the same named pipe communication can not just be blocked but also changed.
 
 In former times anonymous pipes were implemented with normal named pipes. Today (Win7+ see [CreatePipeAnonymousPair7](https://stackoverflow.com/questions/60645/overlapped-i-o-on-anonymous-pipe)) they are named pipes w/o a name. So there's no usermode way to intercept or block anonymous pipes, at least none I may imagine ;)
 
