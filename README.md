@@ -1,10 +1,15 @@
 # Universal Module Host
 
-* My playground for some custom .Net hosting experiments.
-* My intend is to have finegrained control over hosting multiple native and managed modules together in a single process.
+* Initially it only was my playground for some custom .Net hosting experiments started at a boring new year's eve 2020/2021...
+* It then was lying around until xmas vaction 2021...
+* Wanted to write something like this since many year and it started to get some traction...
+* Few weeks later I guess it's mostly done...
+* My intend is to have finegrained control over hosting multiple native and managed modules together in a single or multiple process(es).
 * There should be a bidirectional communication possible between native and managed modules, preferrably some pub/sub.
 * That process may run as commandline app (for debugging only) or Windows service.
 * It should be supported to run many such processes in parallel each with a different set of loaded modules. 
+* Processes/modules should be configurable on demand.
+* It should be secure...whatever that means...
 
 # Overview
 
@@ -16,9 +21,9 @@ Currently it works like this:
 * Child processes may be launched automatically in all currently active sessions.
 * Child processes are launched as protected processes in case the broker itself is running as PPL.
 * Child processes are put into job objects (one per session) which are configured to kill child processes as soon as the broker dies.
-* Such job object may be used to enforce quotas (CPU, RAM, HD usage).
+* Such job object may be used to enforce quotas (CPU, RAM, HD usage). Could easily be a part of the broker configuration. (not yet done)
 * The broker monitors all child processes and relaunches any died child process.
-* There's a broker.json declaring child processes and modules to be loaded as well as certain properties.
+* There's a broker.json declaring child processes and modules to be loaded by default as well as certain properties.
 * Process/Module layout can be changed on demand.
 * Modules may be unloaded/reloaded to e.g. update some on demand.
 * Processes communicate via stdin/stdout for message dispatching to specified services and stderr for logging. See [IPC](#ipc) below.
@@ -42,6 +47,16 @@ Messages are always send to the broker which dispatches them to "every" module (
 As an optimization processes only receive certain messages if any of his loaded modules has declared interest in messages to specific services.
 Module DLLs are responsible to handle certain service-GUID as declared during module initialization.
 The broker itself as well as the host processes themselves also have service-GUIDs to e.g. perform init, module (un-)load.
+
+Overall the messaging is a simple kind of pub/sub. 
+Subscriptions are just normal messages sent to a dedicated service GUID and by that in no way different than any other kind of message. Those service GUID are thus what normally is called a "topic" in usual pub/sub systems. Choosing service instead of topic is intentional. 
+In general messages are basically either events (something happened) or commands (do something).
+I'm focusing mainly on commands and such commands are executed by services.
+In my definition modules provide services and these services receive messages which often are commands but of course can also be events.
+
+Not having a form of explicit request/response mechanism is also intentional.
+IMHO restricting stuff to pure async messaging enforces cleaner designs and thus provides much better decoupling. It also is much easier to implement. In many cases you anyhow need to handle change-events very much the same as the response to a request. E.g. when handling configurations/settings. They may be changed somehow and a change-event may be triggered. During startup you typically require some initial configuration state, so you may wanna send a get-conf-xyz request. Instead you may just send a "someone-please-send-config-for-module-xyz" message and sit and wait for some event arriving. Since you anyhow need to be prepared to handle change-events at any time it is easier to make this the only entry point for change.
+I know this is controversial ;)
 
 ### Init
 ![Init](./img/ipc-page1.svg)
