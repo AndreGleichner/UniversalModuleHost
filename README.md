@@ -1,4 +1,4 @@
-# Universal Module Host
+# The Modularian
 
 * Initially it only was my playground for some custom .Net hosting experiments started at a boring new year's eve 2020/2021...
 * It then was lying around until xmas vaction 2021...
@@ -16,8 +16,8 @@
 ![BrokerProcess](./img/BrokerProcess.drawio.png)
 
 Currently it works like this:
-* There is a single broker process (UniversalModuleBroker64/32.exe) running as a Windows service. It may be run as AM-PPL when there's a respective ELAM driver.
-* The broker launches one or multiple child processes (UniversalModuleHost64/32.exe) each of which may host multiple native and/or managed modules (DLLs).
+* There is a single broker process (TMBroker64/32.exe) running as a Windows service. It may be run as AM-PPL when there's a respective ELAM driver.
+* The broker launches one or multiple child processes (TMHost64/32.exe) each of which may host multiple native and/or managed modules (DLLs).
 * Child processes may be launched automatically in all currently active sessions.
 * Child processes are launched as protected processes in case the broker itself is running as PPL.
 * Child processes are put into job objects (one per session) which are configured to kill child processes as soon as the broker dies.
@@ -30,7 +30,7 @@ Currently it works like this:
 * Everyone within the closed group of processs may send messages to the broker which dispatches to everyone who has declared interest in messages to specific services.
 * Managed modules are hosted in a custom host instead of the standard apphost, comhost, muxer, etc. This is mainly to have full control and tweak certain [security](#security) properties.
 * Managed modules are orchestrated by a ManagedHost.dll utilizing AssemblyLoadContext's to somewhat isolate modules and allow dynamic load/unload. This uses the great [McMaster.NETCore.Plugins library](https://github.com/natemcmaster/DotNetCorePlugins).
-* Managed UI modules (e.g. WPF apps) usually have assembly DLLs which are actually marked as EXE in PE header. A UniversalModuleHost may only have a single such UI module which is loaded directly instead of ManagedHost.dll.
+* Managed UI modules (e.g. WPF apps) usually have assembly DLLs which are actually marked as EXE in PE header. A TMHost may only have a single such UI module which is loaded directly instead of ManagedHost.dll.
 * The broker should run in native bitness, while even on 64bit OS host child processes may be configured to run 32bit.
 * UI child processes may be configured to run with increased integrity level (see [Integrity Level](#integrity-level-ui)).
 * There's a central ConfStore module handling a single JSON. Every module may participate by storing it own JSON object. Partial modifications are easy with JSON merge-patch.
@@ -123,4 +123,4 @@ TODO: Need some Build.ps1
 
 # Run
 
-Just start the UniversalModuleBroker64.exe
+Just start the TMBroker64.exe

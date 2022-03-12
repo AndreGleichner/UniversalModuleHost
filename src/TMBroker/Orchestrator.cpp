@@ -8,7 +8,7 @@ using json = nlohmann::json;
 #include "Orchestrator.h"
 #include "ChildProcessConfig.h"
 #include "ChildProcessInstance.h"
-#include "UmhProcess.h"
+#include "TMProcess.h"
 #include "string_extensions.h"
 using namespace Strings;
 

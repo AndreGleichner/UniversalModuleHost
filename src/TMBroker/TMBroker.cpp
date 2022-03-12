@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "SpdlogCustomFormatter.h"
-#include "UniversalModuleBrokerService.h"
+#include "TMBrokerService.h"
 #include "Orchestrator.h"
 #include "Permission.h"
 #include "env.h"
@@ -138,17 +138,17 @@ int APIENTRY wWinMain(
 #pragma endregion
 
     int exitCode = 0;
-    SPDLOG_INFO(L"Starting UniversalModuleBroker '{}'", lpCmdLine);
-    auto logExit = wil::scope_exit([&] { SPDLOG_INFO("Exiting UniversalModuleBroker: {}", exitCode); });
+    SPDLOG_INFO(L"Starting TheModularian '{}'", lpCmdLine);
+    auto logExit = wil::scope_exit([&] { SPDLOG_INFO("Exiting TheModularian: {}", exitCode); });
 
     if (Process::IsWindowsService())
     {
-        UniversalModuleBrokerService service;
+        TMBrokerService service;
         exitCode = service.Run();
     }
     else
     {
-        bool wasAnAction = ServiceBase::CmdlineAction(lpCmdLine, UniversalModuleBrokerService::UMHTraits, exitCode);
+        bool wasAnAction = ServiceBase::CmdlineAction(lpCmdLine, TMBrokerService::UMHTraits, exitCode);
 
 #ifdef DEBUG
         if (!wasAnAction)
@@ -156,7 +156,7 @@ int APIENTRY wWinMain(
             FAIL_FAST_IF_MSG(wcslen(lpCmdLine) != 0, "Unknown commandline");
             FAIL_FAST_IF_WIN32_BOOL_FALSE(::AllocConsole());
 
-            ::SetConsoleTitleW(L"UniversalModuleBroker Debug Console");
+            ::SetConsoleTitleW(L"TheModularian Debug Console");
             ::SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
 
             FILE* unused;
@@ -172,7 +172,7 @@ int APIENTRY wWinMain(
 
             FAIL_FAST_IF_FAILED(g_orchestrator.Init());
 
-            SPDLOG_INFO("UniversalModuleBroker started in console mode");
+            SPDLOG_INFO("TheModularian started in console mode");
 
             (void)getc(stdin);
 

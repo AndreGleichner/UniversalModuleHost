@@ -38,7 +38,7 @@ public:
         RESERSERVED_FOR_INTERNAL_USE_1 = 0x00001000,
         LOWRESOURCES                   = 0x00002000,
         SYSTEMLOWRESOURCES             = 0x00004000,
-        UMH_DEVICEEVENT                = 0x80000000, // Universal Module Host specific, not part of Win32
+        TM_DEVICEEVENT                 = 0x80000000, // TheModularian specific, not part of Win32
     };
 #pragma endregion
 
@@ -112,7 +112,7 @@ protected:
     {
     }
 
-    // requires AcceptControls::UMH_DEVICEEVENT to be passed to the ctor and a call to RegisterDeviceNotification()
+    // requires AcceptControls::TM_DEVICEEVENT to be passed to the ctor and a call to RegisterDeviceNotification()
     // lpEventData corresponds to the lParam parameter that applications receive as part of
     // a WM_DEVICECHANGE message
     virtual DWORD OnDeviceEvent(DWORD dwEventType, LPVOID lpEventData)

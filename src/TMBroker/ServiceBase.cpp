@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ServiceBase.h"
-#include "UmhProcess.h"
+#include "TMProcess.h"
 #include <Windows.h>
 #include <dbt.h>
 
@@ -373,7 +373,7 @@ void ServiceBase::ServiceMain(_In_ DWORD argc, _In_ PWSTR* argv)
     LogEvent(L"Service started");
 
     // Register for device notifications?
-    if (AnyBitSet(Traits.AcceptControls, AcceptControls::UMH_DEVICEEVENT))
+    if (AnyBitSet(Traits.AcceptControls, AcceptControls::TM_DEVICEEVENT))
     {
         DEV_BROADCAST_DEVICEINTERFACE_W notificationFilter;
         ZeroMemory(&notificationFilter, sizeof(notificationFilter));

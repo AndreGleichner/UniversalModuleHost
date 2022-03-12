@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="UserMacros">
-    <UmhRepoRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</UmhRepoRootDir>
+    <TMRepoRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</TMRepoRootDir>
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(UmhRepoRootDir)\</SolutionDir>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(TMRepoRootDir)\</SolutionDir>
 
-    <UmhIsDesignTimeBuild Condition="'$(DesignTimeBuild)'=='true' And '$(BuildingInsideVisualStudio)'=='true'">true</UmhIsDesignTimeBuild>
-    <UmhIsNativeProject Condition="'$(MSBuildProjectExtension)'=='.vcxproj'">true</UmhIsNativeProject>
-    <UmhIsDebug>$([System.Convert]::ToString( $([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), '[Dd]ebug'))).ToLower())</UmhIsDebug>
+    <TMIsDesignTimeBuild Condition="'$(DesignTimeBuild)'=='true' And '$(BuildingInsideVisualStudio)'=='true'">true</TMIsDesignTimeBuild>
+    <TMIsNativeProject Condition="'$(MSBuildProjectExtension)'=='.vcxproj'">true</TMIsNativeProject>
+    <TMIsDebug>$([System.Convert]::ToString( $([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), '[Dd]ebug'))).ToLower())</TMIsDebug>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(UmhIsNativeProject)'!='true'">
+  <PropertyGroup Condition="'$(TMIsNativeProject)'!='true'">
     <LangVersion>latest</LangVersion>
     <DebugType>embedded</DebugType>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <PropertyGroup Label="UserMacros">
-    <UmhOutDir>$(UmhRepoRootDir)bin\$(Configuration)\</UmhOutDir>
-    <UmhIntDir>$(UmhRepoRootDir).int\$(Configuration)\$(Platform)\$(MSBuildProjectName)\</UmhIntDir>
+    <TMOutDir>$(TMRepoRootDir)bin\$(Configuration)\</TMOutDir>
+    <TMIntDir>$(TMRepoRootDir).int\$(Configuration)\$(Platform)\$(MSBuildProjectName)\</TMIntDir>
   </PropertyGroup>
 
   <PropertyGroup>
-    <IntDir>$(UmhIntDir)</IntDir>
-    <IntermediateOutputPath>$(UmhIntDir)</IntermediateOutputPath>
+    <IntDir>$(TMIntDir)</IntDir>
+    <IntermediateOutputPath>$(TMIntDir)</IntermediateOutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(UmhIsNativeProject)'=='true'">
+  <PropertyGroup Condition="'$(TMIsNativeProject)'=='true'">
     <!-- Leading property -->
-    <OutDir>$(UmhOutDir)</OutDir>
-    <OutputPath>$(UmhOutDir)</OutputPath>
+    <OutDir>$(TMOutDir)</OutDir>
+    <OutputPath>$(TMOutDir)</OutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(UmhIsNativeProject)'!='true' And '$(BuildingForLiveUnitTesting)' != 'true'">
-    <BaseOutputPath>$(UmhOutDir)</BaseOutputPath>
+  <PropertyGroup Condition="'$(TMIsNativeProject)'!='true' And '$(BuildingForLiveUnitTesting)' != 'true'">
+    <BaseOutputPath>$(TMOutDir)</BaseOutputPath>
     <!-- Leading property, by default extending BaseOutputPath -->
-    <OutputPath>$(UmhOutDir)</OutputPath>
-    <OutDir>$(UmhOutDir)</OutDir>
+    <OutputPath>$(TMOutDir)</OutputPath>
+    <OutDir>$(TMOutDir)</OutDir>
     <BaseIntermediateOutputPath>$(IntermediateOutputPath)</BaseIntermediateOutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(UmhIsNativeProject)'!='true' And '$(BuildingForLiveUnitTesting)' == 'true'">
-    <BaseOutputPath Condition="'$(BaseOutputPath)' == ''">$(UmhOutDir)</BaseOutputPath>
+  <PropertyGroup Condition="'$(TMIsNativeProject)'!='true' And '$(BuildingForLiveUnitTesting)' == 'true'">
+    <BaseOutputPath Condition="'$(BaseOutputPath)' == ''">$(TMOutDir)</BaseOutputPath>
     <OutputPath Condition="'$(OutputPath)' == ''">$(BaseOutputPath)</OutputPath>
     <OutDir Condition="'$(OutDir)' == ''">$(OutputPath)</OutDir>
   </PropertyGroup>
 
-  <ItemDefinitionGroup Condition="'$(UmhIsNativeProject)'=='true'">
+  <ItemDefinitionGroup Condition="'$(TMIsNativeProject)'=='true'">
     <ClCompile>
-      <MinimalRebuild Condition="'$(UmhIsDebug)'=='true'">false</MinimalRebuild>
+      <MinimalRebuild Condition="'$(TMIsDebug)'=='true'">false</MinimalRebuild>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <WarningLevel>Level4</WarningLevel>
@@ -64,8 +64,8 @@
     </Link>
 
     <ResourceCompile>
-      <PreprocessorDefinitions Condition="'$(UmhIsDebug)'=='true'">_DEBUG;DEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(UmhIsDebug)'!='true'">_NDEBUG;NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(TMIsDebug)'=='true'">_DEBUG;DEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(TMIsDebug)'!='true'">_NDEBUG;NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
 </Project>

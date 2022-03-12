@@ -31,10 +31,10 @@ namespace SharedManagedUtils
             initialized_.Set();
         }
 
-        [DllImport("UniversalModuleHost64.exe", EntryPoint = "MessageFromModuleToHost", CharSet = CharSet.Unicode)]
+        [DllImport("TMHost64.exe", EntryPoint = "MessageFromModuleToHost", CharSet = CharSet.Unicode)]
         static extern int MessageFromModuleToHost64(string msg, string service, int session);
 
-        [DllImport("UniversalModuleHost32.exe", EntryPoint = "MessageFromModuleToHost", CharSet = CharSet.Unicode)]
+        [DllImport("TMHost32.exe", EntryPoint = "MessageFromModuleToHost", CharSet = CharSet.Unicode)]
         static extern int MessageFromModuleToHost32(string msg, string service, int session);
 
         public static int SendMessage(string msg, string service, int session = -1)
@@ -42,7 +42,7 @@ namespace SharedManagedUtils
             try
             {
                 var image = Process.GetCurrentProcess().MainModule.ModuleName;
-                if (!image.Equals("UniversalModuleHost32.exe", StringComparison.OrdinalIgnoreCase) && !image.Equals("UniversalModuleHost64.exe", StringComparison.OrdinalIgnoreCase))
+                if (!image.Equals("TMHost32.exe", StringComparison.OrdinalIgnoreCase) && !image.Equals("TMHost64.exe", StringComparison.OrdinalIgnoreCase))
                     return 0;
 
                 if (IntPtr.Size == 4)

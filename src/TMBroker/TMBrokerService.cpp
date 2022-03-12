@@ -1,11 +1,11 @@
 #include "pch.h"
 
-#include "UniversalModuleBrokerService.h"
+#include "TMBrokerService.h"
 #include "Orchestrator.h"
 
 extern Orchestrator g_orchestrator;
 
-HRESULT UniversalModuleBrokerService::OnStart(DWORD dwArgc, LPTSTR* lpszArgv)
+HRESULT TMBrokerService::OnStart(DWORD dwArgc, LPTSTR* lpszArgv)
 {
     UNREFERENCED_PARAMETER(dwArgc);
     UNREFERENCED_PARAMETER(lpszArgv);
@@ -15,13 +15,13 @@ HRESULT UniversalModuleBrokerService::OnStart(DWORD dwArgc, LPTSTR* lpszArgv)
     return S_OK;
 }
 
-void UniversalModuleBrokerService::OnStop()
+void TMBrokerService::OnStop()
 {
     g_orchestrator.ShuttingDown();
     g_orchestrator.Release();
 }
 
-void UniversalModuleBrokerService::OnSessionChange(DWORD dwEventType, DWORD dwSessionId)
+void TMBrokerService::OnSessionChange(DWORD dwEventType, DWORD dwSessionId)
 {
     SPDLOG_INFO(L"{} {}", dwEventType, dwSessionId);
 

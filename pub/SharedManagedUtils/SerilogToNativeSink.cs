@@ -48,10 +48,10 @@ namespace SharedManagedUtils
     internal static class NativeMethods
     {
         #region OnLog
-        [DllImport("UniversalModuleHost64.exe", EntryPoint = "OnLog", CharSet = CharSet.Unicode)]
+        [DllImport("TMHost64.exe", EntryPoint = "OnLog", CharSet = CharSet.Unicode)]
         static extern int OnLog64(int level, string message);
 
-        [DllImport("UniversalModuleHost32.exe", EntryPoint = "OnLog", CharSet = CharSet.Unicode)]
+        [DllImport("TMHost32.exe", EntryPoint = "OnLog", CharSet = CharSet.Unicode)]
         static extern int OnLog32(int level, string message);
 
         public static int OnLog(int level, string message)

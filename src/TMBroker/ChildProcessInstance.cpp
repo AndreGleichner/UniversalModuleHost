@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ChildProcessInstance.h"
 #include "ipc.h"
-#include "UmhProcess.h"
+#include "TMProcess.h"
 #include "HostMsg.h"
 #include "Orchestrator.h"
 #include "ChildProcessConfig.h"
@@ -49,7 +49,7 @@ try
         RETURN_HR(E_INVALIDARG);
     }
 
-    PCWSTR name = childProcessConfig_->Wow64 ? L"UniversalModuleHost32.exe" : L"UniversalModuleHost64.exe";
+    PCWSTR name = childProcessConfig_->Wow64 ? L"TMHost32.exe" : L"TMHost64.exe";
 
     // Having GroupName on cmdline is just there so that we can easily see externally which stuff is running within a
     // child process.

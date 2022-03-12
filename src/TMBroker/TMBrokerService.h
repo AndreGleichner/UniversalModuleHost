@@ -16,14 +16,14 @@ std::wstring ResString(UINT id)
 }
 }
 
-class UniversalModuleBrokerService : public ServiceBase
+class TMBrokerService : public ServiceBase
 {
 public:
-    static inline ServiceBase::ServiceTraits UMHTraits {L"UniversalModuleBroker", L"RPCSS",
+    static inline ServiceBase::ServiceTraits UMHTraits {L"TheModularian", L"RPCSS",
         ResString(IDS_SERVICE_DISPLAY_NAME).c_str(), ResString(IDS_SERVICE_COMMENT).c_str(),
         AcceptControls::STOP | AcceptControls::SESSIONCHANGE, EVENT_CAT_ID_GEN, EVENT_MSG_ID_INFO};
 
-    UniversalModuleBrokerService() : ServiceBase(UMHTraits)
+    TMBrokerService() : ServiceBase(UMHTraits)
     {
     }
 

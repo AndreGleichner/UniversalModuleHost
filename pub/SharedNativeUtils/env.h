@@ -10,7 +10,7 @@ inline std::filesystem::path PrivateDataDir(const std::wstring_view subDir = L""
 {
     auto                  programData = wil::GetEnvironmentVariableW(L"ProgramData");
     std::filesystem::path dir(programData.get());
-    auto                  pdd = dir / L"UniversalModuleHost";
+    auto                  pdd = dir / L"TheModularian";
 
     PSECURITY_DESCRIPTOR sd     = nullptr;
     auto                 freeSD = wil::scope_exit([&] {
@@ -32,11 +32,11 @@ inline std::filesystem::path PrivateDataDir(const std::wstring_view subDir = L""
     // &strLen);
     //  L"D:AI(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)(A;OICIIOID;GA;;;CO)(A;OICIID;0x1200a9;;;BU)(A;CIID;DCLCRPCR;;;BU)"
 
-    //PCWSTR sds = L"D:(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;CO)";
+    // PCWSTR sds = L"D:(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;CO)";
     PCWSTR sds = L"D:AI(A;OICIID;FA;;;SY)(A;OICIID;FA;;;BA)";
 
-    FAIL_FAST_IF_WIN32_BOOL_FALSE(::ConvertStringSecurityDescriptorToSecurityDescriptorW(
-        sds, SDDL_REVISION_1, &sd, nullptr));
+    FAIL_FAST_IF_WIN32_BOOL_FALSE(
+        ::ConvertStringSecurityDescriptorToSecurityDescriptorW(sds, SDDL_REVISION_1, &sd, nullptr));
 
     std::filesystem::create_directories(pdd);
 

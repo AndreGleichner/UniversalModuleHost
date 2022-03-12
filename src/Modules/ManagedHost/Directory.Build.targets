@@ -3,7 +3,7 @@
   <!--
   Need to publish to get all dependencies copied side-by-side to the native exe.
   -->
-  <Target Name="PublishManagedHost" AfterTargets="Build" Condition="'$(UmhIsDesignTimeBuild)'!='true'">
+  <Target Name="PublishManagedHost" AfterTargets="Build" Condition="'$(TMIsDesignTimeBuild)'!='true'">
     <Message Importance="High" Text="Publishing ManagedHost" />
 
     <MSBuild

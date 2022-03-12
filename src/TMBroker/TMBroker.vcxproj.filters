@@ -15,27 +15,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ManagedHost.cpp">
+    <ClCompile Include="TMBroker.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="ServiceBase.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="TMBrokerService.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="NativeModule.cpp">
+    <ClCompile Include="ChildProcessInstance.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="UniversalModuleHost.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="ModuleHost.cpp">
+    <ClCompile Include="Orchestrator.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ManagedHost.h">
+    <ClInclude Include="ServiceBase.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="error_codes.h">
+    <ClInclude Include="TMBrokerService.h">
       <Filter>inc</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
@@ -44,24 +47,32 @@
     <ClInclude Include="resource.h">
       <Filter>res</Filter>
     </ClInclude>
-    <ClInclude Include="NativeModule.h">
+    <ClInclude Include="ChildProcessConfig.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="ModuleHost.h">
+    <ClInclude Include="ChildProcessInstance.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="Orchestrator.h">
       <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="UniversalModuleHost.rc">
+    <ResourceCompile Include="TMBroker.rc">
       <Filter>res</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Directory.Build.targets" />
-  </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="UniversalModuleHost.manifest">
+    <Manifest Include="TMBroker.manifest">
       <Filter>res</Filter>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="MsgID.mc">
+      <Filter>res</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="broker.json" />
   </ItemGroup>
 </Project>

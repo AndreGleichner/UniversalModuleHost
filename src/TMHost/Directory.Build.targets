@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <Target Name="CopyVendorFiles" AfterTargets="Build" Condition="'$(UmhIsDesignTimeBuild)'!='true'">
+  <Target Name="CopyVendorFiles" AfterTargets="Build" Condition="'$(TMIsDesignTimeBuild)'!='true'">
     <Message Importance="High" Text="Copy vendor files to bin" />
 
     <ItemGroup>
-      <_SourceFiles Include="$(UmhRepoRootDir)vendor\nethost\$(PlatformTarget)\nethost.dll" />
+      <_SourceFiles Include="$(TMRepoRootDir)vendor\nethost\$(PlatformTarget)\nethost.dll" />
     </ItemGroup>
 
     <Copy SourceFiles="@(_SourceFiles)" DestinationFiles="@(_SourceFiles->'$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" />

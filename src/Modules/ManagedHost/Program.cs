@@ -169,10 +169,10 @@ see cpp code under #if INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_RUNTIMECONFIG
 
     internal static class NativeMethods
     {
-        [DllImport("UniversalModuleHost64.exe", EntryPoint = "OnMessageFromModule", CharSet = CharSet.Unicode)]
+        [DllImport("TMHost64.exe", EntryPoint = "OnMessageFromModule", CharSet = CharSet.Unicode)]
         static extern int MessageFromModuleToHost64(string msg, string service, int session);
 
-        [DllImport("UniversalModuleHost32.exe", EntryPoint = "OnMessageFromModule", CharSet = CharSet.Unicode)]
+        [DllImport("TMHost32.exe", EntryPoint = "OnMessageFromModule", CharSet = CharSet.Unicode)]
         static extern int MessageFromModuleToHost32(string msg, string service, int session);
 
         public static int MessageFromModuleToHost(string msg, string service, int session)

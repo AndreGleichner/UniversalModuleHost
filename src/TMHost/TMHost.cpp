@@ -5,7 +5,7 @@ using json = nlohmann::json;
 #include "SpdlogCustomFormatter.h"
 
 #include "ModuleHost.h"
-#include "UmhProcess.h"
+#include "TMProcess.h"
 #include "Permission.h"
 
 #pragma comment(lib, "delayimp")
@@ -96,7 +96,7 @@ int APIENTRY wWinMain(
 #ifndef DEBUG
     // Ensure we've been launched by the broker.
     auto pp = Process::ParentProcess();
-    FAIL_FAST_IF(pp.ExePath != L"UniversalModuleBroker64.exe" && pp.ExePath != L"UniversalModuleBroker32.exe");
+    FAIL_FAST_IF(pp.ExePath != L"TMBroker64.exe" && pp.ExePath != L"TMBroker32.exe");
 
     // ensure our image dir is only admin writeable
     FAIL_FAST_IF(!Permission::IsDirectoryOnlyWriteableByElevatedUser(Process::ImagePath().parent_path()));
@@ -126,8 +126,9 @@ int APIENTRY wWinMain(
 #pragma endregion
 
     int exitCode = 0;
-    SPDLOG_INFO(L"Starting UniversalModuleHost '{}'", ::GetCommandLineW());
-    auto logExit = wil::scope_exit([&] { SPDLOG_INFO("Exiting UniversalModuleHost: {}", exitCode); });
+    SPDLOG_INFO(L"Starting TheModularian Host {} '{}'", ::GetCurrentProcessId(), ::GetCommandLineW());
+    auto logExit = wil::scope_exit(
+        [&] { SPDLOG_INFO("Exiting TheModularian Host {} with code {}", ::GetCurrentProcessId(), exitCode); });
 
     /*while (!::IsDebuggerPresent())
     {

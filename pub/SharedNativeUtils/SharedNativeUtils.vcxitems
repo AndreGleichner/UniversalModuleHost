@@ -28,7 +28,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)SpdlogCustomFormatter.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)spdlog_headers.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)string_extensions.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)UmhProcess.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)TMProcess.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)UndefWinMacros.h" />
   </ItemGroup>
   <ItemGroup>
@@ -36,6 +36,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ipc.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ModuleBase.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Permission.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)UmhProcess.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)TMProcess.cpp" />
   </ItemGroup>
 </Project>

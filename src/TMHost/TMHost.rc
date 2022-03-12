@@ -78,12 +78,12 @@ BEGIN
         BLOCK "040704b0"
         BEGIN
             VALUE "CompanyName", "Andre Gleichner"
-            VALUE "FileDescription", "Universal Module Host"
+            VALUE "FileDescription", "TheModularian Host"
             VALUE "FileVersion", "1.0.0.1"
-            VALUE "InternalName", "UniversalModuleHost.exe"
+            VALUE "InternalName", "TMHost.exe"
             VALUE "LegalCopyright", "Copyright (C) 2022"
-            VALUE "OriginalFilename", "UniversalModuleHost.exe"
-            VALUE "ProductName", "Universal Module Host"
+            VALUE "OriginalFilename", "TMHost.exe"
+            VALUE "ProductName", "TheModularian Host"
             VALUE "ProductVersion", "1.0.0.1"
         END
     END

@@ -14,7 +14,7 @@ using namespace Strings;
 #include "ConfStoreModule.h"
 #include "ConfStore.h"
 #include "env.h"
-#include "UmhProcess.h"
+#include "TMProcess.h"
 
 json ConfStoreModule::DefaultConfigFor(const std::string& moduleName) noexcept
 {

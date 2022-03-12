@@ -78,12 +78,12 @@ BEGIN
         BLOCK "040704b0"
         BEGIN
             VALUE "CompanyName", "Andre Gleichner"
-            VALUE "FileDescription", "Universal Module Broker"
+            VALUE "FileDescription", "TheModularian Broker"
             VALUE "FileVersion", "1.0.0.1"
-            VALUE "InternalName", "UniversalModuleBroker.exe"
+            VALUE "InternalName", "TMBroker.exe"
             VALUE "LegalCopyright", "Copyright (C) 2022"
-            VALUE "OriginalFilename", "UniversalModuleBroker.exe"
-            VALUE "ProductName", "Universal Module Broker"
+            VALUE "OriginalFilename", "TMBroker.exe"
+            VALUE "ProductName", "TheModularian Broker"
             VALUE "ProductVersion", "1.0.0.1"
         END
     END
@@ -101,8 +101,8 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_SERVICE_DISPLAY_NAME "Universal Module Broker"
-    IDS_SERVICE_COMMENT     "Universal Module Broker"
+    IDS_SERVICE_DISPLAY_NAME "TheModularian"
+    IDS_SERVICE_COMMENT     "TheModularian"
 END
 
 #endif    // English (United States) resources
