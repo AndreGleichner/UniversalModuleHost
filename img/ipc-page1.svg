@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="488px" preserveAspectRatio="none" style="width:2614px;height:488px;background:#FFFFFF;" version="1.1" viewBox="0 0 2614 488" width="2614px" zoomAndPan="magnify"><defs/><g><rect fill="#FFFFFF" height="260.7959" style="stroke:#000000;stroke-width:1.0;" width="10" x="630.5" y="212.0259"/><rect fill="#FFFFFF" height="334.1938" style="stroke:#000000;stroke-width:1.0;" width="995.5" x="25" y="129.6279"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="108" x2="108" y1="54.0293" y2="481.8218"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="635" x2="635" y1="54.0293" y2="481.8218"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1391.5" x2="1391.5" y1="54.0293" y2="481.8218"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1629" x2="1629" y1="54.0293" y2="481.8218"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="2146.5" x2="2146.5" y1="54.0293" y2="481.8218"/><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="127" x="45" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="113" x="52" y="43.0898">BrokerProcess</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="109" x="581" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="95" x="588" y="43.0898">HostProcess</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="118" x="1332.5" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="104" x="1339.5" y="43.0898">NativeModule</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="175" x="1542" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="161" x="1549" y="43.0898">ManagedModuleHost</text><rect fill="#FFFFFF" height="48.0293" style="stroke:#000000;stroke-width:1.0;" width="144" x="2074.5" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="126" x="2083.5" y="26.0752">ManagedModule</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="130" x="2081.5" y="43.0898">SomeAppModule</text><rect fill="#FFFFFF" height="260.7959" style="stroke:#000000;stroke-width:1.0;" width="10" x="630.5" y="212.0259"/><line style="stroke:#000000;stroke-width:1.0;" x1="108.5" x2="150.5" y1="101.6279" y2="101.6279"/><line style="stroke:#000000;stroke-width:1.0;" x1="150.5" x2="150.5" y1="101.6279" y2="114.6279"/><line style="stroke:#000000;stroke-width:1.0;" x1="109.5" x2="150.5" y1="114.6279" y2="114.6279"/><polygon fill="#000000" points="119.5,110.6279,109.5,114.6279,119.5,118.6279,115.5,114.6279" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="115.5" y="88.9988">1</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="292" x="128.5" y="81.0991">Orchestrator::Init() =&gt; read broker.json</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="386" x="128.5" y="96.8984">UpdateChildProcessConfig(),LaunchChildProcesses()</text><path d="M25,129.6279 L101,129.6279 L101,136.6279 L91,146.6279 L25,146.6279 L25,129.6279 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><rect fill="none" height="334.1938" style="stroke:#000000;stroke-width:1.0;" width="995.5" x="25" y="129.6279"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="31" x="40" y="143.6978">loop</text><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="128" x="116" y="142.687">[Launch processes]</text><line style="stroke:#000000;stroke-width:1.0;" x1="108.5" x2="150.5" y1="169.2266" y2="169.2266"/><line style="stroke:#000000;stroke-width:1.0;" x1="150.5" x2="150.5" y1="169.2266" y2="182.2266"/><line style="stroke:#000000;stroke-width:1.0;" x1="109.5" x2="150.5" y1="182.2266" y2="182.2266"/><polygon fill="#000000" points="119.5,178.2266,109.5,182.2266,119.5,186.2266,115.5,182.2266" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="115.5" y="164.4971">2</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="233" x="128.5" y="164.4971">ChildProcessInstance::Launch()</text><polygon fill="#000000" points="618.5,208.0259,628.5,212.0259,618.5,216.0259,622.5,212.0259" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="108.5" x2="624.5" y1="212.0259" y2="212.0259"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="115.5" y="207.2964">3</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="180" x="128.5" y="207.2964">CreateProcess/AsUser()</text><line style="stroke:#000000;stroke-width:1.0;" x1="108.5" x2="150.5" y1="241.8252" y2="241.8252"/><line style="stroke:#000000;stroke-width:1.0;" x1="150.5" x2="150.5" y1="241.8252" y2="254.8252"/><line style="stroke:#000000;stroke-width:1.0;" x1="109.5" x2="150.5" y1="254.8252" y2="254.8252"/><polygon fill="#000000" points="119.5,250.8252,109.5,254.8252,119.5,258.8252,115.5,254.8252" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="115.5" y="237.0957">4</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="277" x="128.5" y="237.0957">ipc::StartRead(),StartForwardStderr()</text><line style="stroke:#000000;stroke-width:1.0;" x1="108.5" x2="150.5" y1="284.6245" y2="284.6245"/><line style="stroke:#000000;stroke-width:1.0;" x1="150.5" x2="150.5" y1="284.6245" y2="297.6245"/><line style="stroke:#000000;stroke-width:1.0;" x1="109.5" x2="150.5" y1="297.6245" y2="297.6245"/><polygon fill="#000000" points="119.5,293.6245,109.5,297.6245,119.5,301.6245,115.5,297.6245" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="115.5" y="279.895">5</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="192" x="128.5" y="279.895">start child proc monitoring</text><polygon fill="#000000" points="618.5,323.4238,628.5,327.4238,618.5,331.4238,622.5,327.4238" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="108.5" x2="624.5" y1="327.4238" y2="327.4238"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="115.5" y="322.6943">6</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="448" x="128.5" y="322.6943">ChildProcessInstance::SendMsg(ipc::KnownService::HostInit)</text><line style="stroke:#000000;stroke-width:1.0;" x1="640.5" x2="682.5" y1="357.2231" y2="357.2231"/><line style="stroke:#000000;stroke-width:1.0;" x1="682.5" x2="682.5" y1="357.2231" y2="370.2231"/><line style="stroke:#000000;stroke-width:1.0;" x1="641.5" x2="682.5" y1="370.2231" y2="370.2231"/><polygon fill="#000000" points="651.5,366.2231,641.5,370.2231,651.5,374.2231,647.5,370.2231" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="647.5" y="352.4937">7</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="257" x="660.5" y="352.4937">Remember unique host target GUID</text><line style="stroke:#000000;stroke-width:1.0;" x1="640.5" x2="682.5" y1="400.0225" y2="400.0225"/><line style="stroke:#000000;stroke-width:1.0;" x1="682.5" x2="682.5" y1="400.0225" y2="413.0225"/><line style="stroke:#000000;stroke-width:1.0;" x1="641.5" x2="682.5" y1="413.0225" y2="413.0225"/><polygon fill="#000000" points="651.5,409.0225,641.5,413.0225,651.5,417.0225,647.5,413.0225" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="647.5" y="395.293">8</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="348" x="660.5" y="395.293">UniversalModuleHost::OnMessageFromBroker()</text><line style="stroke:#000000;stroke-width:1.0;" x1="108.5" x2="150.5" y1="442.8218" y2="442.8218"/><line style="stroke:#000000;stroke-width:1.0;" x1="150.5" x2="150.5" y1="442.8218" y2="455.8218"/><line style="stroke:#000000;stroke-width:1.0;" x1="109.5" x2="150.5" y1="455.8218" y2="455.8218"/><polygon fill="#000000" points="119.5,451.8218,109.5,455.8218,119.5,459.8218,115.5,455.8218" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="115.5" y="438.0923">9</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="276" x="128.5" y="438.0923">ChildProcessInstance::LoadModules()</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="5" x2="2607.5" y1="470.8218" y2="470.8218"/><!--MD5=[88884a86680dbdbe7b7896fdf659623a]
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="488px" preserveAspectRatio="none" style="width:2528px;height:488px;background:#FFFFFF;" version="1.1" viewBox="0 0 2528 488" width="2528px" zoomAndPan="magnify"><defs/><g><rect fill="#FFFFFF" height="260.7959" style="stroke:#000000;stroke-width:1.0;" width="10" x="612" y="212.0259"/><rect fill="#FFFFFF" height="334.1938" style="stroke:#000000;stroke-width:1.0;" width="909" x="25" y="129.6279"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="90" x2="90" y1="54.0293" y2="481.8218"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="617" x2="617" y1="54.0293" y2="481.8218"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1305" x2="1305" y1="54.0293" y2="481.8218"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1542.5" x2="1542.5" y1="54.0293" y2="481.8218"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="2060" x2="2060" y1="54.0293" y2="481.8218"/><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="90" x="45" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="76" x="52" y="43.0898">TMBroker</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="72" x="581" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="58" x="588" y="43.0898">TMHost</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="118" x="1246" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="104" x="1253" y="43.0898">NativeModule</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="175" x="1455.5" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="161" x="1462.5" y="43.0898">ManagedModuleHost</text><rect fill="#FFFFFF" height="48.0293" style="stroke:#000000;stroke-width:1.0;" width="144" x="1988" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="126" x="1997" y="26.0752">ManagedModule</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="130" x="1995" y="43.0898">SomeAppModule</text><rect fill="#FFFFFF" height="260.7959" style="stroke:#000000;stroke-width:1.0;" width="10" x="612" y="212.0259"/><line style="stroke:#000000;stroke-width:1.0;" x1="90" x2="132" y1="101.6279" y2="101.6279"/><line style="stroke:#000000;stroke-width:1.0;" x1="132" x2="132" y1="101.6279" y2="114.6279"/><line style="stroke:#000000;stroke-width:1.0;" x1="91" x2="132" y1="114.6279" y2="114.6279"/><polygon fill="#000000" points="101,110.6279,91,114.6279,101,118.6279,97,114.6279" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="97" y="88.9988">1</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="292" x="110" y="81.0991">Orchestrator::Init() =&gt; read broker.json</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="386" x="110" y="96.8984">UpdateChildProcessConfig(),LaunchChildProcesses()</text><path d="M25,129.6279 L101,129.6279 L101,136.6279 L91,146.6279 L25,146.6279 L25,129.6279 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><rect fill="none" height="334.1938" style="stroke:#000000;stroke-width:1.0;" width="909" x="25" y="129.6279"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="31" x="40" y="143.6978">loop</text><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="128" x="116" y="142.687">[Launch processes]</text><line style="stroke:#000000;stroke-width:1.0;" x1="90" x2="132" y1="169.2266" y2="169.2266"/><line style="stroke:#000000;stroke-width:1.0;" x1="132" x2="132" y1="169.2266" y2="182.2266"/><line style="stroke:#000000;stroke-width:1.0;" x1="91" x2="132" y1="182.2266" y2="182.2266"/><polygon fill="#000000" points="101,178.2266,91,182.2266,101,186.2266,97,182.2266" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="97" y="164.4971">2</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="233" x="110" y="164.4971">ChildProcessInstance::Launch()</text><polygon fill="#000000" points="600,208.0259,610,212.0259,600,216.0259,604,212.0259" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="90" x2="606" y1="212.0259" y2="212.0259"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="97" y="207.2964">3</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="180" x="110" y="207.2964">CreateProcess/AsUser()</text><line style="stroke:#000000;stroke-width:1.0;" x1="90" x2="132" y1="241.8252" y2="241.8252"/><line style="stroke:#000000;stroke-width:1.0;" x1="132" x2="132" y1="241.8252" y2="254.8252"/><line style="stroke:#000000;stroke-width:1.0;" x1="91" x2="132" y1="254.8252" y2="254.8252"/><polygon fill="#000000" points="101,250.8252,91,254.8252,101,258.8252,97,254.8252" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="97" y="237.0957">4</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="277" x="110" y="237.0957">ipc::StartRead(),StartForwardStderr()</text><line style="stroke:#000000;stroke-width:1.0;" x1="90" x2="132" y1="284.6245" y2="284.6245"/><line style="stroke:#000000;stroke-width:1.0;" x1="132" x2="132" y1="284.6245" y2="297.6245"/><line style="stroke:#000000;stroke-width:1.0;" x1="91" x2="132" y1="297.6245" y2="297.6245"/><polygon fill="#000000" points="101,293.6245,91,297.6245,101,301.6245,97,297.6245" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="97" y="279.895">5</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="192" x="110" y="279.895">start child proc monitoring</text><polygon fill="#000000" points="600,323.4238,610,327.4238,600,331.4238,604,327.4238" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="90" x2="606" y1="327.4238" y2="327.4238"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="97" y="322.6943">6</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="448" x="110" y="322.6943">ChildProcessInstance::SendMsg(ipc::KnownService::HostInit)</text><line style="stroke:#000000;stroke-width:1.0;" x1="622" x2="664" y1="357.2231" y2="357.2231"/><line style="stroke:#000000;stroke-width:1.0;" x1="664" x2="664" y1="357.2231" y2="370.2231"/><line style="stroke:#000000;stroke-width:1.0;" x1="623" x2="664" y1="370.2231" y2="370.2231"/><polygon fill="#000000" points="633,366.2231,623,370.2231,633,374.2231,629,370.2231" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="629" y="352.4937">7</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="257" x="642" y="352.4937">Remember unique host target GUID</text><line style="stroke:#000000;stroke-width:1.0;" x1="622" x2="664" y1="400.0225" y2="400.0225"/><line style="stroke:#000000;stroke-width:1.0;" x1="664" x2="664" y1="400.0225" y2="413.0225"/><line style="stroke:#000000;stroke-width:1.0;" x1="623" x2="664" y1="413.0225" y2="413.0225"/><polygon fill="#000000" points="633,409.0225,623,413.0225,633,417.0225,629,413.0225" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="629" y="395.293">8</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="280" x="642" y="395.293">ModuleHost::OnMessageFromBroker()</text><line style="stroke:#000000;stroke-width:1.0;" x1="90" x2="132" y1="442.8218" y2="442.8218"/><line style="stroke:#000000;stroke-width:1.0;" x1="132" x2="132" y1="442.8218" y2="455.8218"/><line style="stroke:#000000;stroke-width:1.0;" x1="91" x2="132" y1="455.8218" y2="455.8218"/><polygon fill="#000000" points="101,451.8218,91,455.8218,101,459.8218,97,455.8218" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="97" y="438.0923">9</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="276" x="110" y="438.0923">ChildProcessInstance::LoadModules()</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="5" x2="2521" y1="470.8218" y2="470.8218"/><!--MD5=[e489aaa24196743ceca0dbde59948d41]
 @startuml IPC
 !theme plain
 hide footbox
 
 autonumber
-participant BrokerProcess as B
-participant HostProcess as H
+participant TMBroker as B
+participant TMHost as H
 participant NativeModule as NM
 participant ManagedModuleHost as MMH
 participant "ManagedModule\nSomeAppModule" as MM
@@ -19,7 +19,7 @@ loop Launch processes
     B->B: start child proc monitoring
     B->H: ChildProcessInstance::SendMsg(ipc::KnownService::HostInit)
     H->H: Remember unique host target GUID
-    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::OnMessageFromBroker()
     B->B: ChildProcessInstance::LoadModules()
 end
 
@@ -27,20 +27,20 @@ newpage
 
 alt Load native module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadNativeModule(path/to/dll)
+    H->H: ModuleHost::LoadNativeModule(path/to/dll)
     H->H: NativeModule::Load()
     H->NM ++: LoadLibrary native dll
     H->NM: InitModule(OnMsg, OnDiag)
     NM->B: SendMsg ModuleMeta (our services)
 else Load managed DLL module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: ModuleHost::LoadManagedDllModule(path/to/dll)
     H->H: Load .Net CLR if not yet done
     H->MMH ++: load ManagedHost.dll in custom .Net host
     H->H: ManagedHost::LoadModule(path/to/dll)
@@ -53,10 +53,10 @@ else Load managed DLL module
     MM->B: SendMsg ModuleMeta (our services)
 else Load managed EXE module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: ModuleHost::LoadManagedDllModule(path/to/dll)
     H->H: Load .Net CLR if not yet done
     H->MM ++: load SomeAppModule.dll in custom .Net host
     H->H: ManagedHost::LoadModule(path/to/dll)
@@ -70,7 +70,7 @@ alt Send diagnostics from native module
     NM->H: via stderr: "[INF] hello world"
 else Send diagnostics from managed module
     MM->MM: _logger.Information("hello world")
-    MM->H: UniversalModuleHost.exe/OnLog(2, "hello world")
+    MM->H: TMHost.exe/OnLog(2, "hello world")
     H->H: SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")
 end
 
@@ -79,7 +79,7 @@ newpage
 alt Send message from native module
     NM->H: SendMsg(Mod, "some event", serviceGuid, session)
     H->H: NativeModule::OnMsg(Mod, "some event", serviceGuid, session)
-    H->H: UniversalModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
+    H->H: ModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
     H->H: ipc::Send("some event", target)
     H->B: via stdout: serialized msg/target
     B->B: ReadFile(stdin) => deserialize msg/target
@@ -89,7 +89,7 @@ alt Send message from native module
         B->B: ipc::Send("some event", target)
         B->H: via stdout: serialized msg/target
         H->H: ReadFile(stdin) => deserialize msg/target
-        H->H: UniversalModuleHost::OnMessageFromBroker()
+        H->H: ModuleHost::OnMessageFromBroker()
         loop for all native modules
             H->H: NativeModule::Send()
             H->NM: Native.dll/OnMessage("some event", target)
@@ -102,9 +102,9 @@ alt Send message from native module
     end
 else Send message from managed module
     MM->MM: Ipc.SendMessage("some event", serviceGuid, session)
-    MM->H: UniversalModuleHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
+    MM->H: TMHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
     H->H: ManagedHost::OnMessageFromModule("some event", Target(serviceGuid, session))
-    H->H: UniversalModuleHost::OnMessageFromModule(null, "some event", target)
+    H->H: ModuleHost::OnMessageFromModule(null, "some event", target)
     H->H: ipc::Send("some event", target)
     Note right of H: dispatch further same as with native module as msg source
 end
@@ -258,8 +258,8 @@ skinparam UseCaseStereoType {
 hide footbox
 
 autonumber
-participant BrokerProcess as B
-participant HostProcess as H
+participant TMBroker as B
+participant TMHost as H
 participant NativeModule as NM
 participant ManagedModuleHost as MMH
 participant "ManagedModule\nSomeAppModule" as MM
@@ -273,7 +273,7 @@ loop Launch processes
     B->B: start child proc monitoring
     B->H: ChildProcessInstance::SendMsg(ipc::KnownService::HostInit)
     H->H: Remember unique host target GUID
-    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::OnMessageFromBroker()
     B->B: ChildProcessInstance::LoadModules()
 end
 
@@ -281,20 +281,20 @@ newpage
 
 alt Load native module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadNativeModule(path/to/dll)
+    H->H: ModuleHost::LoadNativeModule(path/to/dll)
     H->H: NativeModule::Load()
     H->NM ++: LoadLibrary native dll
     H->NM: InitModule(OnMsg, OnDiag)
     NM->B: SendMsg ModuleMeta (our services)
 else Load managed DLL module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: ModuleHost::LoadManagedDllModule(path/to/dll)
     H->H: Load .Net CLR if not yet done
     H->MMH ++: load ManagedHost.dll in custom .Net host
     H->H: ManagedHost::LoadModule(path/to/dll)
@@ -307,10 +307,10 @@ else Load managed DLL module
     MM->B: SendMsg ModuleMeta (our services)
 else Load managed EXE module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: ModuleHost::LoadManagedDllModule(path/to/dll)
     H->H: Load .Net CLR if not yet done
     H->MM ++: load SomeAppModule.dll in custom .Net host
     H->H: ManagedHost::LoadModule(path/to/dll)
@@ -324,7 +324,7 @@ alt Send diagnostics from native module
     NM->H: via stderr: "[INF] hello world"
 else Send diagnostics from managed module
     MM->MM: _logger.Information("hello world")
-    MM->H: UniversalModuleHost.exe/OnLog(2, "hello world")
+    MM->H: TMHost.exe/OnLog(2, "hello world")
     H->H: SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")
 end
 
@@ -333,7 +333,7 @@ newpage
 alt Send message from native module
     NM->H: SendMsg(Mod, "some event", serviceGuid, session)
     H->H: NativeModule::OnMsg(Mod, "some event", serviceGuid, session)
-    H->H: UniversalModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
+    H->H: ModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
     H->H: ipc::Send("some event", target)
     H->B: via stdout: serialized msg/target
     B->B: ReadFile(stdin) => deserialize msg/target
@@ -343,7 +343,7 @@ alt Send message from native module
         B->B: ipc::Send("some event", target)
         B->H: via stdout: serialized msg/target
         H->H: ReadFile(stdin) => deserialize msg/target
-        H->H: UniversalModuleHost::OnMessageFromBroker()
+        H->H: ModuleHost::OnMessageFromBroker()
         loop for all native modules
             H->H: NativeModule::Send()
             H->NM: Native.dll/OnMessage("some event", target)
@@ -356,9 +356,9 @@ alt Send message from native module
     end
 else Send message from managed module
     MM->MM: Ipc.SendMessage("some event", serviceGuid, session)
-    MM->H: UniversalModuleHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
+    MM->H: TMHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
     H->H: ManagedHost::OnMessageFromModule("some event", Target(serviceGuid, session))
-    H->H: UniversalModuleHost::OnMessageFromModule(null, "some event", target)
+    H->H: ModuleHost::OnMessageFromModule(null, "some event", target)
     H->H: ipc::Send("some event", target)
     Note right of H: dispatch further same as with native module as msg source
 end

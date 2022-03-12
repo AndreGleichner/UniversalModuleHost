@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="319px" preserveAspectRatio="none" style="width:2614px;height:319px;background:#FFFFFF;" version="1.1" viewBox="0 0 2614 319" width="2614px" zoomAndPan="magnify"><defs/><g><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="630.5" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1386.5" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1624.5" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="2141.5" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="2146.5" y="64.0293"/><rect fill="#FFFFFF" height="221.1646" style="stroke:#000000;stroke-width:1.0;" width="1889.5" x="561" y="73.0293"/><rect fill="#FFFFFF" height="130.7666" style="stroke:none;stroke-width:1.0;" width="1889.5" x="561" y="163.4272"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="108" x2="108" y1="54.0293" y2="312.1938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="635" x2="635" y1="54.0293" y2="312.1938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1391.5" x2="1391.5" y1="54.0293" y2="312.1938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1629" x2="1629" y1="54.0293" y2="312.1938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="2146.5" x2="2146.5" y1="54.0293" y2="312.1938"/><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="127" x="45" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="113" x="52" y="43.0898">BrokerProcess</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="109" x="581" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="95" x="588" y="43.0898">HostProcess</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="118" x="1332.5" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="104" x="1339.5" y="43.0898">NativeModule</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="175" x="1542" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="161" x="1549" y="43.0898">ManagedModuleHost</text><rect fill="#FFFFFF" height="48.0293" style="stroke:#000000;stroke-width:1.0;" width="144" x="2074.5" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="126" x="2083.5" y="26.0752">ManagedModule</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="130" x="2081.5" y="43.0898">SomeAppModule</text><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="630.5" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1386.5" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1624.5" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="2141.5" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="2146.5" y="64.0293"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="5" x2="2607.5" y1="65.0293" y2="65.0293"/><path d="M561,73.0293 L625,73.0293 L625,80.0293 L615,90.0293 L561,90.0293 L561,73.0293 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><rect fill="none" height="221.1646" style="stroke:#000000;stroke-width:1.0;" width="1889.5" x="561" y="73.0293"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="19" x="576" y="87.0991">alt</text><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="254" x="640" y="86.0884">[Send diagnostics from native module]</text><line style="stroke:#000000;stroke-width:1.0;" x1="1396.5" x2="1438.5" y1="112.6279" y2="112.6279"/><line style="stroke:#000000;stroke-width:1.0;" x1="1438.5" x2="1438.5" y1="112.6279" y2="125.6279"/><line style="stroke:#000000;stroke-width:1.0;" x1="1397.5" x2="1438.5" y1="125.6279" y2="125.6279"/><polygon fill="#000000" points="1407.5,121.6279,1397.5,125.6279,1407.5,129.6279,1403.5,125.6279" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="1403.5" y="107.8984">43</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="192" x="1425.5" y="107.8984">spdlog::info("hello world")</text><polygon fill="#000000" points="651.5,151.4272,641.5,155.4272,651.5,159.4272,647.5,155.4272" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="645.5" x2="1385.5" y1="155.4272" y2="155.4272"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="657.5" y="150.6978">44</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="213" x="679.5" y="150.6978">via stderr: "[INF] hello world"</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="561" x2="2450.5" y1="164.4272" y2="164.4272"/><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="273" x="566" y="175.4863">[Send diagnostics from managed module]</text><line style="stroke:#000000;stroke-width:1.0;" x1="2156.5" x2="2198.5" y1="200.5952" y2="200.5952"/><line style="stroke:#000000;stroke-width:1.0;" x1="2198.5" x2="2198.5" y1="200.5952" y2="213.5952"/><line style="stroke:#000000;stroke-width:1.0;" x1="2157.5" x2="2198.5" y1="213.5952" y2="213.5952"/><polygon fill="#000000" points="2167.5,209.5952,2157.5,213.5952,2167.5,217.5952,2163.5,213.5952" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="2163.5" y="195.8657">45</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="253" x="2185.5" y="195.8657">_logger.Information("hello world")</text><polygon fill="#000000" points="651.5,239.3945,641.5,243.3945,651.5,247.3945,647.5,243.3945" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="645.5" x2="2145.5" y1="243.3945" y2="243.3945"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="657.5" y="238.665">46</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="366" x="679.5" y="238.665">UniversalModuleHost.exe/OnLog(2, "hello world")</text><line style="stroke:#000000;stroke-width:1.0;" x1="640.5" x2="682.5" y1="273.1938" y2="273.1938"/><line style="stroke:#000000;stroke-width:1.0;" x1="682.5" x2="682.5" y1="273.1938" y2="286.1938"/><line style="stroke:#000000;stroke-width:1.0;" x1="641.5" x2="682.5" y1="286.1938" y2="286.1938"/><polygon fill="#000000" points="651.5,282.1938,641.5,286.1938,651.5,290.1938,647.5,286.1938" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="647.5" y="268.4644">47</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="408" x="669.5" y="268.4644">SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="5" x2="2607.5" y1="301.1938" y2="301.1938"/><!--MD5=[88884a86680dbdbe7b7896fdf659623a]
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="319px" preserveAspectRatio="none" style="width:2528px;height:319px;background:#FFFFFF;" version="1.1" viewBox="0 0 2528 319" width="2528px" zoomAndPan="magnify"><defs/><g><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="612" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1300" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1538" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="2055" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="2060" y="64.0293"/><rect fill="#FFFFFF" height="221.1646" style="stroke:#000000;stroke-width:1.0;" width="1803" x="561" y="73.0293"/><rect fill="#FFFFFF" height="130.7666" style="stroke:none;stroke-width:1.0;" width="1803" x="561" y="163.4272"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="90" x2="90" y1="54.0293" y2="312.1938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="617" x2="617" y1="54.0293" y2="312.1938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1305" x2="1305" y1="54.0293" y2="312.1938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="1542.5" x2="1542.5" y1="54.0293" y2="312.1938"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:5.0,5.0;" x1="2060" x2="2060" y1="54.0293" y2="312.1938"/><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="90" x="45" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="76" x="52" y="43.0898">TMBroker</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="72" x="581" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="58" x="588" y="43.0898">TMHost</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="118" x="1246" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="104" x="1253" y="43.0898">NativeModule</text><rect fill="#FFFFFF" height="31.0146" style="stroke:#000000;stroke-width:1.0;" width="175" x="1455.5" y="22.0146"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="161" x="1462.5" y="43.0898">ManagedModuleHost</text><rect fill="#FFFFFF" height="48.0293" style="stroke:#000000;stroke-width:1.0;" width="144" x="1988" y="5"/><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="126" x="1997" y="26.0752">ManagedModule</text><text fill="#000000" font-family="Verdana" font-size="14" lengthAdjust="spacing" textLength="130" x="1995" y="43.0898">SomeAppModule</text><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="612" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1300" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="1538" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="2055" y="64.0293"/><rect fill="#FFFFFF" height="239.1646" style="stroke:#000000;stroke-width:1.0;" width="10" x="2060" y="64.0293"/><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="5" x2="2521" y1="65.0293" y2="65.0293"/><path d="M561,73.0293 L625,73.0293 L625,80.0293 L615,90.0293 L561,90.0293 L561,73.0293 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.0;"/><rect fill="none" height="221.1646" style="stroke:#000000;stroke-width:1.0;" width="1803" x="561" y="73.0293"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="19" x="576" y="87.0991">alt</text><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="254" x="640" y="86.0884">[Send diagnostics from native module]</text><line style="stroke:#000000;stroke-width:1.0;" x1="1310" x2="1352" y1="112.6279" y2="112.6279"/><line style="stroke:#000000;stroke-width:1.0;" x1="1352" x2="1352" y1="112.6279" y2="125.6279"/><line style="stroke:#000000;stroke-width:1.0;" x1="1311" x2="1352" y1="125.6279" y2="125.6279"/><polygon fill="#000000" points="1321,121.6279,1311,125.6279,1321,129.6279,1317,125.6279" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="1317" y="107.8984">43</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="192" x="1339" y="107.8984">spdlog::info("hello world")</text><polygon fill="#000000" points="633,151.4272,623,155.4272,633,159.4272,629,155.4272" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="627" x2="1299" y1="155.4272" y2="155.4272"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="639" y="150.6978">44</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="213" x="661" y="150.6978">via stderr: "[INF] hello world"</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="561" x2="2364" y1="164.4272" y2="164.4272"/><text fill="#000000" font-family="Verdana" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="273" x="566" y="175.4863">[Send diagnostics from managed module]</text><line style="stroke:#000000;stroke-width:1.0;" x1="2070" x2="2112" y1="200.5952" y2="200.5952"/><line style="stroke:#000000;stroke-width:1.0;" x1="2112" x2="2112" y1="200.5952" y2="213.5952"/><line style="stroke:#000000;stroke-width:1.0;" x1="2071" x2="2112" y1="213.5952" y2="213.5952"/><polygon fill="#000000" points="2081,209.5952,2071,213.5952,2081,217.5952,2077,213.5952" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="2077" y="195.8657">45</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="253" x="2099" y="195.8657">_logger.Information("hello world")</text><polygon fill="#000000" points="633,239.3945,623,243.3945,633,247.3945,629,243.3945" style="stroke:#000000;stroke-width:1.0;"/><line style="stroke:#000000;stroke-width:1.0;" x1="627" x2="2059" y1="243.3945" y2="243.3945"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="639" y="238.665">46</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="266" x="661" y="238.665">TMHost.exe/OnLog(2, "hello world")</text><line style="stroke:#000000;stroke-width:1.0;" x1="622" x2="664" y1="273.1938" y2="273.1938"/><line style="stroke:#000000;stroke-width:1.0;" x1="664" x2="664" y1="273.1938" y2="286.1938"/><line style="stroke:#000000;stroke-width:1.0;" x1="623" x2="664" y1="286.1938" y2="286.1938"/><polygon fill="#000000" points="633,282.1938,623,286.1938,633,290.1938,629,286.1938" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="Verdana" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="629" y="268.4644">47</text><text fill="#000000" font-family="Verdana" font-size="13" lengthAdjust="spacing" textLength="408" x="651" y="268.4644">SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="5" x2="2521" y1="301.1938" y2="301.1938"/><!--MD5=[e489aaa24196743ceca0dbde59948d41]
 @startuml IPC
 !theme plain
 hide footbox
 
 autonumber
-participant BrokerProcess as B
-participant HostProcess as H
+participant TMBroker as B
+participant TMHost as H
 participant NativeModule as NM
 participant ManagedModuleHost as MMH
 participant "ManagedModule\nSomeAppModule" as MM
@@ -19,7 +19,7 @@ loop Launch processes
     B->B: start child proc monitoring
     B->H: ChildProcessInstance::SendMsg(ipc::KnownService::HostInit)
     H->H: Remember unique host target GUID
-    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::OnMessageFromBroker()
     B->B: ChildProcessInstance::LoadModules()
 end
 
@@ -27,20 +27,20 @@ newpage
 
 alt Load native module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadNativeModule(path/to/dll)
+    H->H: ModuleHost::LoadNativeModule(path/to/dll)
     H->H: NativeModule::Load()
     H->NM ++: LoadLibrary native dll
     H->NM: InitModule(OnMsg, OnDiag)
     NM->B: SendMsg ModuleMeta (our services)
 else Load managed DLL module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: ModuleHost::LoadManagedDllModule(path/to/dll)
     H->H: Load .Net CLR if not yet done
     H->MMH ++: load ManagedHost.dll in custom .Net host
     H->H: ManagedHost::LoadModule(path/to/dll)
@@ -53,10 +53,10 @@ else Load managed DLL module
     MM->B: SendMsg ModuleMeta (our services)
 else Load managed EXE module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: ModuleHost::LoadManagedDllModule(path/to/dll)
     H->H: Load .Net CLR if not yet done
     H->MM ++: load SomeAppModule.dll in custom .Net host
     H->H: ManagedHost::LoadModule(path/to/dll)
@@ -70,7 +70,7 @@ alt Send diagnostics from native module
     NM->H: via stderr: "[INF] hello world"
 else Send diagnostics from managed module
     MM->MM: _logger.Information("hello world")
-    MM->H: UniversalModuleHost.exe/OnLog(2, "hello world")
+    MM->H: TMHost.exe/OnLog(2, "hello world")
     H->H: SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")
 end
 
@@ -79,7 +79,7 @@ newpage
 alt Send message from native module
     NM->H: SendMsg(Mod, "some event", serviceGuid, session)
     H->H: NativeModule::OnMsg(Mod, "some event", serviceGuid, session)
-    H->H: UniversalModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
+    H->H: ModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
     H->H: ipc::Send("some event", target)
     H->B: via stdout: serialized msg/target
     B->B: ReadFile(stdin) => deserialize msg/target
@@ -89,7 +89,7 @@ alt Send message from native module
         B->B: ipc::Send("some event", target)
         B->H: via stdout: serialized msg/target
         H->H: ReadFile(stdin) => deserialize msg/target
-        H->H: UniversalModuleHost::OnMessageFromBroker()
+        H->H: ModuleHost::OnMessageFromBroker()
         loop for all native modules
             H->H: NativeModule::Send()
             H->NM: Native.dll/OnMessage("some event", target)
@@ -102,9 +102,9 @@ alt Send message from native module
     end
 else Send message from managed module
     MM->MM: Ipc.SendMessage("some event", serviceGuid, session)
-    MM->H: UniversalModuleHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
+    MM->H: TMHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
     H->H: ManagedHost::OnMessageFromModule("some event", Target(serviceGuid, session))
-    H->H: UniversalModuleHost::OnMessageFromModule(null, "some event", target)
+    H->H: ModuleHost::OnMessageFromModule(null, "some event", target)
     H->H: ipc::Send("some event", target)
     Note right of H: dispatch further same as with native module as msg source
 end
@@ -258,8 +258,8 @@ skinparam UseCaseStereoType {
 hide footbox
 
 autonumber
-participant BrokerProcess as B
-participant HostProcess as H
+participant TMBroker as B
+participant TMHost as H
 participant NativeModule as NM
 participant ManagedModuleHost as MMH
 participant "ManagedModule\nSomeAppModule" as MM
@@ -273,7 +273,7 @@ loop Launch processes
     B->B: start child proc monitoring
     B->H: ChildProcessInstance::SendMsg(ipc::KnownService::HostInit)
     H->H: Remember unique host target GUID
-    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::OnMessageFromBroker()
     B->B: ChildProcessInstance::LoadModules()
 end
 
@@ -281,20 +281,20 @@ newpage
 
 alt Load native module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadNativeModule(path/to/dll)
+    H->H: ModuleHost::LoadNativeModule(path/to/dll)
     H->H: NativeModule::Load()
     H->NM ++: LoadLibrary native dll
     H->NM: InitModule(OnMsg, OnDiag)
     NM->B: SendMsg ModuleMeta (our services)
 else Load managed DLL module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: ModuleHost::LoadManagedDllModule(path/to/dll)
     H->H: Load .Net CLR if not yet done
     H->MMH ++: load ManagedHost.dll in custom .Net host
     H->H: ManagedHost::LoadModule(path/to/dll)
@@ -307,10 +307,10 @@ else Load managed DLL module
     MM->B: SendMsg ModuleMeta (our services)
 else Load managed EXE module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: ModuleHost::LoadManagedDllModule(path/to/dll)
     H->H: Load .Net CLR if not yet done
     H->MM ++: load SomeAppModule.dll in custom .Net host
     H->H: ManagedHost::LoadModule(path/to/dll)
@@ -324,7 +324,7 @@ alt Send diagnostics from native module
     NM->H: via stderr: "[INF] hello world"
 else Send diagnostics from managed module
     MM->MM: _logger.Information("hello world")
-    MM->H: UniversalModuleHost.exe/OnLog(2, "hello world")
+    MM->H: TMHost.exe/OnLog(2, "hello world")
     H->H: SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")
 end
 
@@ -333,7 +333,7 @@ newpage
 alt Send message from native module
     NM->H: SendMsg(Mod, "some event", serviceGuid, session)
     H->H: NativeModule::OnMsg(Mod, "some event", serviceGuid, session)
-    H->H: UniversalModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
+    H->H: ModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
     H->H: ipc::Send("some event", target)
     H->B: via stdout: serialized msg/target
     B->B: ReadFile(stdin) => deserialize msg/target
@@ -343,7 +343,7 @@ alt Send message from native module
         B->B: ipc::Send("some event", target)
         B->H: via stdout: serialized msg/target
         H->H: ReadFile(stdin) => deserialize msg/target
-        H->H: UniversalModuleHost::OnMessageFromBroker()
+        H->H: ModuleHost::OnMessageFromBroker()
         loop for all native modules
             H->H: NativeModule::Send()
             H->NM: Native.dll/OnMessage("some event", target)
@@ -356,9 +356,9 @@ alt Send message from native module
     end
 else Send message from managed module
     MM->MM: Ipc.SendMessage("some event", serviceGuid, session)
-    MM->H: UniversalModuleHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
+    MM->H: TMHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
     H->H: ManagedHost::OnMessageFromModule("some event", Target(serviceGuid, session))
-    H->H: UniversalModuleHost::OnMessageFromModule(null, "some event", target)
+    H->H: ModuleHost::OnMessageFromModule(null, "some event", target)
     H->H: ipc::Send("some event", target)
     Note right of H: dispatch further same as with native module as msg source
 end

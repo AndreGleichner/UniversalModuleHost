@@ -3,8 +3,8 @@
 hide footbox
 
 autonumber
-participant BrokerProcess as B
-participant HostProcess as H
+participant TMBroker as B
+participant TMHost as H
 participant NativeModule as NM
 participant ManagedModuleHost as MMH
 participant "ManagedModule\nSomeAppModule" as MM
@@ -18,7 +18,7 @@ loop Launch processes
     B->B: start child proc monitoring
     B->H: ChildProcessInstance::SendMsg(ipc::KnownService::HostInit)
     H->H: Remember unique host target GUID
-    H->H: UniversalModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::OnMessageFromBroker()
     B->B: ChildProcessInstance::LoadModules()
 end
 
@@ -26,20 +26,20 @@ newpage
 
 alt Load native module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadNativeModule(path/to/dll)
+    H->H: ModuleHost::LoadNativeModule(path/to/dll)
     H->H: NativeModule::Load()
     H->NM ++: LoadLibrary native dll
     H->NM: InitModule(OnMsg, OnDiag)
     NM->B: SendMsg ModuleMeta (our services)
 else Load managed DLL module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: ModuleHost::LoadManagedDllModule(path/to/dll)
     H->H: Load .Net CLR if not yet done
     H->MMH ++: load ManagedHost.dll in custom .Net host
     H->H: ManagedHost::LoadModule(path/to/dll)
@@ -52,10 +52,10 @@ else Load managed DLL module
     MM->B: SendMsg ModuleMeta (our services)
 else Load managed EXE module
     B->H: ipc::Send(ipc::HostCmdMsg::Cmd::CtrlModule/Load, host-target)
-    H->H: UniversalModuleHost::OnMessageFromBroker()
-    H->H: UniversalModuleHost::LoadModule()
+    H->H: ModuleHost::OnMessageFromBroker()
+    H->H: ModuleHost::LoadModule()
     H->H: check PE header for module type
-    H->H: UniversalModuleHost::LoadManagedDllModule(path/to/dll)
+    H->H: ModuleHost::LoadManagedDllModule(path/to/dll)
     H->H: Load .Net CLR if not yet done
     H->MM ++: load SomeAppModule.dll in custom .Net host
     H->H: ManagedHost::LoadModule(path/to/dll)
@@ -69,7 +69,7 @@ alt Send diagnostics from native module
     NM->H: via stderr: "[INF] hello world"
 else Send diagnostics from managed module
     MM->MM: _logger.Information("hello world")
-    MM->H: UniversalModuleHost.exe/OnLog(2, "hello world")
+    MM->H: TMHost.exe/OnLog(2, "hello world")
     H->H: SPDLOG_LOGGER_CALL(default_logger, 2, "hello world")
 end
 
@@ -78,7 +78,7 @@ newpage
 alt Send message from native module
     NM->H: SendMsg(Mod, "some event", serviceGuid, session)
     H->H: NativeModule::OnMsg(Mod, "some event", serviceGuid, session)
-    H->H: UniversalModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
+    H->H: ModuleHost::OnMessageFromModule(Mod, "some event", Target(serviceGuid, session))
     H->H: ipc::Send("some event", target)
     H->B: via stdout: serialized msg/target
     B->B: ReadFile(stdin) => deserialize msg/target
@@ -88,7 +88,7 @@ alt Send message from native module
         B->B: ipc::Send("some event", target)
         B->H: via stdout: serialized msg/target
         H->H: ReadFile(stdin) => deserialize msg/target
-        H->H: UniversalModuleHost::OnMessageFromBroker()
+        H->H: ModuleHost::OnMessageFromBroker()
         loop for all native modules
             H->H: NativeModule::Send()
             H->NM: Native.dll/OnMessage("some event", target)
@@ -101,9 +101,9 @@ alt Send message from native module
     end
 else Send message from managed module
     MM->MM: Ipc.SendMessage("some event", serviceGuid, session)
-    MM->H: UniversalModuleHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
+    MM->H: TMHost.exe/MessageFromModuleToHost("some event", serviceGuid, session)
     H->H: ManagedHost::OnMessageFromModule("some event", Target(serviceGuid, session))
-    H->H: UniversalModuleHost::OnMessageFromModule(null, "some event", target)
+    H->H: ModuleHost::OnMessageFromModule(null, "some event", target)
     H->H: ipc::Send("some event", target)
     Note right of H: dispatch further same as with native module as msg source
 end
