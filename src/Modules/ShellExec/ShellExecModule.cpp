@@ -18,7 +18,7 @@ try
         // Instead of directly calling ShellExecute() we have to execute this from within a process not being part of
         // the "kill on job close" job object. Otherwise stopping the broker would kill all its child processes
         // including a freshly started browser (e.g. Chrome). If the browser at the time of calling ShellExecute() is
-        // already running everything is ok, as in that case the browser porcesses wont become part of the "kill on job
+        // already running everything is ok, as in that case the browser processes wont become part of the "kill on job
         // close" job object. If the only thing we wanna do is launching a web site we can run: CreateProcess("cmd /c
         // start https://www.heise.de")
 
