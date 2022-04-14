@@ -21,7 +21,7 @@ void SetDefaultLogger()
         auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
         auto formatter = std::make_unique<spdlog::pattern_formatter>();
         formatter->add_flag<ThreadnameFlagFormatter>('t').set_pattern(
-            ::IsDebuggerPresent() ? "[%l] %-64v [%t][%! @ %s:%#]" : "[%l] %-64v [UMH-%t][%! @ %s:%#]");
+            ::IsDebuggerPresent() ? "[%l] %-64v [%t][%! @ %s:%#]" : "[%l] %-64v [TM-%t][%! @ %s:%#]");
         msvc_sink->set_formatter(std::move(formatter));
 
         std::vector<spdlog::sink_ptr> sinks {msvc_sink};

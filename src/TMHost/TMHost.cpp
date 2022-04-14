@@ -104,7 +104,7 @@ int APIENTRY wWinMain(
 
     FilterEnvVars();
 
-    Process::SetThreadName(L"UMH-Native");
+    Process::SetThreadName(L"TM-Native");
 
 #ifdef DEBUG
     wil::g_fBreakOnFailure = true;

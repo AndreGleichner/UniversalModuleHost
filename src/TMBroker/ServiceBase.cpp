@@ -342,7 +342,7 @@ int ServiceBase::Run()
 void WINAPI ServiceBase::ServiceMain_(_In_ DWORD argc, _In_ PWSTR* argv)
 {
     // This thread got created within StartServiceCtrlDispatcherW().
-    Process::SetThreadName(L"UMH-ServiceMain");
+    Process::SetThreadName(L"TM-ServiceMain");
 
     FAIL_FAST_IF_NULL(_this);
 

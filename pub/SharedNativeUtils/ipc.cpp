@@ -75,7 +75,7 @@ HRESULT StartRead(HANDLE in, std::jthread& reader,
 try
 {
     reader = std::jthread([=](std::stop_token stoken) {
-        Process::SetThreadName(std::format(L"UMH-IpcReader-{}", pid).c_str());
+        Process::SetThreadName(std::format(L"TM-IpcReader-{}", pid).c_str());
         DWORD size = 0, read = 0;
         while (
             !stoken.stop_requested() && ::ReadFile(in, &size, 4, &read, nullptr) && read == 4 && size > sizeof(Target))

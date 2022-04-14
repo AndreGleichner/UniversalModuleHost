@@ -112,7 +112,7 @@ bool ManagedHost::RunAsync()
 
     // Launch managed in its own thread, since we may run this in a service.
     mainThread_ = std::thread([&] {
-        Process::SetThreadName(L"UMH-NetRunner");
+        Process::SetThreadName(L"TM-NetRunner");
 
         SPDLOG_INFO(L"Invoke managed Main");
 

@@ -28,7 +28,7 @@ namespace ManagedHost
 
             // Strange that the thread name as set on native side is not visible here,
             // but setting it here also makes it visible in any callback into native code.
-            Thread.CurrentThread.Name = "UMH-NetMain";
+            Thread.CurrentThread.Name = "TM-NetMain";
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
