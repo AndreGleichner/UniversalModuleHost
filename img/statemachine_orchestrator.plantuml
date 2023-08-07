@@ -1,0 +1,94 @@
+@startuml TheModularian
+
+!theme plain
+
+<style>
+    State {
+        BackGroundColor BlanchedAlmond
+    }
+    Activity {
+        Diamond {
+            BackgroundColor LightBlue
+        }
+    }
+    .MyStyleLaunched {
+        BackgroundColor LightCoral
+    }
+    .MyStyleActive {
+        BackgroundColor LightGreen
+    }
+    .MyStyleReconfigure {
+        BackgroundColor LightSalmon
+    }
+    .MyStyleThreadedStates {
+        BackgroundColor LightBlue
+    }
+</style>
+
+hide empty description
+
+mainframe Orchestrator statemachine
+
+state launched <<MyStyleLaunched>>
+state active <<MyStyleActive>>
+state rx_msg <<choice>>
+
+
+state "reconfigure_broker" as reconf <<MyStyleReconfigure>> {
+    reconf : module_meta_confstore/ query_broker_config
+    reconf : shutdown/ defer
+
+    state "calculating_desired_processes" as calc_proc {
+        calc_proc : entry/ calc_desired_processes()
+    }
+    state "terminating_undesired_processes" as term  {
+        term : do/ process events on background thread
+        term : entry/ <&flash> start_thread()
+
+        state calculating_undesired_processes <<MyStyleThreadedStates>> {
+            calculating_undesired_processes : entry/ calc_undesired_processes()
+        }
+
+        state wait_termination <<MyStyleThreadedStates>> {
+            wait_termination : entry/ publish_termination_event_to_process()
+        }
+        state wait_threads_joining <<MyStyleThreadedStates>> {
+            wait_threads_joining : entry/ threads_request_stop_and_join()
+        }
+        [*] --> calculating_undesired_processes
+        calculating_undesired_processes --> wait_termination : calc_done
+        wait_termination --> wait_threads_joining : processes_terminated
+        wait_threads_joining --> [*] : threads_joined
+    }
+    state "launching_missing_processes" as launch_procs {
+        launch_procs : entry/ launch_missing_processes
+    }
+    state "loading_modules" as load_mod {
+        load_mod : entry/ load_modules()
+        load_mod : rx_msg [bootstrapping && module_meta_confstore] / defer
+        load_mod : rx_msg [module_meta] / store_in_process_instance()
+    }
+
+    [*] --> calc_proc
+    calc_proc --> term : calc_done
+    term --> launch_procs : all_procs_terminated
+    launch_procs --> load_mod : all_procs_launched
+    load_mod --> [*] : all_modules_loaded
+}
+
+'------------
+
+[*] --> launched
+launched --> reconf : initialize / \n* bootstrapping = true\n* add broker process to job object\n* store bootstrap config
+
+reconf --> active : config_applied[any_processes] / \nbootstrapping=false
+
+active --> reconf : wts_session_changed
+active --> reconf : shutdown / \nstore_empty_config()
+active --> rx_msg : rx_msg
+rx_msg --> reconf : [config_broker] / \nstore_config()
+rx_msg --> active : [else]/ \ndispatch_to_hosts()
+
+reconf --> [*] : config_applied[!any_processes]
+
+@enduml

@@ -29,7 +29,7 @@ namespace SampleManagedModuleUi1
 
         private void Button_Click_Browse(object sender, RoutedEventArgs e)
         {
-            Ipc.SendMessage(tbBrowse.Text, Ipc.ShellExec);
+            Ipc.SendMessage(tbBrowse.Text, Ipc.ShellExecTopic);
         }
 
         private void Button_Click_SendMsg(object sender, RoutedEventArgs e)
@@ -39,18 +39,18 @@ namespace SampleManagedModuleUi1
 
         private void Button_Click_StoreConf(object sender, RoutedEventArgs e)
         {
-            var cs = new ConfStore { Cmd = ConfStore.ECmd.Update, Args = tbStoreConf.Text };
+            var cs = new Ipc.ConfStore { Cmd = Ipc.ConfStore.ECmd.Update, Args = tbStoreConf.Text };
             string msg = JsonSerializer.Serialize(cs);
 
-            Ipc.SendMessage(msg, Ipc.ConfStore);
+            Ipc.SendMessage(msg, Ipc.ConfStoreTopic);
         }
 
         private void Button_Click_QueryConf(object sender, RoutedEventArgs e)
         {
-            var cs = new ConfStore { Cmd = ConfStore.ECmd.Query, Args = tbQueryConf.Text };
+            var cs = new Ipc.ConfStore { Cmd = Ipc.ConfStore.ECmd.Query, Args = tbQueryConf.Text };
             string msg = JsonSerializer.Serialize(cs);
 
-            Ipc.SendMessage(msg, Ipc.ConfStore);
+            Ipc.SendMessage(msg, Ipc.ConfStoreTopic);
         }
     }
 }

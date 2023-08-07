@@ -15,69 +15,28 @@ using namespace Strings;
 #include "ModuleMeta.h"
 #include "ConfStore.h"
 
-Orchestrator::Orchestrator()
+Orchestrator::Orchestrator() : so_(this), srb_(this), sm_ {this, so_, srb_, logger_}
 {
     FAIL_FAST_IF_WIN32_BOOL_FALSE(::ProcessIdToSessionId(::GetCurrentProcessId(), &session_));
 }
 
-// Process broker.json and launch host child processes as configured.
 HRESULT Orchestrator::Init() noexcept
 try
 {
-    // while (!::IsDebuggerPresent())
-    //{
-    //    ::Sleep(1000);
-    //}
+    // env::WaitForDebugger();
 
-    //::DebugBreak();
-
-    AssignProcessToJobObject(::GetCurrentProcess(), session_);
-
-    // Bootstrap-config by launching the ConfStore module in some process.
-    auto conf = R"(
-{
-  "Broker": {
-    "ChildProcesses": [
-      {
-        "GroupName": "ConfStore",
-        "Session": 0,
-        "Modules": [
-          "ConfStore"
-        ]
-      }
-    ]
-  }
-}
-)"_json;
-
-    RETURN_IF_FAILED(UpdateChildProcessConfig(conf));
-    RETURN_IF_FAILED(LaunchChildProcesses());
-
-#ifdef DEBUG
-    const DWORD milliSecondsToWait = INFINITE;
-#else
-    const DWORD milliSecondsToWait = 60 * 1000;
-#endif
-    // Need to wait for ModuleMeta sent by the ConfStore module.
-    // Now we know the ConfStore service is ready and the broker was notified about the supported services.
-    confStoreReady_.wait(milliSecondsToWait);
-
-    // Ask the just launched ConfStore to send around the Broker config
-    // so we can launch the current set of configured processes/modules.
-    json msg = ipc::ConfStore {ipc::ConfStore::Cmd::Query, "Broker"};
-    RETURN_IF_FAILED(SendToAllChildren(msg.dump().c_str(), ipc::Target(ipc::KnownService::ConfStore)));
+    process_event(sme::Initialize {});
 
     return S_OK;
 }
 CATCH_RETURN();
 
-// Process given JSON it should have a "Broker" object.
-HRESULT Orchestrator::UpdateChildProcessConfig(const json& conf) noexcept
-try
+// Process brokerConfig_ it should have a "Broker" object.
+void Orchestrator::UpdateChildProcessConfig()
 {
     childProcessesConfigs_.clear();
 
-    for (auto& p : conf["Broker"]["ChildProcesses"])
+    for (auto& p : brokerConfig_["Broker"]["ChildProcesses"])
     {
         bool        allUsers             = p["Session"] == -1;
         bool        wow64                = (sizeof(void*) == 8) && p.contains("Wow64") && p["Wow64"];
@@ -93,20 +52,14 @@ try
         auto cp = std::make_shared<ChildProcessConfig>(allUsers, wow64, higherIntegrityLevel, ui, groupName, modules);
         childProcessesConfigs_.push_back(cp);
     }
-    return S_OK;
 }
-CATCH_RETURN();
 
-// Based on current config check which actual processes are desired.
-// Depending on logged in users this may differ from run to run as there may be procs configured to run in all user
-// sessions.
-// If there are already porcesses running superflous procs are terminated and missing are started.
-HRESULT Orchestrator::LaunchChildProcesses() noexcept
-try
+
+void Orchestrator::CalcDesiredChildProcesses()
 {
-    // Collect the desired collection of child processes.
+    // Calculate the desired collection of child processes.
     // There shall be no duplicate configs.
-    std::vector<std::unique_ptr<ChildProcessInstance>> desiredChildProcesses;
+    desiredChildProcesses_.clear();
 
     for (auto process : childProcessesConfigs_)
     {
@@ -117,7 +70,7 @@ try
             wil::unique_wtsmem_ptr<WTS_SESSION_INFOW> sessionInfo;
             DWORD                                     sessionCount = 0;
 
-            RETURN_IF_WIN32_BOOL_FALSE(
+            THROW_IF_WIN32_BOOL_FALSE(
                 ::WTSEnumerateSessionsW(WTS_CURRENT_SERVER_HANDLE, 0, 1, wil::out_param(sessionInfo), &sessionCount));
 
             for (DWORD sess = 0; sess < sessionCount; ++sess)
@@ -130,57 +83,25 @@ try
                     continue;
 
                 auto cp = std::make_unique<ChildProcessInstance>(this, process, si->SessionId);
-                desiredChildProcesses.push_back(std::move(cp));
+                desiredChildProcesses_.push_back(std::move(cp));
             }
         }
         else
         {
             auto cp = std::make_unique<ChildProcessInstance>(this, process);
-            desiredChildProcesses.push_back(std::move(cp));
+            desiredChildProcesses_.push_back(std::move(cp));
         }
     }
+}
 
-    std::vector<std::unique_ptr<ChildProcessInstance>> processesToTerminate;
-    // Check whether running processes match desired set of processes.
-    // Terminate any non-desired.
-    for (auto pi = childProcesses_.begin(); pi != childProcesses_.end();)
-    {
-        auto p = pi->get();
 
-        bool stillDesired = false;
-        for (auto dpi = desiredChildProcesses.cbegin(); dpi != desiredChildProcesses.cend(); ++dpi)
-        {
-            auto dp = dpi->get();
-            if (*p == *dp)
-            {
-                stillDesired = true;
-                (void)desiredChildProcesses.erase(dpi);
-                break;
-            }
-        }
-
-        if (stillDesired)
-        {
-            ++pi;
-        }
-        else
-        {
-            // No longer desired, so terminate (deferred in a thread below) and remove.
-            processesToTerminate.emplace_back(std::move(*pi));
-            pi = childProcesses_.erase(pi);
-        }
-    }
-
-    if (!processesToTerminate.empty())
-    {
-        std::jthread terminator([&] {
-            for (auto& process : processesToTerminate)
-            {
-                process.get()->Terminate();
-            }
-        });
-    }
-
+// Based on current config check which actual processes are desired.
+// Depending on logged in users this may differ from run to run as there may be procs configured to run in all user
+// sessions.
+// If there are already porcesses running superflous procs are terminated and missing are started.
+HRESULT Orchestrator::LaunchChildProcesses() noexcept
+try
+{
     for (auto& newProcess : desiredChildProcesses)
     {
         childProcesses_.emplace_back(std::move(newProcess));
@@ -192,6 +113,7 @@ try
     }
     for (auto& process : childProcesses_)
     {
+        // TODO this will load modules again leading to duplicate Initialize calls, which may start threads, etc
         process->LoadModules();
     }
     return S_OK;
@@ -218,53 +140,53 @@ try
 }
 CATCH_RETURN();
 
-HRESULT Orchestrator::SendToAllChildren(const std::string_view msg, const ipc::Target& target) noexcept
+HRESULT Orchestrator::SendToAllChildren(const ipc::MsgItem& msgItem) noexcept
 try
 {
     // Dispatch to any process which may have a respective handler.
     for (auto& process : childProcesses_)
     {
-        // KnownService::All means a module has declared it wants to handle messages to any service, e.g. for
-        // debugging.
-        if (process->services_.contains(ipc::KnownService::All) || process->services_.contains(target.Service))
+        // AllTopics means a module has declared it wants to subscripe to all topics, e.g. for debugging.
+        if (process->topicIds_.contains(ipc::AllTopics) || process->topicIds_.contains(msgItem.Topic.TopicId))
         {
-            process->SendMsg(msg, target);
+            process->Publish(msgItem.Msg, msgItem.Topic);
         }
     }
     return S_OK;
 }
 CATCH_RETURN();
 
-HRESULT Orchestrator::OnMessage(
-    ChildProcessInstance* fromProcess, const std::string_view msg, const ipc::Target& target) noexcept
+HRESULT Orchestrator::OnMessage(ChildProcessInstance* fromProcess, const ipc::MsgItem& msgItem) noexcept
 try
 {
     if (IsShuttingDown())
         return S_FALSE;
 
-    if (target.Service == ipc::KnownService::Broker)
+    curMsg_ = msgItem;
+
+    if (msgItem.Topic.TopicId == ipc::BrokerTopic)
     {
     }
-    else if (target.Service == ipc::KnownService::ModuleMetaConsumer)
+    else if (msgItem.Topic.TopicId == ipc::ModuleMetaTopic)
     {
-        // Some module tells us which services it supports.
-        const auto mm = json::parse(msg).get<ipc::ModuleMeta>();
+        // Some module tells us which topics it wants to subscribe to.
+        const auto mm = json::parse(msgItem.Msg).get<ipc::ModuleMeta>();
 
-        for (const auto& s : mm.Services)
+        for (const auto& s : mm.TopicIds)
         {
-            fromProcess->services_.emplace(Guid(s));
+            fromProcess->topicIds_.emplace(Guid(s));
         }
 
-        if (mm.Services.contains(ipc::KnownService::ConfStore.ToUtf8()))
-            confStoreReady_.SetEvent();
+        // if (mm.TopicIds.contains(ipc::ConfStoreTopic.ToUtf8()))
+        //  confStoreReady_.SetEvent();
     }
     else
     {
-        if (target.Service == ipc::KnownService::ConfConsumer)
+        if (msgItem.Topic.TopicId == ipc::ConfTopic)
         {
             // Some config changed.
             // In case of the Broker config we need to recalc desired child processes.
-            const json conf = json::parse(msg);
+            const json conf = json::parse(msgItem.Msg);
             if (conf.contains("Broker"))
             {
                 RETURN_IF_FAILED(UpdateChildProcessConfig(conf));
@@ -273,7 +195,7 @@ try
         }
 
         // Dispatch to the world.
-        RETURN_IF_FAILED(SendToAllChildren(msg, target));
+        RETURN_IF_FAILED(SendToAllChildren(msgItem));
     }
     return S_OK;
 }

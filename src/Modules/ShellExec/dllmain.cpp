@@ -5,9 +5,9 @@
 
 ShellExecModule g_module;
 
-extern "C" __declspec(dllexport) HRESULT InitModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag)
+extern "C" __declspec(dllexport) HRESULT InitModule(void* mod, ipc::Pub sendMsg)
 {
-    RETURN_IF_FAILED(g_module.Initialize(mod, sendMsg, sendDiag));
+    RETURN_IF_FAILED(g_module.Initialize(mod, sendMsg));
     return S_OK;
 }
 
@@ -17,9 +17,9 @@ extern "C" __declspec(dllexport) HRESULT TermModule()
     return S_OK;
 }
 
-extern "C" __declspec(dllexport) HRESULT OnMessage(PCSTR msg, const ipc::Target* target)
+extern "C" __declspec(dllexport) HRESULT OnMessage(PCSTR msg, const ipc::Topic* topic)
 {
-    RETURN_IF_FAILED(g_module.HandleMessage(msg, *target));
+    RETURN_IF_FAILED(g_module.HandleMessage(msg, *topic));
     return S_OK;
 }
 

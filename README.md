@@ -28,8 +28,8 @@ Currently it works like this:
 * There's a broker.json declaring child processes and modules to be loaded by default as well as certain properties.
 * Process/Module layout can be changed on demand.
 * Modules may be unloaded/reloaded to e.g. update some on demand.
-* Processes communicate via stdin/stdout for message dispatching to specified services and stderr for logging. See [IPC](#ipc) below.
-* Everyone within the closed group of processs may send messages to the broker which dispatches to everyone who has declared interest in messages to specific services.
+* Processes communicate via stdin/stdout for publishing messages to specified topics and stderr for logging. See [IPC](#ipc) below.
+* Everyone within the closed group of processs may send messages to the broker which dispatches to everyone who has subscribed to a topic.
 * Managed modules are hosted in a custom host instead of the standard apphost, comhost, muxer, etc. This is mainly to have full control and tweak certain [security](#security) properties.
 * Managed modules are orchestrated by a ManagedHost.dll utilizing AssemblyLoadContext's to somewhat isolate modules and allow dynamic load/unload. This uses the great [McMaster.NETCore.Plugins library](https://github.com/natemcmaster/DotNetCorePlugins).
 * Managed UI modules (e.g. WPF apps) usually have assembly DLLs which are actually marked as EXE in PE header. A TMHost may only have a single such UI module which is loaded directly instead of ManagedHost.dll.
@@ -44,17 +44,15 @@ Currently it works like this:
 Processes communicate via stdin/stdout for message broadcasting and stderr for logging.
 There're 2 reasons for this choice: simplicity and [security](#communication).
 
-Communication is just sending a UTF8 string to a target service-GUID / WTS session.
+Communication is just sending a UTF8 string to a target topic GUID / WTS session.
 Messages are always send to the broker which dispatches them to "every" module (including sender).
-As an optimization processes only receive certain messages if any of his loaded modules has declared interest in messages to specific services.
-Module DLLs are responsible to handle certain service-GUID as declared during module initialization.
-The broker itself as well as the host processes themselves also have service-GUIDs to e.g. perform init, module (un-)load.
+As an optimization processes only receive certain messages if any of his loaded modules has subscribed to a topic.
+Module DLLs are responsible to handle certain topic GUID as declared during module initialization.
+The broker itself as well as the host processes themselves also have topic GUIDs to e.g. perform init, module (un-)load.
 
-Overall the messaging is a simple kind of pub/sub. 
-Subscriptions are just normal messages sent to a dedicated service GUID and by that in no way different than any other kind of message. Those service GUID are thus what normally is called a "topic" in usual pub/sub systems. Choosing service instead of topic is intentional. 
+Overall the messaging is a simple pub/sub. 
+Subscriptions are just normal messages sent to a dedicated topic GUID and by that in no way different than any other kind of message.
 In general messages are basically either events (something happened) or commands (do something).
-I'm focusing mainly on commands and such commands are executed by services.
-In my definition modules provide services and these services receive messages which often are commands but of course can also be events.
 
 Not having a form of explicit request/response mechanism is also intentional.
 IMHO restricting stuff to pure async messaging enforces cleaner designs and thus provides much better decoupling. It also is much easier to implement. In many cases you anyhow need to handle change-events very much the same as the response to a request. E.g. when handling configurations/settings. They may be changed somehow and a change-event may be triggered. During startup you typically require some initial configuration state, so you may wanna send a get-conf-xyz request. Instead you may just send a "someone-please-send-config-for-module-xyz" message and sit and wait for some event arriving. Since you anyhow need to be prepared to handle change-events at any time it is easier to make this the only entry point for change.

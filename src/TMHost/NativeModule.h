@@ -5,9 +5,9 @@
 // forward declarations for module entry points
 namespace Entry
 {
-HRESULT InitModule(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag);
+HRESULT InitModule(void* mod, ipc::Pub sendMsg);
 HRESULT TermModule();
-HRESULT OnMessage(PCSTR msg, const ipc::Target* target);
+HRESULT OnMessage(PCSTR msg, const ipc::Topic* topic);
 }
 
 class ModuleHost;
@@ -24,9 +24,9 @@ public:
     HRESULT Unload();
 
     // send message to module
-    HRESULT Send(const std::string_view msg, const ipc::Target& target) noexcept;
+    HRESULT Send(const ipc::MsgItem& msgItem) noexcept;
     // message from module
-    static HRESULT CALLBACK OnMsg(void* mod, PCSTR msg, const Guid* service, DWORD session) noexcept;
+    static HRESULT CALLBACK OnMsg(void* mod, PCSTR msg, const Guid* topicId, DWORD session) noexcept;
     // log from module
     static HRESULT CALLBACK OnDiag(void* mod, PCSTR msg) noexcept;
 

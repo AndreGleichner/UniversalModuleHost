@@ -116,7 +116,7 @@ int APIENTRY wWinMain(
     FAIL_FAST_IF(!Permission::IsDirectoryOnlyWriteableByElevatedUser(Process::ImagePath().parent_path()));
 #endif
 
-    Process::SetThreadName(L"UMB-Native");
+    Process::SetThreadName(L"TMB-Native");
 
 #ifdef DEBUG
     wil::g_fBreakOnFailure = true;

@@ -30,19 +30,18 @@ void SetDefaultLogger()
 }
 }
 
-HRESULT ModuleBase::Initialize(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag) noexcept
+HRESULT ModuleBase::Initialize(void* mod, ipc::Pub sendMsg) noexcept
 try
 {
-    mod_      = mod;
-    sendMsg_  = sendMsg;
-    sendDiag_ = sendDiag;
+    mod_     = mod;
+    sendMsg_ = sendMsg;
 
     SetDefaultLogger();
 
-    // Tell the world which services we provide
-    json msg = ipc::ModuleMeta(services_);
+    // Tell the world which topics we subscribe
+    json msg = ipc::ModuleMeta(topicIds_);
 
-    RETURN_IF_FAILED(sendMsg_(mod_, msg.dump().c_str(), &ipc::KnownService::ModuleMetaConsumer, (DWORD)-1));
+    RETURN_IF_FAILED(sendMsg_(mod_, msg.dump().c_str(), &ipc::ModuleMetaTopic, (DWORD)-1));
 
     RETURN_IF_FAILED(OnInitialize());
     return S_OK;
@@ -57,31 +56,22 @@ try
 }
 CATCH_RETURN()
 
-HRESULT ModuleBase::HandleMessage(std::string_view msg, const ipc::Target& target) noexcept
+HRESULT ModuleBase::HandleMessage(std::string_view msg, const ipc::Topic& topic) noexcept
 try
 {
-    if (!services_.contains(target.Service))
+    if (!topicIds_.contains(ipc::AllTopics) && !topicIds_.contains(topic.TopicId))
         return S_FALSE;
 
-    RETURN_IF_FAILED(OnMessage(msg, target));
+    RETURN_IF_FAILED(OnMessage(msg, topic));
     return S_OK;
 }
 CATCH_RETURN()
 
-HRESULT ModuleBase::SendMsg(std::string_view msg, const ipc::Target& target) noexcept
+HRESULT ModuleBase::Publish(std::string_view msg, const ipc::Topic& topic) noexcept
 try
 {
     RETURN_HR_IF_NULL(E_FAIL, sendMsg_);
-    RETURN_IF_FAILED(sendMsg_(mod_, msg.data(), &target.Service, target.Session));
-    return S_OK;
-}
-CATCH_RETURN()
-
-HRESULT ModuleBase::SendDiag(std::string_view msg) noexcept
-try
-{
-    RETURN_HR_IF_NULL(E_FAIL, sendDiag_);
-    RETURN_IF_FAILED(sendDiag_(mod_, msg.data()));
+    RETURN_IF_FAILED(sendMsg_(mod_, msg.data(), &topic.TopicId, topic.Session));
     return S_OK;
 }
 CATCH_RETURN()

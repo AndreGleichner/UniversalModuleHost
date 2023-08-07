@@ -73,20 +73,20 @@ namespace ManagedHost
             return true;
         }
 
-        public bool SendMsgToModule(string msg, Guid service, int session)
+        public bool SendMsgToModule(string msg, Guid topicId, int session)
         {
             if (_disposed)
                 return false;
 
             foreach (var module in _modules)
             {
-                module.Module.OnMessageFromHost(msg, service, session);
+                module.Module.OnMessageFromHost(msg, topicId, session);
             }
             return true;
         }
 
         #region IModuleHost
-        public bool SendMsgToHost(IModule module, string msg, Guid service, int session)
+        public bool SendMsgToHost(IModule module, string msg, Guid topicId, int session)
         {
             throw new NotImplementedException();
         }

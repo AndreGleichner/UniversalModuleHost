@@ -33,8 +33,7 @@ try
         processInfo_.reset();
         if (stderrForwarder_.joinable())
             stderrForwarder_.join();
-        if (reader_.joinable())
-            reader_.join();
+        subscriberContext_.Restart();
         if (keepAlive_.joinable())
             keepAlive_.join();
     }
@@ -144,21 +143,6 @@ try
 
 #pragma endregion
 
-    // Handler for messages from child process.
-    // clang-format off
-    auto onMessage = [&](const std::string_view msg, const ipc::Target& target)
-    {
-        if (spdlog::should_log(spdlog::level::trace))
-        {
-            std::string m = msg.data();
-            std::erase_if(m, [](char c) { return c=='\r'||c=='\n'; });
-            spdlog::trace("RX-B: {} for {}", m, Strings::ToUtf8(target.ToString()));
-        }
-                        
-        return orchestrator_->OnMessage(this, msg, target) == S_FALSE;
-    };
-    // clang-format on
-
     STARTUPINFOEX startInfo {0};
     startInfo.StartupInfo.cb         = sizeof(startInfo);
     startInfo.StartupInfo.hStdError  = errWrite_.get();
@@ -177,7 +161,7 @@ try
 
     const auto imageDir = Process::ImagePath().parent_path();
 
-    if (target_.Session == ipc::KnownSession::Any)
+    if (topic_.Session == ipc::KnownSession::Any)
     {
         // This either means we were requested to launch a process in the same session,
         // or requested to lauch a process in every session but we're not a service (e.g. during debugging).
@@ -201,7 +185,7 @@ try
 
         wil::unique_handle token;
         // Ignor any error as the respective session may just have closed
-        if (::WTSQueryUserToken(target_.Session, &token))
+        if (::WTSQueryUserToken(topic_.Session, &token))
         {
             wil::unique_handle dupToken;
             ::DuplicateTokenEx(token.get(), MAXIMUM_ALLOWED, NULL, SecurityIdentification, TokenPrimary, &dupToken);
@@ -283,8 +267,13 @@ try
         ::ResumeThread(processInfo_.hThread);
     }
 
-    // If the host process writes to stdout it is a message to some service/session.
-    ipc::StartRead(outRead_.get(), reader_, onMessage, processInfo_.dwProcessId);
+    // The broker can immediately process messages in parallel and in any order.
+    subscriberContext_.AllowAllConsumers();
+
+    // If the host process writes to stdout it is a message to some TopicId/session.
+    ipc::StartMsgQueueConsumption(
+        outRead_.get(), subscriberContext_, [this](const ipc::MsgItem& msgItem) { return OnMessage(msgItem); },
+        processInfo_.dwProcessId);
 
     // If the host process writes to stderr it is logging output.
     // This will be forwarded to a specific spdlog logger.
@@ -292,7 +281,7 @@ try
 
     // If the host process terminates unexpectedly we try to re-launch it.
     keepAlive_ = std::jthread([this](std::stop_token stoken) {
-        Process::SetThreadName(std::format(L"UMB-KeepAlive-{}", processInfo_.dwProcessId).c_str());
+        Process::SetThreadName(std::format(L"TMB-KeepAlive-{}", processInfo_.dwProcessId).c_str());
         if (WAIT_OBJECT_0 == ::WaitForSingleObject(processInfo_.hProcess, INFINITE) &&
             !orchestrator_->IsShuttingDown() && !stoken.stop_requested())
         {
@@ -308,7 +297,7 @@ try
 #endif
             // run in another thread so that keepAlive_ can be joined
             auto launcher = std::thread([this] {
-                Process::SetThreadName(std::format(L"UMB-KeepAliveRelaunch-{}", processInfo_.dwProcessId).c_str());
+                Process::SetThreadName(std::format(L"TMB-KeepAliveRelaunch-{}", processInfo_.dwProcessId).c_str());
                 Launch(LaunchReason::Restart);
                 LoadModules();
             });
@@ -316,14 +305,31 @@ try
         }
     });
 
-    // Tell the host his Service GUID. This is used to talk to the host as such to e.g. load modules.
-    // Modules hosted within the host process have their own one or multiple service GUIDs.
-    json msg = ipc::HostInitMsg {target_.Service, childProcessConfig_->GroupName};
-    RETURN_IF_FAILED(SendMsg(msg.dump(), ipc::Target(ipc::KnownService::HostInit)));
+    publisherContext_.StartProcessing(inWrite_.get(), processInfo_.dwProcessId);
+    // publisherContext_ keeps a duplicated handle open in a separate thread and inWrite_ is no longer required.
+    inWrite_.reset();
+
+    // Tell the host his TopicId GUID. This is used to talk to the host as such to e.g. load modules.
+    // Modules hosted within the host process have their own one or multiple TopicId GUIDs.
+    json msg = ipc::HostInit {topic_.TopicId, childProcessConfig_->GroupName};
+    RETURN_IF_FAILED(Publish(msg.dump(), ipc::Topic(ipc::HostInitTopic)));
 
     return S_OK;
 }
 CATCH_RETURN();
+
+bool ChildProcessInstance::OnMessage(const ipc::MsgItem& msgItem)
+{
+    // Handler for messages from child process.
+    if (spdlog::should_log(spdlog::level::trace))
+    {
+        std::string m = msgItem.Msg.data();
+        std::erase_if(m, [](char c) { return c == '\r' || c == '\n'; });
+        spdlog::trace("RX-B: {} for {}", m, Strings::ToUtf8(msgItem.Topic.ToString()));
+    }
+
+    return orchestrator_->OnMessage(this, msgItem) == S_FALSE;
+}
 
 HRESULT ChildProcessInstance::Terminate() noexcept
 try
@@ -332,18 +338,15 @@ try
     keepAlive_.request_stop();
     // diag reader thread should stop
     stderrForwarder_.request_stop();
-    // Message reader thread should stop
-    reader_.request_stop();
-    // Should run free, so that in dtor it doesn't throw a deadlock assertion.
-    // These lines here may run from within the reader thread!
-    reader_.detach();
+
+    subscriberContext_.Terminate();
 
     // Tell the child proc to terminate itself.
-    json msg = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::Terminate, ""};
+    json msg = ipc::HostCmd {ipc::HostCmd::Cmd::Terminate, ""};
 
-    RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target_));
+    RETURN_IF_FAILED(ipc::Publish(publisherContext_, msg.dump(), topic_));
     // This ensures the stdin read loop within the child proc exits.
-    inWrite_.reset();
+    publisherContext_.Terminate();
 
     return S_OK;
 }
@@ -358,9 +361,9 @@ try
             return S_OK;
 
         json args = ipc::HostCtrlModuleArgs {ipc::HostCtrlModuleArgs::Cmd::Load, ToUtf8(mod)};
-        json msg  = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::CtrlModule, args.dump()};
+        json msg  = ipc::HostCmd {ipc::HostCmd::Cmd::CtrlModule, args.dump()};
 
-        RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg.dump(), target_));
+        RETURN_IF_FAILED(ipc::Publish(publisherContext_, msg.dump(), topic_));
     }
     return S_OK;
 }
@@ -410,7 +413,7 @@ void ChildProcessInstance::StartForwardStderr() noexcept
     // Messages maybe aren't read by a single ReadFile(), e.g. if writing into stderr is faster than reading here.
     // Thus we need to find line endings (\r\n) and accumulate until then.
     stderrForwarder_ = std::jthread([&](std::stop_token stoken) {
-        Process::SetThreadName(std::format(L"UMB-ForwardStderr-{}", processInfo_.dwProcessId).c_str());
+        Process::SetThreadName(std::format(L"TMB-ForwardStderr-{}", processInfo_.dwProcessId).c_str());
         const size_t bufSize = 4096;
 
         std::string msg;
@@ -451,16 +454,16 @@ void ChildProcessInstance::StartForwardStderr() noexcept
     });
 }
 
-HRESULT ChildProcessInstance::SendMsg(const std::string_view msg, const ipc::Target& target)
+HRESULT ChildProcessInstance::Publish(const std::string_view msg, const ipc::Topic& topic)
 {
-    if (target.Session != ipc::KnownSession::Any)
+    if (topic.Session != ipc::KnownSession::Any)
     {
         // Only send to a single session
         DWORD session = ipc::KnownSession::Any;
-        if (!::ProcessIdToSessionId(processInfo_.dwProcessId, &session) || session != target.Session)
+        if (!::ProcessIdToSessionId(processInfo_.dwProcessId, &session) || session != topic.Session)
             return S_FALSE;
     }
-    RETURN_IF_FAILED(ipc::Send(inWrite_.get(), msg, target));
+    RETURN_IF_FAILED(ipc::Publish(publisherContext_, msg, topic));
 
     return S_OK;
 }
@@ -475,7 +478,7 @@ bool ChildProcessInstance::ShouldBreakAwayFromJob() const
     DWORD session = ipc::KnownSession::Any;
     if (!::ProcessIdToSessionId(::GetCurrentProcessId(), &session))
         return false;
-    return session != target_.Session;
+    return session != topic_.Session;
 }
 
 // Compare config only
@@ -489,7 +492,7 @@ bool ChildProcessInstance::operator==(const ChildProcessInstance& rhs) const
         childProcessConfig_->AllUsers != rhs.childProcessConfig_->AllUsers)
         return false;
 
-    if (target_.Session != rhs.target_.Session)
+    if (topic_.Session != rhs.topic_.Session)
         return false;
 
     if (childProcessConfig_->Modules.size() != rhs.childProcessConfig_->Modules.size())

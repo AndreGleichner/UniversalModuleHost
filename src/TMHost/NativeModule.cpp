@@ -14,7 +14,7 @@ HRESULT NativeModule::Load()
     LoadEntry(TermModule);
     LoadEntry(OnMessage);
 
-    RETURN_IF_FAILED(InitModule_(this, OnMsg, OnDiag));
+    RETURN_IF_FAILED(InitModule_(this, OnMsg));
 
 #undef LoadEntry
     return S_OK;
@@ -29,21 +29,14 @@ HRESULT NativeModule::Unload()
     return S_OK;
 }
 
-HRESULT NativeModule::Send(const std::string_view msg, const ipc::Target& target) noexcept
+HRESULT NativeModule::Send(const ipc::MsgItem& msgItem) noexcept
 {
-    return OnMessage_(msg.data(), &target);
+    return OnMessage_(msgItem.Msg.data(), &msgItem.Topic);
 }
 
-HRESULT CALLBACK NativeModule::OnMsg(void* mod, PCSTR msg, const Guid* service, DWORD session) noexcept
+HRESULT CALLBACK NativeModule::OnMsg(void* mod, PCSTR msg, const Guid* topicId, DWORD session) noexcept
 {
     auto m = static_cast<NativeModule*>(mod);
-    RETURN_IF_FAILED(ipc::Send(msg, ipc::Target(*service, session)));
-    return S_OK;
-}
-
-HRESULT CALLBACK NativeModule::OnDiag(void* mod, PCSTR msg) noexcept
-{
-    auto m = static_cast<NativeModule*>(mod);
-    RETURN_IF_FAILED(ipc::SendDiagMsg(msg));
+    RETURN_IF_FAILED(ipc::Publish(msg, ipc::Topic(*topicId, session)));
     return S_OK;
 }

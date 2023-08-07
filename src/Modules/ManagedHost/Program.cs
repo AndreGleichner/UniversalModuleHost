@@ -46,23 +46,23 @@ namespace ManagedHost
             return 0;
         }
 
-        private static int OnMessageFromHost(string msg, string service, int session)
+        private static int OnMessageFromHost(string msg, string topicId, int session)
         {
             try
             {
-                Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{service}' {session}");
+                Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{topicId}' {session}");
 
-                if (service == Ipc.ManagedHost)
+                if (topicId == Ipc.ManagedHostTopic)
                 {
-                    var hostCmdMsg = JsonSerializer.Deserialize<HostCmdMsg>(msg);
-                    if (hostCmdMsg.Cmd == HostCmdMsg.ECmd.CtrlModule)
+                    var hostCmdMsg = JsonSerializer.Deserialize<Ipc.HostCmd>(msg);
+                    if (hostCmdMsg.Cmd == Ipc.HostCmd.ECmd.CtrlModule)
                     {
-                        var args = JsonSerializer.Deserialize<HostCtrlModuleArgs>(hostCmdMsg.Args);
-                        if (args.Cmd == HostCtrlModuleArgs.ECmd.Load)
+                        var args = JsonSerializer.Deserialize<Ipc.HostCtrlModuleArgs>(hostCmdMsg.Args);
+                        if (args.Cmd == Ipc.HostCtrlModuleArgs.ECmd.Load)
                         {
                             _moduleHost.LoadModule(args.Module);
                         }
-                        else if (args.Cmd == HostCtrlModuleArgs.ECmd.Unload)
+                        else if (args.Cmd == Ipc.HostCtrlModuleArgs.ECmd.Unload)
                         {
                             _moduleHost.UnloadModule(args.Module);
                         }
@@ -70,7 +70,7 @@ namespace ManagedHost
                 }
                 else
                 {
-                    _moduleHost.SendMsgToModule(msg, Guid.Parse(service), session);
+                    _moduleHost.SendMsgToModule(msg, Guid.Parse(topicId), session);
                 }
             }
             catch (Exception ex)
@@ -170,17 +170,17 @@ see cpp code under #if INIT_HOSTFXR_FROM == INIT_HOSTFXR_FROM_RUNTIMECONFIG
     internal static class NativeMethods
     {
         [DllImport("TMHost64.exe", EntryPoint = "OnMessageFromModule", CharSet = CharSet.Unicode)]
-        static extern int MessageFromModuleToHost64(string msg, string service, int session);
+        static extern int MessageFromModuleToHost64(string msg, string topicId, int session);
 
         [DllImport("TMHost32.exe", EntryPoint = "OnMessageFromModule", CharSet = CharSet.Unicode)]
-        static extern int MessageFromModuleToHost32(string msg, string service, int session);
+        static extern int MessageFromModuleToHost32(string msg, string topicId, int session);
 
-        public static int MessageFromModuleToHost(string msg, string service, int session)
+        public static int MessageFromModuleToHost(string msg, string topicId, int session)
         {
             if (IntPtr.Size == 4)
-                return MessageFromModuleToHost32(msg, service, session);
+                return MessageFromModuleToHost32(msg, topicId, session);
             else
-                return MessageFromModuleToHost64(msg, service, session);
+                return MessageFromModuleToHost64(msg, topicId, session);
         }
     }
 }

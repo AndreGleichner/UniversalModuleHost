@@ -1,30 +1,29 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace SharedManagedUtils
 {
-    class HostCmdMsg
+    partial class Ipc
     {
-        public enum ECmd
+        public const string ManagedHostTopic = "{7924FE60-C967-449C-BA5D-2EBAA7D16024}";
+        public class HostCmd
         {
-            Terminate,
-            CtrlModule
-        };
-        public ECmd Cmd { get; set; }
-        public string Args { get; set; } // e.g. CtrlModule => HostCtrlModuleArgs as JSON
-    }
+            public enum ECmd
+            {
+                Terminate,
+                CtrlModule
+            };
+            public ECmd Cmd { get; set; }
+            public string Args { get; set; } // e.g. CtrlModule => HostCtrlModuleArgs as JSON
+        }
 
-    class HostCtrlModuleArgs
-    {
-        public enum ECmd
+        // see HostCmd.Args
+        public class HostCtrlModuleArgs
         {
-            Load,
-            Unload
-        };
-        public ECmd Cmd { get; set; }
-        public string Module { get; set; }
+            public enum ECmd
+            {
+                Load,
+                Unload
+            };
+            public ECmd Cmd { get; set; }
+            public string Module { get; set; }
+        }
     }
 }

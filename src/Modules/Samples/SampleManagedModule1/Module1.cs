@@ -25,7 +25,7 @@ namespace SampleManagedModule1
             return true;
         }
 
-        public bool OnMessageFromHost(string msg, Guid service, int session)
+        public bool OnMessageFromHost(string msg, Guid topicId, int session)
         {
             _logger.LogInformation($"{nameof(Module1)}: Received event {msg}");
             return true;

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "SampleNativeModule.h"
 
+#include "spdlog_headers.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -13,10 +15,7 @@ try
         int  n = 0;
         while (!stoken.stop_requested())
         {
-            /*char msg[] = "[INF] A123456789\r\n[INF] B123456789\r\n";
-            SendDiag(Mod, msg);*/
-
-            SendMsg(std::format("{} Hello World!", n++).c_str(), ipc::Target(svc));
+            Publish(std::format("{} Hello World!", n++).c_str(), ipc::Topic(svc));
 
             std::this_thread::sleep_for(5s);
         }
@@ -39,9 +38,10 @@ try
 }
 CATCH_RETURN()
 
-HRESULT SampleNativeModule::OnMessage(std::string_view msg, const ipc::Target& target) noexcept
+HRESULT SampleNativeModule::OnMessage(std::string_view msg, const ipc::Topic& topic) noexcept
 try
 {
+    SPDLOG_TRACE("In SampleNativeModule: {}", msg);
     return S_OK;
 }
 CATCH_RETURN()

@@ -70,3 +70,4 @@
 #include "string_extensions.h"
 #include "resource.h"
 #include "HResult.h"
+#include "env.h"

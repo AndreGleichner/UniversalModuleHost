@@ -5,10 +5,10 @@
 class ShellExecModule final : public ModuleBase
 {
 public:
-    ShellExecModule() : ModuleBase({ipc::KnownService::ShellExec})
+    ShellExecModule() : ModuleBase({ipc::ShellExecTopic})
     {
     }
 
 protected:
-    HRESULT OnMessage(std::string_view msg, const ipc::Target& target) noexcept override;
+    HRESULT OnMessage(std::string_view msg, const ipc::Topic& topic) noexcept override;
 };

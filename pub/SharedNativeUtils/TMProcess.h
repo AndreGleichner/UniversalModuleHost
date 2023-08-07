@@ -29,4 +29,5 @@ std::wstring          Name();
 void                  SetThreadName(PCWSTR name);
 std::wstring          ThreadName();
 ParentProcessInfo     ParentProcess();
+bool                  IsBroker() noexcept;
 }

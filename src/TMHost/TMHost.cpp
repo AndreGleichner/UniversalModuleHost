@@ -104,7 +104,7 @@ int APIENTRY wWinMain(
 
     FilterEnvVars();
 
-    Process::SetThreadName(L"TM-Native");
+    Process::SetThreadName(L"TMH-Native");
 
 #ifdef DEBUG
     wil::g_fBreakOnFailure = true;
@@ -130,11 +130,7 @@ int APIENTRY wWinMain(
     auto logExit = wil::scope_exit(
         [&] { SPDLOG_INFO("Exiting TheModularian Host {} with code {}", ::GetCurrentProcessId(), exitCode); });
 
-    /*while (!::IsDebuggerPresent())
-    {
-        ::Sleep(1000);
-    }
-    ::DebugBreak();*/
+    // env::WaitForDebugger();
 
     // Process incoming messages and wait for termination.
     ModuleHost host;

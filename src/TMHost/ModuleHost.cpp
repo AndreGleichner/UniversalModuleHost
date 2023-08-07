@@ -12,77 +12,68 @@ using json = nlohmann::json;
 
 int ModuleHost::Run()
 {
-    std::jthread reader;
-    FAIL_FAST_IF_FAILED(ipc::StartRead(reader, [&](const std::string_view msg, const ipc::Target& target) {
-        return OnMessageFromBroker(msg, target) == S_FALSE;
-    }));
+    // env::WaitForDebugger();
+
+    FAIL_FAST_IF_FAILED(ipc::StartMsgQueueConsumption(
+        subscriberContext_, [&](const ipc::MsgItem& msgItem) { return OnMessageFromBroker(msgItem) == S_FALSE; }));
 
     terminate_.wait();
 
-    // while (!::IsDebuggerPresent())
-    //{
-    //     ::Sleep(1000);
-    // }
-    //::DebugBreak();
+    subscriberContext_.Terminate();
 
-    reader.request_stop();
-
-    if (reader.joinable())
-        reader.join();
+    // env::WaitForDebugger();
 
     return 0;
 }
 
-HRESULT ModuleHost::OnMessageFromBroker(const std::string_view msg, const ipc::Target& target)
+HRESULT ModuleHost::OnMessageFromBroker(const ipc::MsgItem& msgItem)
 try
 {
     if (spdlog::should_log(spdlog::level::trace))
     {
-        std::string m = msg.data();
+        std::string m = msgItem.Msg.data();
         std::erase_if(m, [](char c) { return c == '\r' || c == '\n'; });
-        spdlog::trace("RX-H: {} for {}", m, Strings::ToUtf8(target.ToString()));
+        spdlog::trace("RX-H: {} for {}", m, Strings::ToUtf8(msgItem.Topic.ToString()));
     }
 
-    /*while (!::IsDebuggerPresent())
+    // env::WaitForDebugger();
+
+    if (msgItem.Topic.TopicId == ipc::HostInitTopic)
     {
-        ::Sleep(1000);
-    }
-    ::DebugBreak();*/
+        // The Broker sent a unique topic guid we need to remember to e.g. handle moduleload/unload.
+        auto       j    = json::parse(msgItem.Msg);
+        const auto init = j.get<ipc::HostInit>();
 
-    if (target.Service == ipc::KnownService::HostInit)
-    {
-        // The Broker sent a unique service guid we need to remember to e.g. handle moduleload/unload.
-        auto       j    = json::parse(msg);
-        const auto init = j.get<ipc::HostInitMsg>();
+        FAIL_FAST_IF_MSG(!topic_.Equals(ipc::Topic()), "Already processed a HostInit before");
 
-        FAIL_FAST_IF_MSG(!target_.Equals(ipc::Target()), "Alread processed an init message before");
-
-        target_    = ipc::Target(init.Service);
+        topic_     = ipc::Topic(init.TopicId);
         groupName_ = init.GroupName;
+
+        subscriberContext_.AllowAllConsumers();
     }
     else
     {
-        FAIL_FAST_IF_MSG(target_.Equals(ipc::Target()), "Host not initialized yet");
+        FAIL_FAST_IF_MSG(topic_.Equals(ipc::Topic()), "Host not initialized yet");
 
-        if (target.Service == target_.Service)
+        if (msgItem.Topic.TopicId == topic_.TopicId)
         {
-            auto       j       = json::parse(msg);
-            const auto hostMsg = j.get<ipc::HostCmdMsg>();
+            auto       j       = json::parse(msgItem.Msg);
+            const auto hostMsg = j.get<ipc::HostCmd>();
 
             switch (hostMsg.Cmd)
             {
-                case ipc::HostCmdMsg::Cmd::Terminate:
+                case ipc::HostCmd::Cmd::Terminate:
                 {
                     if (managedHost_)
                     {
-                        managedHost_->Send(msg, ipc::Target(ipc::KnownService::ManagedHost));
+                        managedHost_->Send(ipc::MsgItem(msgItem.Msg, ipc::Topic(ipc::ManagedHostTopic)));
                     }
 
                     terminate_.SetEvent();
-                    return S_FALSE; // exit stdin read-loop
+                    return S_FALSE; // exit stdin consumer threads
                 }
 
-                case ipc::HostCmdMsg::Cmd::CtrlModule:
+                case ipc::HostCmd::Cmd::CtrlModule:
                 {
                     auto       ja   = json::parse(hostMsg.Args);
                     const auto args = ja.get<ipc::HostCtrlModuleArgs>();
@@ -105,12 +96,12 @@ try
             // Broadcast to all loaded modules.
             for (auto& mod : nativeModules_)
             {
-                LOG_IF_FAILED(mod->Send(msg, target));
+                LOG_IF_FAILED(mod->Send(msgItem));
             }
 
             if (managedHost_)
             {
-                managedHost_->Send(msg, target);
+                managedHost_->Send(msgItem);
             }
         }
     }
@@ -122,11 +113,7 @@ CATCH_RETURN()
 HRESULT ModuleHost::LoadModule(const std::wstring& name) noexcept
 try
 {
-    // while (!::IsDebuggerPresent())
-    //{
-    //     ::Sleep(1000);
-    // }
-    //::DebugBreak();
+    // env::WaitForDebugger();
 
     auto path = ModuleBase::PathFor(name, true);
 

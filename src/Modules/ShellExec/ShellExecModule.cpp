@@ -10,10 +10,10 @@ using namespace Strings;
 
 #include "ShellExecModule.h"
 
-HRESULT ShellExecModule::OnMessage(std::string_view msg, const ipc::Target& target) noexcept
+HRESULT ShellExecModule::OnMessage(std::string_view msg, const ipc::Topic& topic) noexcept
 try
 {
-    if (target.Equals(ipc::Target(ipc::KnownService::ShellExec)))
+    if (topic.Equals(ipc::Topic(ipc::ShellExecTopic)))
     {
         // Instead of directly calling ShellExecute() we have to execute this from within a process not being part of
         // the "kill on job close" job object. Otherwise stopping the broker would kill all its child processes

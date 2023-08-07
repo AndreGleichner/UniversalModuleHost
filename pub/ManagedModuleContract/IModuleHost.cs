@@ -8,6 +8,6 @@ namespace ManagedModuleContract
 {
     public interface IModuleHost : IDisposable
     {
-        bool SendMsgToHost(IModule module, string msg, Guid service, int session);
+        bool SendMsgToHost(IModule module, string msg, Guid topicId, int session);
     }
 }

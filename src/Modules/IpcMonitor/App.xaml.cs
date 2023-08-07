@@ -22,17 +22,17 @@ namespace IpcMonitor
         {
             Ipc.Init(OnMessageFromHost, OnTerminate);
 
-            // Wanna see any kind of service message
-            var mm = new ModuleMeta { Pid = Process.GetCurrentProcess().Id, Name = "IpcMonitor", Services = { Guid.Empty.ToString() } };
+            // Subscribe to any topic
+            var mm = new Ipc.ModuleMeta { Pid = Process.GetCurrentProcess().Id, Name = "IpcMonitor", TopicIds = { Guid.Empty.ToString() } };
             string msg = JsonSerializer.Serialize(mm);
 
-            Ipc.SendMessage(msg, Ipc.ModuleMetaConsumer);
+            Ipc.SendMessage(msg, Ipc.ModuleMetaTopic);
         }
 
-        private static int OnMessageFromHost(string msg, string service, int session)
+        private static int OnMessageFromHost(string msg, string topicId, int session)
         {
-            //Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{service}' {session}");
-            var mi = new MessageItem(Timestamp: DateTime.Now.ToString("HH:mm:ss"), Message: msg.Replace("\r\n", "").Replace("\n", ""), Service: service, Session: session.ToString());
+            //Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{TopicId}' {session}");
+            var mi = new MessageItem(Timestamp: DateTime.Now.ToString("HH:mm:ss"), Message: msg.Replace("\r\n", "").Replace("\n", ""), TopicId: topicId, Session: session.ToString());
 
             Application.Current.Dispatcher.BeginInvoke(() =>
                 {

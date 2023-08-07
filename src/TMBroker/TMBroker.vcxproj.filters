@@ -33,6 +33,12 @@
     <ClCompile Include="Orchestrator.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="SmOrchestrator.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="SmReconfigureBroker.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ServiceBase.h">
@@ -54,6 +60,18 @@
       <Filter>inc</Filter>
     </ClInclude>
     <ClInclude Include="Orchestrator.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="SmOrchestrator.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="SmReconfigureBroker.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="SmEvents.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="SmStates.h">
       <Filter>inc</Filter>
     </ClInclude>
   </ItemGroup>

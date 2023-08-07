@@ -68,4 +68,14 @@ inline std::filesystem::path PrivateDataDir(const std::wstring_view subDir = L""
         FAIL_FAST_MSG("unknown exception in PrivateDataDir()");
     }
 }
+
+inline void WaitForDebugger()
+{
+    while (!::IsDebuggerPresent())
+    {
+        ::Sleep(1000);
+    }
+
+    ::DebugBreak();
+}
 }

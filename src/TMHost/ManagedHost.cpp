@@ -62,11 +62,7 @@ bool ManagedHost::RunAsync()
         return false;
     }
 
-    // while (!::IsDebuggerPresent())
-    //{
-    //     ::Sleep(1000);
-    // }
-    //::DebugBreak();
+    // env::WaitForDebugger();
 
     if (assemblyPath_.empty())
     {
@@ -140,9 +136,9 @@ bool ManagedHost::RunAsync()
 HRESULT ManagedHost::LoadModule(const std::wstring& path)
 {
     json args = ipc::HostCtrlModuleArgs {ipc::HostCtrlModuleArgs::Cmd::Load, ToUtf8(path)};
-    json msg  = ipc::HostCmdMsg {ipc::HostCmdMsg::Cmd::CtrlModule, args.dump()};
+    json msg  = ipc::HostCmd {ipc::HostCmd::Cmd::CtrlModule, args.dump()};
 
-    RETURN_IF_FAILED(Send(msg.dump(), ipc::Target(ipc::KnownService::ManagedHost)));
+    RETURN_IF_FAILED(Send(ipc::MsgItem(msg.dump(), ipc::Topic(ipc::ManagedHostTopic))));
 
     return S_OK;
 }
@@ -268,22 +264,22 @@ extern "C" __declspec(dllexport) void OnLog(int serilogLevel, PCWSTR message)
 }
 #pragma endregion
 
-extern "C" __declspec(dllexport) HRESULT MessageFromModuleToHost(PCWSTR msg, PCWSTR service, int session)
+extern "C" __declspec(dllexport) HRESULT MessageFromModuleToHost(PCWSTR msg, PCWSTR topicId, int session)
 {
     Guid guid;
-    RETURN_IF_FAILED(guid.Parse(service));
-    return ipc::Send(ToUtf8(msg), ipc::Target(guid, (DWORD)session));
+    RETURN_IF_FAILED(guid.Parse(topicId));
+    return ipc::Publish(ToUtf8(msg), ipc::Topic(guid, (DWORD)session));
 }
 
 // send message to all modules
-HRESULT ManagedHost::Send(const std::string_view msg, const ipc::Target& target) noexcept
+HRESULT ManagedHost::Send(const ipc::MsgItem& msgItem) noexcept
 {
     RETURN_HR_IF_NULL(E_FAIL, invokeManagedMessageFromHostToModule_);
 
-    std::wstring m = ToUtf16(msg);
-    std::wstring s = target.Service.ToUtf16();
+    std::wstring m = ToUtf16(msgItem.Msg);
+    std::wstring s = msgItem.Topic.TopicId.ToUtf16();
 
-    int res = invokeManagedMessageFromHostToModule_(m.c_str(), s.c_str(), (int32_t)target.Session);
+    int res = invokeManagedMessageFromHostToModule_(m.c_str(), s.c_str(), (int32_t)msgItem.Topic.Session);
 
     return S_OK;
 }

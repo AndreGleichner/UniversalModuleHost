@@ -221,6 +221,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ServiceBase.cpp" />
+    <ClCompile Include="SmOrchestrator.cpp" />
+    <ClCompile Include="SmReconfigureBroker.cpp" />
     <ClCompile Include="TMBroker.cpp" />
     <ClCompile Include="TMBrokerService.cpp" />
   </ItemGroup>
@@ -231,6 +233,10 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ServiceBase.h" />
+    <ClInclude Include="SmEvents.h" />
+    <ClInclude Include="SmOrchestrator.h" />
+    <ClInclude Include="SmReconfigureBroker.h" />
+    <ClInclude Include="SmStates.h" />
     <ClInclude Include="TMBrokerService.h" />
   </ItemGroup>
   <ItemGroup>

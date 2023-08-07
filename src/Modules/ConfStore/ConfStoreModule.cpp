@@ -66,10 +66,10 @@ json GetModuleConf(json& conf, const std::string& moduleName)
 }
 }
 
-HRESULT ConfStoreModule::OnMessage(std::string_view msg, const ipc::Target& target) noexcept
+HRESULT ConfStoreModule::OnMessage(std::string_view msg, const ipc::Topic& topic) noexcept
 try
 {
-    if (!target.Equals(ipc::Target(ipc::KnownService::ConfStore)))
+    if (!topic.Equals(ipc::Topic(ipc::ConfStoreTopic)))
         return S_OK;
 
     const auto c = json::parse(msg).get<ipc::ConfStore>();
@@ -168,7 +168,7 @@ try
         }
 
         if (!r.empty())
-            SendMsg(r.c_str(), ipc::Target(ipc::KnownService::ConfConsumer));
+            Publish(r.c_str(), ipc::Topic(ipc::ConfTopic));
     }
     else
     {
@@ -201,7 +201,7 @@ try
         json        res = {{modName, GetModuleConf(conf, modName)}};
         std::string r   = res.dump();
         if (!r.empty())
-            SendMsg(r.c_str(), ipc::Target(ipc::KnownService::ConfConsumer));
+            Publish(r.c_str(), ipc::Topic(ipc::ConfTopic));
     }
 
     if (store)

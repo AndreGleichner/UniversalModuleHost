@@ -27,6 +27,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Permission.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)SpdlogCustomFormatter.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)spdlog_headers.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)statemachine_logger.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)string_extensions.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TMProcess.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)UndefWinMacros.h" />

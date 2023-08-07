@@ -65,7 +65,7 @@ struct Guid final : GUID
 
     HRESULT Parse(const std::wstring_view guid)
     {
-        CLSID clsid;
+        CLSID clsid {0};
         if (guid.size() == 38)
         {
             RETURN_IF_FAILED(::CLSIDFromString(guid.data(), &clsid));
@@ -95,7 +95,7 @@ struct Guid final : GUID
         return Equals(rhs);
     }
 
-    // To e.g. make this work: std::unordered_set<Guid, absl::Hash<Guid>> services;
+    // To e.g. make this work: std::unordered_set<Guid, absl::Hash<Guid>> TopicIds;
     template <typename H>
     friend H AbslHashValue(H h, const Guid& guid)
     {

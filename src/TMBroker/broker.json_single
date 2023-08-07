@@ -1,0 +1,14 @@
+{
+  "Broker": {
+    "ChildProcesses": [
+      {
+        "GroupName": "A",
+        "Session": 0,
+        "Modules": [
+          "SampleNativeModule1",
+          "ConfStore"
+        ]
+      }
+    ]
+  }
+}

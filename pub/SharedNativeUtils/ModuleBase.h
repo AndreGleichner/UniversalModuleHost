@@ -13,7 +13,7 @@
 class ModuleBase
 {
 public:
-    ModuleBase(std::unordered_set<Guid, absl::Hash<Guid>> services) : services_(services)
+    ModuleBase(std::unordered_set<Guid, absl::Hash<Guid>> topicIds) : topicIds_(topicIds)
     {
     }
     virtual ~ModuleBase()
@@ -21,9 +21,9 @@ public:
         (void)OnTerminate();
     }
 
-    HRESULT Initialize(void* mod, ipc::SendMsg sendMsg, ipc::SendDiag sendDiag) noexcept;
+    HRESULT Initialize(void* mod, ipc::Pub sendMsg) noexcept;
     HRESULT Terminate() noexcept;
-    HRESULT HandleMessage(std::string_view msg, const ipc::Target& target) noexcept;
+    HRESULT HandleMessage(std::string_view msg, const ipc::Topic& topic) noexcept;
 
     static std::filesystem::path PathFor(std::wstring_view moduleName, bool bitnessSpecific);
 
@@ -38,18 +38,17 @@ protected:
         return S_OK;
     }
 
-    virtual HRESULT OnMessage(std::string_view msg, const ipc::Target& target) noexcept
+    virtual HRESULT OnMessage(std::string_view msg, const ipc::Topic& topic) noexcept
     {
         return S_OK;
     }
 
-    HRESULT SendMsg(std::string_view msg, const ipc::Target& target) noexcept;
-    HRESULT SendDiag(std::string_view msg) noexcept;
+    HRESULT Publish(std::string_view msg, const ipc::Topic& topic) noexcept;
+    HRESULT Diag(std::string_view msg) noexcept;
 
 private:
-    void*         mod_      = nullptr;
-    ipc::SendMsg  sendMsg_  = nullptr;
-    ipc::SendDiag sendDiag_ = nullptr;
+    void*    mod_     = nullptr;
+    ipc::Pub sendMsg_ = nullptr;
 
-    std::unordered_set<Guid, absl::Hash<Guid>> services_;
+    std::unordered_set<Guid, absl::Hash<Guid>> topicIds_;
 };

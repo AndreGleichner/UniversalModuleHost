@@ -4,14 +4,14 @@
 class SampleNativeModule : public ModuleBase
 {
 public:
-    SampleNativeModule() : ModuleBase({})
+    SampleNativeModule() : ModuleBase({ipc::AllTopics})
     {
     }
 
 protected:
     HRESULT OnInitialize() noexcept override;
     HRESULT OnTerminate() noexcept override;
-    HRESULT OnMessage(std::string_view msg, const ipc::Target& target) noexcept override;
+    HRESULT OnMessage(std::string_view msg, const ipc::Topic& topic) noexcept override;
 
 private:
     std::unique_ptr<std::jthread> pingThread_;

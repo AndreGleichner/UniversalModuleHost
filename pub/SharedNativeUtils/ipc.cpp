@@ -3,99 +3,166 @@
 #include <thread>
 #include "ipc.h"
 #include "TMProcess.h"
+#include "env.h"
 
 namespace ipc
 {
-HRESULT Send(const std::string_view msg, const Target& target) noexcept
+HRESULT PublisherContext::Enqueue(const std::string_view msg, const Topic& topic) noexcept
+try
 {
-    return Send(::GetStdHandle(STD_OUTPUT_HANDLE), msg, target);
+    // Needs sequential access to the pipe to not interleave messages from multiple threads.
+    queue_.enqueue(producer_, std::move(MsgItem(msg, topic)));
+    return S_OK;
+}
+CATCH_RETURN();
+
+PublisherContext::PublisherContext(bool autoStart)
+{
+    if (autoStart)
+    {
+        StartProcessing(::GetStdHandle(STD_OUTPUT_HANDLE), ::GetCurrentProcessId(), true);
+    }
+}
+
+void PublisherContext::StartProcessing(HANDLE out /*= nullptr*/, DWORD pid /*= 0*/, bool isOwnPid /*= false*/) noexcept
+{
+    HANDLE outDup = nullptr;
+
+    FAIL_FAST_IF_WIN32_BOOL_FALSE(
+        ::DuplicateHandle(::GetCurrentProcess(), out, ::GetCurrentProcess(), &outDup, 0, FALSE, DUPLICATE_SAME_ACCESS));
+
+    consumerThread_ = std::jthread([this, outDup, pid, isOwnPid](std::stop_token stoken) {
+        const std::wstring tname = std::format(L"TM-PublisherContext-{}({})", pid, isOwnPid ? L"own" : L"other");
+        Process::SetThreadName(tname.c_str());
+
+        MsgItem mi;
+        while (1)
+        {
+            if (queue_.try_dequeue_from_producer(producer_, mi))
+            {
+                // env::WaitForDebugger();
+
+                size_t               size = 4 /*framing length*/ + sizeof(mi.Topic) + mi.Msg.size() + 1 /*zero-term*/;
+                std::vector<uint8_t> buf;
+                buf.resize(size);
+
+                size_t pos = 0;
+
+                // store count of bytes following the length prefix
+                *(DWORD*)&buf[0] = (DWORD)size - 4;
+                pos += 4;
+
+                // store topic
+                *(Topic*)&buf[pos] = mi.Topic;
+                pos += sizeof(mi.Topic);
+
+                // store message
+                memcpy(&buf[pos], mi.Msg.data(), mi.Msg.size() + 1);
+
+                DWORD written = 0;
+
+                LOG_IF_WIN32_BOOL_FALSE(::WriteFile(outDup, buf.data(), (DWORD)size, &written, nullptr));
+
+                LOG_HR_IF_MSG(
+                    E_FAIL, written != (DWORD)size, "ipc::PublisherContext::StartProcessing failed to send all bytes");
+            }
+            else if (stoken.stop_requested())
+            {
+                break;
+            }
+            else
+            {
+                ::Sleep(1);
+            }
+        }
+    });
+}
+
+HRESULT Publish(const std::string_view msg, const Topic& topic) noexcept
+{
+    static PublisherContext publisherContext(true);
+    return Publish(publisherContext, msg, topic);
 };
 
-HRESULT Send(HANDLE out, const std::string_view msg, const Target& target) noexcept
+HRESULT Publish(PublisherContext& ctx, const std::string_view msg, const Topic& topic) noexcept
 try
 {
-    RETURN_HR_IF_MSG(E_FAIL, target.Service == KnownService::All, "Can't send IPC msg to 'All'");
+    RETURN_HR_IF_MSG(E_FAIL, topic.TopicId == AllTopics, "Can't publish msg to 'All'");
 
-    static wil::srwlock lock;
-
-    size_t               size = 4 /*framing length*/ + sizeof(target) + msg.size() + 1 /*zero-term*/;
-    std::vector<uint8_t> buf;
-    buf.resize(size);
-
-    size_t pos = 0;
-
-    // store count of bytes following the length prefix
-    *(DWORD*)&buf[0] = (DWORD)size - 4;
-    pos += 4;
-
-    // store target
-    *(Target*)&buf[pos] = target;
-    pos += sizeof(target);
-
-    // store message
-    memcpy(&buf[pos], msg.data(), msg.size() + 1);
-
-    // Needs sequential access to the pipe to not interleave messages from multiple threads.
-    auto guard = lock.lock_exclusive();
-
-    DWORD written = 0;
-    RETURN_IF_WIN32_BOOL_FALSE(::WriteFile(out, buf.data(), (DWORD)size, &written, nullptr));
-
-    RETURN_HR_IF_MSG(E_FAIL, written != (DWORD)size, "ipc::Send failed to send all bytes");
+    RETURN_IF_FAILED(ctx.Enqueue(msg, topic));
 
     return S_OK;
 }
 CATCH_RETURN();
 
-HRESULT SendDiagMsg(const std::string_view msg) noexcept
-try
+HRESULT StartMsgQueueConsumption(SubscriberContext& ctx, OnMessage onMessage) noexcept
 {
-    static wil::srwlock lock;
-    // Needs sequential access to the pipe to not interleave messages from multiple threads.
-    auto guard = lock.lock_exclusive();
-
-    DWORD size    = 1 + (DWORD)msg.size(); // zero term
-    DWORD written = 0;
-    RETURN_IF_WIN32_BOOL_FALSE(::WriteFile(::GetStdHandle(STD_ERROR_HANDLE), msg.data(), size, &written, nullptr));
-
-    RETURN_HR_IF_MSG(E_FAIL, written != size, "ipc::SendDiagMsg failed to send all bytes");
-
-    return S_OK;
-}
-CATCH_RETURN();
-
-HRESULT StartRead(
-    std::jthread& reader, std::function<bool(const std::string_view msg, const Target& target)> onMessage) noexcept
-{
-    return StartRead(::GetStdHandle(STD_INPUT_HANDLE), reader, onMessage, ::GetCurrentProcessId());
+    return StartMsgQueueConsumption(::GetStdHandle(STD_INPUT_HANDLE), ctx, onMessage, ::GetCurrentProcessId(), true);
 }
 
-HRESULT StartRead(HANDLE in, std::jthread& reader,
-    std::function<bool(const std::string_view msg, const Target& target)> onMessage, DWORD pid) noexcept
+HRESULT StartMsgQueueConsumption(
+    HANDLE in, SubscriberContext& ctx, OnMessage onMessage, DWORD pid, bool isOwnPid /*= false*/) noexcept
 try
 {
-    reader = std::jthread([=](std::stop_token stoken) {
-        Process::SetThreadName(std::format(L"TM-IpcReader-{}", pid).c_str());
+    /*if (!Process::IsBroker())
+    {
+        env::WaitForDebugger();
+    }*/
+
+    HANDLE inDup = nullptr;
+
+    FAIL_FAST_IF_WIN32_BOOL_FALSE(
+        ::DuplicateHandle(::GetCurrentProcess(), in, ::GetCurrentProcess(), &inDup, 0, FALSE, DUPLICATE_SAME_ACCESS));
+
+    for (int c = 0; c < ctx.ConsumerCount; ++c)
+    {
+        ctx.ConsumerThreads[c] = std::jthread([&ctx, onMessage, c, pid, isOwnPid](std::stop_token stoken) {
+            const std::wstring tname = std::format(L"TM-IpcReaderCons{}-{}({})", c, pid, isOwnPid ? L"own" : L"other");
+            Process::SetThreadName(tname.c_str());
+
+            MsgItem mi;
+            while (!stoken.stop_requested())
+            {
+                if (ctx.IsConsumerAllowed(c) && ctx.Queue.try_dequeue_from_producer(ctx.Producer, mi))
+                {
+                    // env::WaitForDebugger();
+
+                    if (onMessage(mi))
+                        return;
+                }
+                else
+                {
+                    ::Sleep(1);
+                }
+            }
+        });
+    }
+
+    ctx.ProducerThread = std::jthread([inDup, &ctx, pid, isOwnPid](std::stop_token stoken) {
+        const std::wstring tname = std::format(L"TM-IpcReaderProd-{}({})", pid, isOwnPid ? L"own" : L"other");
+        Process::SetThreadName(tname.c_str());
+
         DWORD size = 0, read = 0;
-        while (
-            !stoken.stop_requested() && ::ReadFile(in, &size, 4, &read, nullptr) && read == 4 && size > sizeof(Target))
+        while (!stoken.stop_requested() && ::ReadFile(inDup, &size, 4, &read, nullptr) && read == 4 &&
+               size > sizeof(Topic))
         {
             std::vector<uint8_t> buf;
             buf.resize(size);
 
-            if (!stoken.stop_requested() && ::ReadFile(in, buf.data(), size, &read, nullptr) && read == size)
+            if (!stoken.stop_requested() && ::ReadFile(inDup, buf.data(), size, &read, nullptr) && read == size)
             {
-                Target target {*(Guid*)&buf[0], *(DWORD*)&buf[sizeof(Guid)]};
+                // env::WaitForDebugger();
 
-                std::string_view msg((const char*)&buf[sizeof(Target)], size - sizeof(Target) - 1);
+                MsgItem mi({(const char*)&buf[sizeof(Topic)], size - sizeof(Topic) - 1},
+                    {*(Guid*)&buf[0], *(DWORD*)&buf[sizeof(Guid)]});
 
-                if (onMessage(msg, target))
-                    return;
+                (void)ctx.Queue.enqueue(ctx.Producer, std::move(mi));
             }
         }
+
+        // env::WaitForDebugger();
     });
     return S_OK;
 }
 CATCH_RETURN();
-
 }

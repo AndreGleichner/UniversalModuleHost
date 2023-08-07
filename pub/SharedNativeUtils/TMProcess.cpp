@@ -257,4 +257,9 @@ std::wstring ThreadName()
     }
     return name;
 }
+
+bool IsBroker() noexcept
+{
+    return Name() == L"TMBroker64" || Name() == L"TMBroker32";
+}
 }

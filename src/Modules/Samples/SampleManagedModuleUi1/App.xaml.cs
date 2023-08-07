@@ -19,9 +19,9 @@ namespace SampleManagedModuleUi1
             Ipc.Init(OnMessageFromHost, OnTerminate);
         }
 
-        private static int OnMessageFromHost(string msg, string service, int session)
+        private static int OnMessageFromHost(string msg, string topicId, int session)
         {
-            //Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{service}' {session}");
+            //Log.Verbose($"MessageFromHostToModule: '{msg.Replace("\r", "").Replace("\n", "")}' '{topicId}' {session}");
 
             return 0;
         }
